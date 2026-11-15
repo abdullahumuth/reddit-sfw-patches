@@ -26,6 +26,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch release channel metadata
+        run: git fetch origin '+refs/notes/*:refs/notes/*'
+
       - name: Setup Java
         uses: actions/setup-java@v6
         with:
