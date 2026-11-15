@@ -1,3 +1,13 @@
+## [2.3.0-nsfw.5](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.4...v2.3.0-nsfw.5) (2026-11-15)
+
+### ✨ New Features
+
+* **Reddit:** Add validated 2026.40.0 target for permanent NSFW disabling ([be728e8](https://github.com/abdullahumuth/reddit-sfw-patches/commit/be728e847c31ef8c16500e5e6a4abe1c21d7adab))
+
+### 🐛 Bug Fixes
+
+* **Reddit:** Recheck permanent disabling before RedGIFs connection ([e984d59](https://github.com/abdullahumuth/reddit-sfw-patches/commit/e984d595250ae87677342ba59dffcfe84f7b392a))
+
 ## [2.3.0-nsfw.4](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.3...v2.3.0-nsfw.4) (2026-11-15)
 
 ### 🐛 Bug Fixes
