@@ -1,3 +1,11 @@
+## [2.3.0-nsfw.8](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.7...v2.3.0-nsfw.8) (2026-11-15)
+
+### 🐛 Bug Fixes
+
+* **Reddit:** Hide native SafeSearch-only dropdowns ([5f6d054](https://github.com/abdullahumuth/reddit-sfw-patches/commit/5f6d054ae4f3bb806e7cb5d7f88bd377bf7f777a))
+* **Reddit:** Mark NSFW search banners dismissed after initialization ([3d43378](https://github.com/abdullahumuth/reddit-sfw-patches/commit/3d43378e67dd73f40fbdabffbc1456ee07609af4))
+* **Reddit:** Use native back and hide NSFW setting prompts ([b638bcc](https://github.com/abdullahumuth/reddit-sfw-patches/commit/b638bcc4ef0c053811882b2f5dd4356abd48d73e))
+
 ## [2.3.0-nsfw.7](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.6...v2.3.0-nsfw.7) (2026-11-15)
 
 ### 🐛 Bug Fixes
