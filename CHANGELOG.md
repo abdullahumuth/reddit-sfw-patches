@@ -1,3 +1,9 @@
+## [2.3.0-nsfw.3](https://github.com/abdullahumuth/reddit-morphe-antinsfw/compare/v2.3.0-nsfw.2...v2.3.0-nsfw.3) (2026-11-15)
+
+### 🐛 Bug Fixes
+
+* Synchronize release channel metadata before publishing ([b355927](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/b355927247d306401e1171616a86cd48be105198))
+
 ## [2.3.0-nsfw.2](https://github.com/abdullahumuth/reddit-morphe-antinsfw/compare/v2.3.0-nsfw.1...v2.3.0-nsfw.2) (2026-11-15)
 
 ### 🐛 Bug Fixes
