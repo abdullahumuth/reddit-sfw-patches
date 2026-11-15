@@ -4,6 +4,9 @@ import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.patch.patch
+import app.morphe.patcher.resourceLiteral
+import app.morphe.patcher.resource.ResourceType
+import app.morphe.patcher.util.numberOfParameterRegistersLogical
 import app.morphe.patcher.string
 import app.morphe.patcher.util.cloneParameters
 import app.morphe.patcher.util.p0Register
@@ -57,6 +60,69 @@ val permanentNsfwPatch = patch(
                     "invoke-static/range { p0 .. p0 }, $EXTENSION->installPreference(Landroid/preference/PreferenceFragment;)V"
                 )
             }
+        }
+
+        // This isolated header contains the show/hide-NSFW control, including incognito.
+        Fingerprint(
+            definingClass = "Lcom/reddit/search/combined/ui/composables/",
+            returnType = "V",
+            filters = listOf(
+                resourceLiteral(ResourceType.STRING, "click_label_search_show_nsfw"),
+                resourceLiteral(ResourceType.STRING, "click_label_search_hide_nsfw")
+            )
+        ).method.cloneParameters().apply {
+            addInstructionsWithLabels(numberOfParameterRegistersLogical, """
+                invoke-static {}, $EXTENSION->isEnabled()Z
+                move-result p0
+                if-eqz p0, :original
+                return-void
+                :original
+                nop
+            """)
+        }
+        Fingerprint(
+            definingClass = "Lcom/reddit/search/domain/model/FilterValues;",
+            name = "<init>", returnType = "V",
+            parameters = listOf("Lcom/reddit/domain/model/search/Query;",
+                "Lcom/reddit/search/domain/model/SearchSortType;",
+                "Lcom/reddit/search/domain/model/SearchSortTimeFrame;", "Z",
+                "Ljava/util/List;", "Ljava/util/List;", "Ljava/lang/String;", "Ljava/util/Map;", "Ljava/util/List;")
+        ).method.addInstructionsWithLabels(0, """
+            invoke-static/range { p4 .. p4 }, $EXTENSION->enforceSafeSearch(Z)Z
+            move-result p4
+        """)
+
+        val communityName = Fingerprint(
+            definingClass = "Lcom/reddit/screens/pager/v2/SubredditPagerV2Screen;",
+            parameters = listOf(), returnType = "Ljava/lang/String;",
+            filters = listOf(string("subreddit_prefixed_name"))
+        ).method
+        Fingerprint(
+            definingClass = "Lcom/reddit/screens/pager/v2/SubredditPagerV2Screen;",
+            parameters = listOf("Landroid/view/View;"), returnType = "V",
+            filters = listOf(string("nsfwAlertDelegate"))
+        ).method.cloneParameters().apply {
+            findInstructionIndicesReversedOrThrow(Opcode.RETURN_VOID).forEach { index ->
+                addInstructionsWithLabels(index, """
+                    invoke-virtual/range { p0 .. p0 }, $communityName
+                    move-result-object p0
+                    invoke-static/range { p0 .. p1 }, Lapp/morphe/extension/reddit/patches/NsfwCommunityGate;->bind(Ljava/lang/String;Landroid/view/View;)V
+                """)
+            }
+        }
+        // Runs before Reddit's visited/account/incognito checks, including cached models.
+        Fingerprint(
+            definingClass = "Lcom/reddit/screens/pager/v2/SubredditPagerViewModel;",
+            parameters = listOf("Lcom/reddit/screens/pager/v2/SubredditPagerViewModel;", "Lcom/reddit/domain/model/Subreddit;"),
+            returnType = "V", filters = listOf(string("nsfwAlertDelegate"))
+        ).method.cloneParameters().apply {
+            addInstructionsWithLabels(2, """
+                invoke-virtual/range { p1 .. p1 }, Lcom/reddit/domain/model/Subreddit;->getDisplayName()Ljava/lang/String;
+                move-result-object p0
+                invoke-virtual/range { p1 .. p1 }, Lcom/reddit/domain/model/Subreddit;->getOver18()Ljava/lang/Boolean;
+                move-result-object p1
+                invoke-static/range { p0 .. p1 }, Lapp/morphe/extension/reddit/patches/NsfwCommunityGate;->classify(Ljava/lang/String;Ljava/lang/Boolean;)V
+            """)
         }
 
         // Exact signature required: fail patching instead of silently shipping without a hook.

@@ -19,9 +19,15 @@ public final class RedditNsfwInterceptor implements Interceptor {
     private static final long MAX_JSON_BYTES = 16 * 1024 * 1024;
     private static final int MAX_JSON_CHARACTERS = 8 * 1024 * 1024;
     private final BooleanSupplier enabled;
+    private final java.util.function.Consumer<String> blockedPath;
 
     public RedditNsfwInterceptor(BooleanSupplier enabled) {
+        this(enabled, path -> {});
+    }
+
+    public RedditNsfwInterceptor(BooleanSupplier enabled, java.util.function.Consumer<String> blockedPath) {
         this.enabled = enabled;
+        this.blockedPath = blockedPath;
     }
 
     @Override
@@ -57,7 +63,10 @@ public final class RedditNsfwInterceptor implements Interceptor {
                 input = prefs.toString();
             }
             String filtered = NsfwJsonFilter.filter(input);
-            if (filtered == null) throw new IOException("Content unavailable");
+            if (filtered == null) {
+                blockedPath.accept(request.url().encodedPath());
+                throw new IOException("NSFW content is permanently disabled");
+            }
             return response.newBuilder()
                     .removeHeader("Content-Length")
                     .removeHeader("Transfer-Encoding")
@@ -95,9 +104,15 @@ public final class RedditNsfwInterceptor implements Interceptor {
         String path = request.url().encodedPath();
         HttpUrl.Builder url = request.url().newBuilder();
         boolean changed = false;
-        for (String key : new String[]{"include_over_18", "include_nsfw"}) {
+        for (String key : new String[]{"include_over_18", "include_nsfw", "pref_allow_nsfw"}) {
             if (request.url().queryParameter(key) != null) {
                 url.setQueryParameter(key, "false");
+                changed = true;
+            }
+        }
+        for (String key : new String[]{"nsfw", "safe_search"}) {
+            if (request.url().queryParameter(key) != null) {
+                url.setQueryParameter(key, key.equals("nsfw") ? "0" : "on");
                 changed = true;
             }
         }
