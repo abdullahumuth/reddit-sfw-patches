@@ -1,3 +1,11 @@
+## [2.3.0-nsfw.6](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.5...v2.3.0-nsfw.6) (2026-11-15)
+
+### 🐛 Bug Fixes
+
+* **Reddit:** Gate native community views before adult content can render ([fee21b8](https://github.com/abdullahumuth/reddit-sfw-patches/commit/fee21b8936ccb94ad1c80733dff9806fae3186a3))
+* **Reddit:** Keep community classification scoped to community metadata ([d2798b6](https://github.com/abdullahumuth/reddit-sfw-patches/commit/d2798b6a72812ac2fd2a13f1430b87a23f8efaf9))
+* **Reddit:** Remove native adult search control and enforce safe filter state ([f414d20](https://github.com/abdullahumuth/reddit-sfw-patches/commit/f414d20700772e5a45db8155c1cbbbd2875f88c6))
+
 ## [2.3.0-nsfw.5](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.4...v2.3.0-nsfw.5) (2026-11-15)
 
 ### ✨ New Features
