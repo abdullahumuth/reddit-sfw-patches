@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-15T11:58:55",
-  "description": "## [2.3.0-nsfw.5](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.4...v2.3.0-nsfw.5) (2026-11-15)\n\n### ✨ New Features\n\n* **Reddit:** Add validated 2026.40.0 target for permanent NSFW disabling ([be728e8](https://github.com/abdullahumuth/reddit-sfw-patches/commit/be728e847c31ef8c16500e5e6a4abe1c21d7adab))\n\n### 🐛 Bug Fixes\n\n* **Reddit:** Recheck permanent disabling before RedGIFs connection ([e984d59](https://github.com/abdullahumuth/reddit-sfw-patches/commit/e984d595250ae87677342ba59dffcfe84f7b392a))",
-  "download_url": "https://github.com/abdullahumuth/reddit-sfw-patches/releases/download/v2.3.0-nsfw.5/patches-2.3.0-nsfw.5.mpp",
+  "created_at": "2026-11-15T16:25:43",
+  "description": "## [2.3.0-nsfw.6](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.5...v2.3.0-nsfw.6) (2026-11-15)\n\n### 🐛 Bug Fixes\n\n* **Reddit:** Gate native community views before adult content can render ([fee21b8](https://github.com/abdullahumuth/reddit-sfw-patches/commit/fee21b8936ccb94ad1c80733dff9806fae3186a3))\n* **Reddit:** Keep community classification scoped to community metadata ([d2798b6](https://github.com/abdullahumuth/reddit-sfw-patches/commit/d2798b6a72812ac2fd2a13f1430b87a23f8efaf9))\n* **Reddit:** Remove native adult search control and enforce safe filter state ([f414d20](https://github.com/abdullahumuth/reddit-sfw-patches/commit/f414d20700772e5a45db8155c1cbbbd2875f88c6))",
+  "download_url": "https://github.com/abdullahumuth/reddit-sfw-patches/releases/download/v2.3.0-nsfw.6/patches-2.3.0-nsfw.6.mpp",
   "signature_download_url": "",
-  "version": "2.3.0-nsfw.5"
+  "version": "2.3.0-nsfw.6"
 }
