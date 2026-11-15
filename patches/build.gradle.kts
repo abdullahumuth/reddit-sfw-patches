@@ -4,12 +4,12 @@ group = "app.morphe"
 
 patches {
     about {
-        name = "Morphe Patches"
-        description = "Patches for Morphe"
-        source = "git@github.com:MorpheApp/morphe-patches.git"
-        author = "MorpheApp"
-        contact = "na"
-        website = "https://morphe.software"
+        name = "Reddit NSFW Lock (unofficial development fork)"
+        description = "Modified Morphe patches with an experimental one-way Reddit NSFW lock"
+        source = "https://github.com/abdullahumuth/reddit-morphe-antinsfw"
+        author = "abdullahumuth (upstream: MorpheApp)"
+        contact = "https://github.com/abdullahumuth/reddit-morphe-antinsfw/issues"
+        website = "https://github.com/abdullahumuth/reddit-morphe-antinsfw"
         license = "GNU General Public License v3.0, with additional GPL section 7 requirements"
     }
 }

@@ -2,8 +2,9 @@
   "branches": [
     "main",
     {
-      "name": "dev",
-      "prerelease": true
+      "name": "community/dev",
+      "prerelease": "dev",
+      "channel": "dev"
     }
   ],
   "plugins": [
@@ -79,7 +80,7 @@
     [
       "@cleyrop-org/semantic-release-backmerge",
       {
-        "backmergeBranches": [{"from": "main", "to": "dev"}],
+        "backmergeBranches": [{"from": "main", "to": "community/dev"}],
         "clearWorkspace": true
       }
     ]
