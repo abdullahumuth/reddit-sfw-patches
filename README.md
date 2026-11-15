@@ -12,7 +12,7 @@ Select Reddit **2026.40.0** or **2026.45.0**, then explicitly select **Permanent
 
 After confirmation, permanent disabling applies to every account and anonymous browsing. It enforces Reddit's native NSFW-off policy, removes viewing/blur and adult-search controls, refuses native attempts to re-enable viewing, and clears/disables the disclaimer bypass and RedGIFs audio/HD options. Clearing app data resets activation; updating the app must preserve it.
 
-This revision adds no response filter, network interceptor, content classifier or custom blocked screen. Reddit handles content through its ordinary off-state behavior. Test builds through `2.3.0-nsfw.6` failed phone testing and should not be relied on.
+This revision adds no response filter, network interceptor, content classifier or custom blocked screen. Reddit handles content through its ordinary off-state behavior. Test builds through `2.3.0-nsfw.7` failed phone testing and should not be relied on.
 
 ## Repository organization
 
