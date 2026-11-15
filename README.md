@@ -57,6 +57,12 @@ APKs, APKM bundles, generated APKs, and tool downloads stay outside Git. Tempora
 
 See [design/reference notes](docs/NSFW-DESIGN.md) and the [inherited upstream README](docs/UPSTREAM_README.md).
 
+## Patch catalog
+
+<!-- PATCHES_START -->
+The release workflow generates the catalog from the built patch bundle.
+<!-- PATCHES_END -->
+
 ## License and origin
 
 This is an unofficial modified version, not a Morphe release. Preserve [LICENSE](LICENSE) and [NOTICE](NOTICE), including the additional GPL section 7 requirements. Continuum was studied as a behavioral reference; its source was not copied.
