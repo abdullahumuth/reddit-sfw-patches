@@ -1,3 +1,15 @@
+## [2.3.0-nsfw.7](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.6...v2.3.0-nsfw.7) (2026-11-15)
+
+### 🐛 Bug Fixes
+
+* **Reddit:** Correct simplified RedGIFs guard ([1d2209e](https://github.com/abdullahumuth/reddit-sfw-patches/commit/1d2209e31c3d3fd1e9b385c881ef9f9675699462))
+* **Reddit:** Enforce native NSFW-off policy and remove custom filtering ([f0d7944](https://github.com/abdullahumuth/reddit-sfw-patches/commit/f0d7944f0d72665b621eb1ca55e8be5720bbd3fe))
+* **Reddit:** Enforce native safe-search value for anonymous sessions ([b45280a](https://github.com/abdullahumuth/reddit-sfw-patches/commit/b45280a735cf17e81f10c7dc56e7e86c895bb47e))
+* **Reddit:** Keep flagged communities out of recent visits ([951cf63](https://github.com/abdullahumuth/reddit-sfw-patches/commit/951cf63ff8f2a344d50ec6a02b3755cab7f7ff9b))
+* **Reddit:** Remove opt-in actions from shared native NSFW gates ([efd8008](https://github.com/abdullahumuth/reddit-sfw-patches/commit/efd8008d725e2d88aa22470a6e47f1ff355c4805))
+* **Reddit:** Return to previous screen from NSFW warning ([714e3fa](https://github.com/abdullahumuth/reddit-sfw-patches/commit/714e3fa01cff39647168fbd7a9dafe9827e39639))
+* **Reddit:** Select native preference APIs by supported app version ([c21bc8b](https://github.com/abdullahumuth/reddit-sfw-patches/commit/c21bc8b392101d7ed3b7d4bcbb4a9bee79b4199f))
+
 ## [2.3.0-nsfw.6](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.5...v2.3.0-nsfw.6) (2026-11-15)
 
 ### 🐛 Bug Fixes
