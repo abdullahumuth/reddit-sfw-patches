@@ -1601,7 +1601,7 @@ class QueueRuntimeBoundaryTest {
                             "Create through existing in-place attachment, then reuse full incoming Next insertion");
                     }
                     public static void playingVideoLast() throws Exception {
-                        playlistController(false, false);
+                        var controller = playlistController(false, false);
                         AddToQueuePatch.flyoutButtonClickLogic("QUEUE_PLAY_LAST", "ZYXWVUTSRQP");
                         Utils.drainBackground(); Utils.drain();
                         var queue = (PlaylistQueue) field("queue").get(null);
@@ -1609,6 +1609,7 @@ class QueueRuntimeBoundaryTest {
                                 && queue.entries().get(3).videoId().equals("ZYXWVUTSRQP") && queue.selectedIndex() == 0,
                             "Single-video Last converts and preserves all original entries before appending");
                         require(LoadVideoPatch.opens == 0 && Logger.errors == 0, "Keep playback in place");
+                        java.lang.ref.Reference.reachabilityFence(controller);
                     }
                     static PlaylistQueue installOwned(Controller controller) throws Exception {
                         var queue = new PlaylistQueue("abcdefghijk", "A").playLast("ZYXWVUTSRQP")

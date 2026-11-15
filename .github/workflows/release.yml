@@ -1,5 +1,9 @@
 name: Release
 
+concurrency:
+  group: community-release-${{ github.ref }}
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
   push:
@@ -33,6 +37,9 @@ jobs:
         with:
           node-version: 'lts/*'
           cache: 'npm'
+
+      - name: Test Reddit NSFW filter on host
+        run: python3 tools/test-nsfw.py
 
       - name: Install dependencies
         run: npm install
