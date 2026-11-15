@@ -138,13 +138,13 @@ def main():
                 data = (ROOT / "patches/src/main/resources/addresources/values/reddit/strings.xml").read_bytes()
             elif entry.filename == "META-INF/MANIFEST.MF":
                 manifest = data.decode().replace("\r", "")
-                manifest = manifest.replace("Name: Morphe Patches", "Name: Permanently disable NSFW for Reddit (unofficial development)")
+                manifest = manifest.replace("Name: Morphe Patches", "Name: Reddit SFW Patches (PR testing)")
                 manifest = manifest.replace("Description: Patches for Morphe", "Description: Experimental option to permanently disable NSFW content in Reddit based on Morphe Patches")
                 manifest = manifest.replace("Author: MorpheApp", "Author: abdullahumuth (upstream: MorpheApp)")
                 manifest = manifest.replace("Source: git@github.com:MorpheApp/morphe-patches.git",
-                    "Source: https://github.com/abdullahumuth/reddit-morphe-antinsfw")
+                    "Source: https://github.com/abdullahumuth/reddit-sfw-patches")
                 manifest = manifest.replace("Website: https://morphe.software",
-                    "Website: https://github.com/abdullahumuth/reddit-morphe-antinsfw")
+                    "Website: https://github.com/abdullahumuth/reddit-sfw-patches")
                 data = manifest.encode()
             output.writestr(entry, data)
         for path in sorted(patch_classes.rglob("*.class")):

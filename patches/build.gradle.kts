@@ -4,12 +4,12 @@ group = "app.morphe"
 
 patches {
     about {
-        name = "Permanently disable NSFW for Reddit (unofficial development fork)"
-        description = "Modified Morphe patches with an experimental option to permanently disable NSFW content in Reddit"
-        source = "https://github.com/abdullahumuth/reddit-morphe-antinsfw"
+        name = "Reddit SFW Patches (PR testing)"
+        description = "Temporary test bundle for upstream PR 4869: permanently disable NSFW content in Reddit"
+        source = "https://github.com/abdullahumuth/reddit-sfw-patches"
         author = "abdullahumuth (upstream: MorpheApp)"
-        contact = "https://github.com/abdullahumuth/reddit-morphe-antinsfw/issues"
-        website = "https://github.com/abdullahumuth/reddit-morphe-antinsfw"
+        contact = "https://github.com/abdullahumuth/reddit-sfw-patches/issues"
+        website = "https://github.com/abdullahumuth/reddit-sfw-patches"
         license = "GNU General Public License v3.0, with additional GPL section 7 requirements"
     }
 }

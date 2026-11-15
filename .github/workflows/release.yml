@@ -1,19 +1,16 @@
-name: Release
+name: Build PR test bundle
 
 concurrency:
-  group: community-release-${{ github.ref }}
+  group: pr-test-build-${{ github.ref }}
   cancel-in-progress: false
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - community/dev
 
 jobs:
   release:
-    name: Release
+    name: Build PR test bundle
+    if: github.ref_name == 'pr-testing'
     permissions:
       contents: write
       packages: write
@@ -60,7 +57,7 @@ jobs:
         if: steps.release.outputs.new_release_published == 'true'
         uses: actions/attest-build-provenance@v4
         with:
-          subject-name: 'Permanently disable NSFW for Reddit ${{ steps.release.outputs.new_release_git_tag }}'
+          subject-name: 'Reddit SFW Patches (PR testing) ${{ steps.release.outputs.new_release_git_tag }}'
           subject-path: patches/build/libs/patches-*.mpp
 
       # Always verify compilation when semantic-release did not publish a release.

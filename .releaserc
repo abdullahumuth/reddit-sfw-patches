@@ -2,7 +2,7 @@
   "branches": [
     "main",
     {
-      "name": "community/dev",
+      "name": "pr-testing",
       "prerelease": "nsfw",
       "channel": "nsfw"
     }
@@ -80,7 +80,7 @@
     [
       "@cleyrop-org/semantic-release-backmerge",
       {
-        "backmergeBranches": [{"from": "main", "to": "community/dev"}],
+        "backmergeBranches": [{"from": "main", "to": "pr-testing"}],
         "clearWorkspace": true
       }
     ]

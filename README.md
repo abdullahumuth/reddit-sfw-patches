@@ -1,68 +1,40 @@
-# Permanently disable NSFW for Reddit
+# Reddit SFW Patches (PR testing)
 
-An unofficial Morphe patch source with an opt-in option to permanently disable NSFW content in the official Reddit Android app. Based on [Morphe Patches](https://github.com/MorpheApp/morphe-patches), with behavior informed by historical Continuum.
+Temporary test source for [upstream PR #4869](https://github.com/MorpheApp/morphe-patches/pull/4869), which adds an opt-in **Permanently disable NSFW content (experimental)** patch for Reddit. The priority is getting the feature reviewed and merged upstream. A separately maintained community patch is only a fallback if that contribution is not accepted. This repository is not submitted to a community index.
 
-**Development status:** experimental; not a complete, verified content blocker. The upstream contribution is [draft PR #4869](https://github.com/MorpheApp/morphe-patches/pull/4869). Device QA, complete search/navigation coverage, and persisted/offline content coverage remain open. This repository is not listed in the community index.
+This is an independent, experimental derivative of [Morphe Patches](https://github.com/MorpheApp/morphe-patches), not an official release. Required upstream attribution, license and [NOTICE](NOTICE) remain intact. Complete content coverage and device testing are still pending.
 
-For manual phone testing, follow the [short checklist](docs/PHONE-TEST.md).
+## Test on your phone
 
-## Feature
+Add [this repository](https://github.com/abdullahumuth/reddit-sfw-patches) as a source in Manager. Remove the previous source entry first, then refresh. It must display **Reddit SFW Patches (PR testing)**. Both `main` and `dev` metadata endpoints point to the same experimental PR test bundle, so changing the prerelease toggle is unnecessary. This does not imply stable quality.
 
-After confirmation, the permanent setting applies to all accounts and anonymous browsing and cannot be disabled inside the app. Clearing app data resets it, as in historical Continuum.
+Select Reddit **2026.45.0**, then explicitly select **Permanently disable NSFW content (experimental)**; it is off by default. See the [phone checklist](docs/PHONE-TEST.md) for activation and checks. No USB debugging is needed.
 
-The current implementation filters explicitly labelled adult entities in supported Reddit JSON responses, removes native adult-viewing and blur controls after activation, overrides viewing/search preferences, and disables Morphe's existing adult-dialog bypass. Marked NSFW profiles are blocked as a fallback. No keyword or author-name rules are added.
-
-The current target is **Reddit 2026.45.0**. The supplied arm64 build 2645001 passes host patch validation. This fork retains upstream's existing patches; that does not imply new validation of them by this project.
+After confirmation, permanent disabling applies to all accounts and anonymous browsing. There is no in-app undo; clearing app data resets it. The patch filters labelled adult entities, removes adult-viewing/blur controls and the adult-dialog bypass, and restricts account viewing/search settings. It additionally blocks RedGIFs destinations and disables/hides its audio/HD options. Marked NSFW profiles are blocked as a fallback. No keyword or author-name rules are used.
 
 ## Repository organization
 
 | Branch | Purpose |
 | --- | --- |
-| `feature/reddit-permanent-nsfw` | Focused contribution to `MorpheApp/morphe-patches:dev`: feature, tests, validation notes. |
-| `community/dev` | Community identity, documentation, local build tools, prerelease workflow; development default branch. |
-| `main` | Stable upstream baseline; promote tested community changes here for a stable release. |
+| `feature/reddit-permanent-nsfw` | Focused upstream contribution: feature code, tests and validation notes. |
+| `pr-testing` | Source for temporary test builds; repository default. Packaging stays out of the upstream PR. |
+| `main`, `dev` | Manager metadata aliases for the current PR test build. |
+| `community/dev` | Archived earlier distribution experiment; no automatic publication. |
 
-`upstream` points to MorpheApp. `origin` points to [this fork](https://github.com/abdullahumuth/reddit-morphe-antinsfw). The original local starter commit is preserved on `initial-workspace`. Keep community packaging out of the upstream PR. Add future feature fixes to the feature branch first, then bring them into the community branch.
+Changes to the feature go to the upstream feature branch first, then into `pr-testing`. Publishing test bundles requires manually dispatching the **Build PR test bundle** workflow on `pr-testing`. No automatic community publication or index submission is configured. The inherited catalog below includes other upstream patches; this project does not newly verify those patches.
 
-## Build and verify
+## Build and verification
 
-With Python 3 and JDK 17+:
+Run `python tools/test-nsfw.py` with Python 3 and JDK 17+. The 17 checks use synthetic fixtures and do not access a device. [Validation notes](docs/validation/reddit-2026.45.0-result.md) and [design notes](docs/NSFW-DESIGN.md) distinguish actual APK validation from pending device/schema coverage.
 
-```powershell
-python tools/test-nsfw.py
-```
+The normal source build is `./gradlew :patches:buildAndroid` and needs access to upstream GitHub Maven dependencies. The local helper `python tools/build-nsfw.py` compiles the added feature against pinned public artifacts; use the normal build for the full source, including changes to existing RedGIFs code. `python tools/validate-nsfw.py path/to/reddit.apkm` validates and rebuilds an unsigned APK for inspection, without installation or adb.
 
-The 15 host checks use synthetic fixtures and do not access a device. [Validation results](docs/validation/reddit-2026.45.0-result.md) distinguish successful patch validation/API checks, the strict SDK verifier attempt, and unperformed device testing.
+APKs, generated APKs and downloaded tools stay out of Git. Temporary validation files are removed afterward; the supplied original APKM is preserved. Signing is optional; this test source does not claim the official signing identity. See the [inherited upstream README](docs/UPSTREAM_README.md) for project attribution.
 
-For a local development bundle, with Android SDK platform 36 and D8 installed:
-
-```powershell
-python tools/build-nsfw.py
-python tools/validate-nsfw.py path/to/reddit.apkm
-```
-
-The local builder uses pinned public Morphe release artifacts and compiles the new source against them. It writes `build/reddit-permanently-disable-nsfw-dev.mpp`. The validator produces an unsigned APK for inspection and never installs it or invokes adb. Add `--verify-sdk` for strict SDK verification, which can flag missing optional stock classes.
-
-The normal upstream build remains `./gradlew :patches:buildAndroid` and requires access to Morphe's GitHub Maven dependencies. Community releases use Morphe's template and semantic-release on `community/dev` and `main`; metadata and patch lists are generated. Do not hand-edit generated metadata or publish a stable release before coverage testing is finished.
-
-## Community distribution
-
-After a verified release is published, [add this source to Morphe](https://morphe.software/add-source?github=abdullahumuth%2Freddit-morphe-antinsfw). Enable prereleases for development builds. Select **Permanently disable NSFW content (experimental)** when patching the supported Reddit version. The setting starts off and asks for confirmation before activation.
-
-After testing and release publication, submit this repository through **Submit a bundle** at the [Morphe Community Patches index](https://morphe-patches.software/). Index inclusion is a separate review; the upstream PR does not list this repository automatically.
-
-Signing is optional in Morphe's template. This fork does not publish Morphe's official signing key as its own. To enable signing, generate this repository's own pair with `generateSigningKey`, commit only the public key, and store the private key as the `MORPHE_SIGNING_KEY` Actions secret.
-
-## Storage and references
-
-APKs, APKM bundles, generated APKs, and tool downloads stay outside Git. Temporary checkouts and extracted APKs are removed after validation; tools can be downloaded again. The user-supplied original APKM is preserved.
-
-See [design/reference notes](docs/NSFW-DESIGN.md) and the [inherited upstream README](docs/UPSTREAM_README.md).
-
-## Patch catalog
+## Test bundle catalog
 
 <!-- PATCHES_START -->
-> **[v2.3.0-nsfw.3](https://github.com/abdullahumuth/reddit-morphe-antinsfw/releases/tag/v2.3.0-nsfw.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`community/dev`&nbsp;&nbsp;•&nbsp;&nbsp;203 patches total
+> **[v2.3.0-nsfw.3](https://github.com/abdullahumuth/reddit-sfw-patches/releases/tag/v2.3.0-nsfw.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`community/dev`&nbsp;&nbsp;•&nbsp;&nbsp;203 patches total
 <details>
 <summary>📦 YouTube&nbsp;&nbsp;•&nbsp;&nbsp;114 patches</summary>
 <br>

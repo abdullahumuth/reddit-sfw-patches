@@ -2,14 +2,14 @@
 
 This is an experimental build. These checks determine whether the feature actually covers your usage; passing host tests alone does not prove that.
 
-1. In Morphe Manager, add `https://github.com/abdullahumuth/reddit-morphe-antinsfw` as a patch source and enable **prereleases** for it.
+1. In Morphe Manager, add `https://github.com/abdullahumuth/reddit-sfw-patches` as a patch source. Remove the old source entry first to discard its cached official bundle. Refresh sources and check that this one is called **Reddit SFW Patches (PR testing)**. Both channel settings point to the same experimental test build; neither makes it a stable release.
 2. Select the same Reddit **2026.45.0 APKM** used for validation (arm64, build **2645001**). For the first test, select only **Permanently disable NSFW content (experimental)**; its required dependencies are automatic. Patch and install using Manager's prompts.
 3. Open **Reddit → Settings → Morphe → Permanently disable NSFW content**. Confirm and restart when prompted.
 4. Use harmless items that are marked NSFW where possible. Check the following:
    - Ordinary posts and searches still work.
    - Searches omit posts, communities, and profiles marked NSFW.
    - Known marked NSFW post/community/profile links cannot open their content, including links opened from outside Reddit.
-   - Native adult-viewing and blur controls disappear. The permanent setting says **NSFW content is permanently disabled** and cannot be reversed by tapping.
+   - Native adult-viewing and blur controls disappear. With the RedGIFs audio patch also selected, its audio/HD controls and the adult-dialog bypass control disappear; RedGIFs posts and playback requests must be blocked. The permanent setting says **NSFW content is permanently disabled** and cannot be reversed by tapping.
    - The behavior persists after closing/reopening Reddit, switching accounts, and anonymous browsing.
    - Also check saved/history/offline entries that existed before activation; this coverage remains unverified.
 5. Report any failure in this repository's issues with the Reddit version, patch release, steps, and expected/actual behavior. Avoid posting explicit content or account credentials.
