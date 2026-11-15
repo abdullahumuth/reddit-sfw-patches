@@ -1,3 +1,12 @@
+## [2.3.0-nsfw.4](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.3...v2.3.0-nsfw.4) (2026-11-15)
+
+### 🐛 Bug Fixes
+
+* Make Reddit SFW Patches a manual PR testing source ([a0798db](https://github.com/abdullahumuth/reddit-sfw-patches/commit/a0798db078d9e11113151ced8a962884315dc70d))
+* **Reddit:** Disable RedGIFs access and controls with NSFW content ([9f8bca0](https://github.com/abdullahumuth/reddit-sfw-patches/commit/9f8bca0290815b057f6451d4f5d715cad382201a))
+* **Reddit:** Explicitly name permanent NSFW disabling ([95281ca](https://github.com/abdullahumuth/reddit-sfw-patches/commit/95281ca01f756a54191e07ab97c9325fe256e936))
+* **Reddit:** Make NSFW disabling confirmation explicit ([3355399](https://github.com/abdullahumuth/reddit-sfw-patches/commit/335539969a79e960d65d91e4bde824723f943ad3))
+
 ## [2.3.0-nsfw.3](https://github.com/abdullahumuth/reddit-morphe-antinsfw/compare/v2.3.0-nsfw.2...v2.3.0-nsfw.3) (2026-11-15)
 
 ### 🐛 Bug Fixes
