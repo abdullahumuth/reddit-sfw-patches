@@ -126,7 +126,7 @@ def main():
         WORK / "patches-original.dex", patch_jar)
     if (patch_dex / "classes2.dex").exists() or (runtime_dex / "classes2.dex").exists():
         raise RuntimeError("Unexpected multidex extension/bundle output")
-    destination = BUILD / "reddit-nsfw-lock-dev.mpp"
+    destination = BUILD / "reddit-permanently-disable-nsfw-dev.mpp"
     with zipfile.ZipFile(upstream) as original, zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as output:
         for entry in original.infolist():
             data = original.read(entry.filename)
@@ -138,9 +138,9 @@ def main():
                 data = (ROOT / "patches/src/main/resources/addresources/values/reddit/strings.xml").read_bytes()
             elif entry.filename == "META-INF/MANIFEST.MF":
                 manifest = data.decode().replace("\r", "")
-                manifest = manifest.replace("Name: Morphe Patches", "Name: Reddit NSFW Lock (unofficial development)")
-                manifest = manifest.replace("Description: Patches for Morphe", "Description: Experimental Reddit NSFW lock based on Morphe Patches")
-                manifest = manifest.replace("Author: MorpheApp", "Author: Reddit NSFW Lock contributors; upstream MorpheApp")
+                manifest = manifest.replace("Name: Morphe Patches", "Name: Permanently disable NSFW for Reddit (unofficial development)")
+                manifest = manifest.replace("Description: Patches for Morphe", "Description: Experimental option to permanently disable NSFW content in Reddit based on Morphe Patches")
+                manifest = manifest.replace("Author: MorpheApp", "Author: Permanently disable NSFW for Reddit contributors; upstream MorpheApp")
                 manifest = manifest.replace("Source: git@github.com:MorpheApp/morphe-patches.git",
                     "Source: https://github.com/abdullahumuth/reddit-morphe-antinsfw")
                 manifest = manifest.replace("Website: https://morphe.software",

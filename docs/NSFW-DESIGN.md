@@ -6,7 +6,7 @@
 - Continuum current source inspected: [`f9e5f882b825eb381369ef74474348e23c525cdc`](https://github.com/cygnusx-1-org/continuum/tree/f9e5f882b825eb381369ef74474348e23c525cdc).
 - Historical Continuum with the feature: [`5982ee770e0d508a0cb69c2ffea7706d07b2cfd9`](https://github.com/cygnusx-1-org/continuum/tree/5982ee770e0d508a0cb69c2ffea7706d07b2cfd9).
 
-The current Continuum version removed this feature. `DisableNsfwForeverMigration.kt` explains that the old global override took precedence over each account's ordinary NSFW setting. The migration turns those switches off once rather than preserving an irreversible lock. Implementing that migration would not fulfill this project's purpose.
+The current Continuum version removed this feature. `DisableNsfwForeverMigration.kt` explains that the old global override took precedence over each account's ordinary NSFW setting. The migration turns those switches off once rather than preserving an irreversible option to disable NSFW content. Implementing that migration would not fulfill this project's purpose.
 
 ## Historical behavior examined
 

@@ -4,8 +4,8 @@ group = "app.morphe"
 
 patches {
     about {
-        name = "Reddit NSFW Lock (unofficial development fork)"
-        description = "Modified Morphe patches with an experimental one-way Reddit NSFW lock"
+        name = "Permanently disable NSFW for Reddit (unofficial development fork)"
+        description = "Modified Morphe patches with an experimental option to permanently disable NSFW content in Reddit"
         source = "https://github.com/abdullahumuth/reddit-morphe-antinsfw"
         author = "abdullahumuth (upstream: MorpheApp)"
         contact = "https://github.com/abdullahumuth/reddit-morphe-antinsfw/issues"

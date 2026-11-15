@@ -2,7 +2,7 @@
 
 ### ✨ New Features
 
-* **Reddit:** Add experimental permanent NSFW lock ([c26913d](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/c26913dc69ec74ebb305a01025849e22b6f73991))
+* **Reddit:** Add experimental option to permanently disable NSFW content ([c26913d](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/c26913dc69ec74ebb305a01025849e22b6f73991))
 
 ### 🐛 Bug Fixes
 

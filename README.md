@@ -1,6 +1,6 @@
-# Reddit NSFW Lock
+# Permanently disable NSFW for Reddit
 
-An unofficial Morphe patch source with an opt-in, one-way NSFW lock for the official Reddit Android app. Based on [Morphe Patches](https://github.com/MorpheApp/morphe-patches), with behavior informed by historical Continuum.
+An unofficial Morphe patch source with an opt-in, option to permanently disable NSFW content for the official Reddit Android app. Based on [Morphe Patches](https://github.com/MorpheApp/morphe-patches), with behavior informed by historical Continuum.
 
 **Development status:** experimental; not a complete, verified content blocker. The upstream contribution is [draft PR #4869](https://github.com/MorpheApp/morphe-patches/pull/4869). Device QA, complete search/navigation coverage, and persisted/offline content coverage remain open. This repository is not listed in the community index.
 
@@ -39,13 +39,13 @@ python tools/build-nsfw.py
 python tools/validate-nsfw.py path/to/reddit.apkm
 ```
 
-The local builder uses pinned public Morphe release artifacts and compiles the new source against them. It writes `build/reddit-nsfw-lock-dev.mpp`. The validator produces an unsigned APK for inspection and never installs it or invokes adb. Add `--verify-sdk` for strict SDK verification, which can flag missing optional stock classes.
+The local builder uses pinned public Morphe release artifacts and compiles the new source against them. It writes `build/reddit-permanently-disable-nsfw-dev.mpp`. The validator produces an unsigned APK for inspection and never installs it or invokes adb. Add `--verify-sdk` for strict SDK verification, which can flag missing optional stock classes.
 
 The normal upstream build remains `./gradlew :patches:buildAndroid` and requires access to Morphe's GitHub Maven dependencies. Community releases use Morphe's template and semantic-release on `community/dev` and `main`; metadata and patch lists are generated. Do not hand-edit generated metadata or publish a stable release before coverage testing is finished.
 
 ## Community distribution
 
-After a verified release is published, [add this source to Morphe](https://morphe.software/add-source?github=abdullahumuth%2Freddit-morphe-antinsfw). Enable prereleases for development builds. Select **Permanently disable NSFW (experimental)** when patching the supported Reddit version. The setting starts off and asks for confirmation before activation.
+After a verified release is published, [add this source to Morphe](https://morphe.software/add-source?github=abdullahumuth%2Freddit-morphe-antinsfw). Enable prereleases for development builds. Select **Permanently disable NSFW content (experimental)** when patching the supported Reddit version. The setting starts off and asks for confirmation before activation.
 
 After testing and release publication, submit this repository through **Submit a bundle** at the [Morphe Community Patches index](https://morphe-patches.software/). Index inclusion is a separate review; the upstream PR does not list this repository automatically.
 
@@ -290,7 +290,7 @@ See [design/reference notes](docs/NSFW-DESIGN.md) and the [inherited upstream RE
 | [Media viewer fade](#media-viewer-fade) | Adds an option to lower or remove the dark fade behind the caption when viewing images and videos. |  |
 | [Open links directly](#open-links-directly) | Adds an option to skip over redirection URLs in external links. |  |
 | [Open links externally](#open-links-externally) | Adds an option to always open links in your browser instead of with the in-app-browser. |  |
-| [Permanently disable NSFW (experimental)](#permanently-disable-nsfw-experimental) | Adds a one-way NSFW lock, removes adult viewing controls after activation, and filters Reddit JSON responses. Experimental: content coverage requires validation. |  |
+| [Permanently disable NSFW content (experimental)](#permanently-disable-nsfw-experimental) | Adds a option to permanently disable NSFW content, removes adult viewing controls after activation, and filters Reddit JSON responses. Experimental: content coverage requires validation. |  |
 | [Redgifs audio](#redgifs-audio) | Adds an option to play the original Redgifs video, which has audio, instead of Reddit's silent copy. |  |
 | [Remember collapsed comments](#remember-collapsed-comments) | Adds an option to keep comments you collapsed collapsed when reopening a post. |  |
 | [Remove subreddit dialog](#remove-subreddit-dialog) | Adds options to remove the NSFW community warning and notifications suggestion dialogs by dismissing them automatically. |  |

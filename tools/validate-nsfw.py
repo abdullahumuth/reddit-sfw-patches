@@ -24,8 +24,8 @@ def main():
             apk = work / "base.apk"
             apk.write_bytes(bundle.read("base.apk"))
     command = ["java", "-Xmx4g", "-jar", str(ROOT / "build/tools/morphe-desktop.jar"),
-               "patch", str(apk), "-p", str(ROOT / "build/reddit-nsfw-lock-dev.mpp"),
-               "--exclusive", "-e", "Permanently disable NSFW (experimental)",
+               "patch", str(apk), "-p", str(ROOT / "build/reddit-permanently-disable-nsfw-dev.mpp"),
+               "--exclusive", "-e", "Permanently disable NSFW content (experimental)",
                "--validate", "--unsigned",
                "-o", str(work / "nsfw-unsigned.apk"),
                "--result-file", str(work / "validation.json")]
