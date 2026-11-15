@@ -8,7 +8,7 @@ This is an independent, experimental derivative of [Morphe Patches](https://gith
 
 Add [this repository](https://github.com/abdullahumuth/reddit-sfw-patches) as a source in Manager. Remove the previous source entry first, then refresh. It must display **Reddit SFW Patches (PR testing)**. Both `main` and `dev` metadata endpoints point to the same experimental PR test bundle, so changing the prerelease toggle is unnecessary. This does not imply stable quality.
 
-Select Reddit **2026.45.0**, then explicitly select **Permanently disable NSFW content (experimental)**; it is off by default. See the [phone checklist](docs/PHONE-TEST.md) for activation and checks. No USB debugging is needed.
+Select Reddit **2026.40.0** or **2026.45.0**, then explicitly select **Permanently disable NSFW content (experimental)**; it is off by default. See the [phone checklist](docs/PHONE-TEST.md) for activation and checks. No USB debugging is needed.
 
 After confirmation, permanent disabling applies to all accounts and anonymous browsing. There is no in-app undo; clearing app data resets it. The patch filters labelled adult entities, removes adult-viewing/blur controls and the adult-dialog bypass, and restricts account viewing/search settings. It additionally blocks RedGIFs destinations and disables/hides its audio/HD options. Marked NSFW profiles are blocked as a fallback. No keyword or author-name rules are used.
 
