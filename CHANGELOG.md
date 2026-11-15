@@ -1,3 +1,13 @@
+## [2.3.0-nsfw.1](https://github.com/abdullahumuth/reddit-morphe-antinsfw/compare/v2.2.0...v2.3.0-nsfw.1) (2026-11-15)
+
+### ✨ New Features
+
+* **Reddit:** Add experimental permanent NSFW lock ([c26913d](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/c26913dc69ec74ebb305a01025849e22b6f73991))
+
+### 🐛 Bug Fixes
+
+* **Reddit:** Avoid obfuscated Okio APIs in NSFW filter ([04a2797](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/04a2797e6715a1b82a2833c0a5593f549f45add5))
+
 ## [2.2.0](https://github.com/MorpheApp/morphe-patches/compare/v2.1.0...v2.2.0) (2026-11-10)
 
 ### ✨ New Features
