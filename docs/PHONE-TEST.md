@@ -3,9 +3,9 @@
 This is an experimental build. These checks determine whether the feature actually covers your usage; passing host tests alone does not prove that.
 
 1. In Morphe Manager, add `https://github.com/abdullahumuth/reddit-morphe-antinsfw` as a patch source and enable **prereleases** for it.
-2. Select the same Reddit **2026.45.0 APKM** used for validation (arm64, build **2645001**). Enable **Permanently disable NSFW content (experimental)**, patch, and install using Manager's prompts.
+2. Select the same Reddit **2026.45.0 APKM** used for validation (arm64, build **2645001**). For the first test, select only **Permanently disable NSFW content (experimental)**; its required dependencies are automatic. Patch and install using Manager's prompts.
 3. Open **Reddit → Settings → Morphe → Permanently disable NSFW content**. Confirm and restart when prompted.
-4. Check the following without entering or viewing adult material:
+4. Use harmless items that are marked NSFW where possible. Check the following:
    - Ordinary posts and searches still work.
    - Searches omit posts, communities, and profiles marked NSFW.
    - Known marked NSFW post/community/profile links cannot open their content, including links opened from outside Reddit.

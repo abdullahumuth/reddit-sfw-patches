@@ -140,7 +140,7 @@ def main():
                 manifest = data.decode().replace("\r", "")
                 manifest = manifest.replace("Name: Morphe Patches", "Name: Permanently disable NSFW for Reddit (unofficial development)")
                 manifest = manifest.replace("Description: Patches for Morphe", "Description: Experimental option to permanently disable NSFW content in Reddit based on Morphe Patches")
-                manifest = manifest.replace("Author: MorpheApp", "Author: Permanently disable NSFW for Reddit contributors; upstream MorpheApp")
+                manifest = manifest.replace("Author: MorpheApp", "Author: abdullahumuth (upstream: MorpheApp)")
                 manifest = manifest.replace("Source: git@github.com:MorpheApp/morphe-patches.git",
                     "Source: https://github.com/abdullahumuth/reddit-morphe-antinsfw")
                 manifest = manifest.replace("Website: https://morphe.software",

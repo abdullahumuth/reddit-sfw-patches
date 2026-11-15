@@ -1,8 +1,10 @@
 # Permanently disable NSFW for Reddit
 
-An unofficial Morphe patch source with an opt-in, option to permanently disable NSFW content for the official Reddit Android app. Based on [Morphe Patches](https://github.com/MorpheApp/morphe-patches), with behavior informed by historical Continuum.
+An unofficial Morphe patch source with an opt-in option to permanently disable NSFW content in the official Reddit Android app. Based on [Morphe Patches](https://github.com/MorpheApp/morphe-patches), with behavior informed by historical Continuum.
 
 **Development status:** experimental; not a complete, verified content blocker. The upstream contribution is [draft PR #4869](https://github.com/MorpheApp/morphe-patches/pull/4869). Device QA, complete search/navigation coverage, and persisted/offline content coverage remain open. This repository is not listed in the community index.
+
+For manual phone testing, follow the [short checklist](docs/PHONE-TEST.md).
 
 ## Feature
 
