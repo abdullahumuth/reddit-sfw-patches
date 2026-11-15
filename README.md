@@ -25,9 +25,9 @@ Changes to the feature go to the upstream feature branch first, then into `pr-te
 
 ## Build and verification
 
-Run `python tools/test-nsfw.py` with Python 3 and JDK 17+. The 17 checks use synthetic fixtures and do not access a device. [Validation notes](docs/validation/reddit-2026.45.0-result.md) and [design notes](docs/NSFW-DESIGN.md) distinguish actual APK validation from pending device/schema coverage.
+Run `python tools/test-nsfw.py` with Python 3 and JDK 17+. The 18 checks use synthetic fixtures and do not access a device. [Validation notes](docs/validation/reddit-2026.45.0-result.md) and [design notes](docs/NSFW-DESIGN.md) distinguish actual APK validation from pending device/schema coverage.
 
-The normal source build is `./gradlew :patches:buildAndroid` and needs access to upstream GitHub Maven dependencies. The local helper `python tools/build-nsfw.py` compiles the added feature against pinned public artifacts; use the normal build for the full source, including changes to existing RedGIFs code. `python tools/validate-nsfw.py path/to/reddit.apkm` validates and rebuilds an unsigned APK for inspection, without installation or adb.
+The normal source build is `./gradlew :patches:buildAndroid` and needs access to upstream GitHub Maven dependencies. `python tools/validate-nsfw.py path/to/reddit.apkm` validates and rebuilds an unsigned APK for inspection, without installation or adb.
 
 APKs, generated APKs and downloaded tools stay out of Git. Temporary validation files are removed afterward; the supplied original APKM is preserved. Signing is optional; this test source does not claim the official signing identity. See the [inherited upstream README](docs/UPSTREAM_README.md) for project attribution.
 

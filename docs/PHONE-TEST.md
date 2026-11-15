@@ -15,3 +15,17 @@ This is an experimental build. These checks determine whether the feature actual
 5. Report any failure in this repository's issues with the Reddit version, patch release, steps, and expected/actual behavior. Avoid posting explicit content or account credentials.
 
 To reset between tests, clear Reddit's app data in Android settings. This signs you out and deletes its local data. There is deliberately no in-app undo. USB debugging is not needed.
+
+## Regression checks for the reported failures
+
+Current published builds through `v2.3.0-nsfw.5` have confirmed bypasses. Use only a newer candidate after host APK validation has completed; build success is not device verification.
+
+Repeat these checks while signed in and in anonymous browsing, first with ordinary NSFW viewing previously off, then with it previously on before permanent activation. Reuse the same harmless, labelled community and preloaded links from the original failure.
+
+- Open a marked community from a comment, history, and an external link. Its root must stay hidden while the label is checked; no icon, thumbnail, banner or posts may show behind a message. The message must explain that the community is marked NSFW and permanently disabled, with a working back action. It must not claim that the community does not exist.
+- Return to an ordinary community. It must become visible and remain usable; a stale block must not cover it.
+- Anonymous search must omit the native Show NSFW control. Native search filter state must remain safe even if it was previously set to show adult results.
+- After activation, the saved adult-warning bypass and RedGIFs audio/HD settings are cleared as well as hidden. The confirmation restart must complete before retesting.
+- Repeat after reopening Reddit and entering anonymous browsing again. Report blank safe screens, stuck navigation, transient image flashes, or any content exposure as failures.
+
+Do not clear app data merely to install an update: the existing permanent setting must survive upgrading. Clearing data is only needed when deliberately preparing a fresh prior-setting test and signs you out.
