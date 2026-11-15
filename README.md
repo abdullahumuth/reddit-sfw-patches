@@ -21,7 +21,7 @@ After confirmation, permanent disabling applies to all accounts and anonymous br
 | `main`, `dev` | Manager metadata aliases for the current PR test build. |
 | `community/dev` | Archived earlier distribution experiment; no automatic publication. |
 
-Changes to the feature go to the upstream feature branch first, then into `pr-testing`. Publishing test bundles requires manually dispatching the **Build PR test bundle** workflow on `pr-testing`. No automatic community publication or index submission is configured. The inherited catalog below includes other upstream patches; this project does not newly verify those patches.
+Changes to the feature go to the upstream feature branch first, then into `pr-testing`. Publishing test bundles requires manually dispatching the **Build PR test bundle** workflow on `pr-testing`. Successful manual builds synchronize the Manager metadata aliases. No automatic community publication or index submission is configured. The inherited catalog below includes other upstream patches; this project does not newly verify those patches.
 
 ## Build and verification
 
