@@ -62,7 +62,7 @@ See [design/reference notes](docs/NSFW-DESIGN.md) and the [inherited upstream RE
 ## Patch catalog
 
 <!-- PATCHES_START -->
-> **[v2.3.0-nsfw.1](https://github.com/abdullahumuth/reddit-morphe-antinsfw/releases/tag/v2.3.0-nsfw.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`community/dev`&nbsp;&nbsp;•&nbsp;&nbsp;203 patches total
+> **[v2.3.0-nsfw.2](https://github.com/abdullahumuth/reddit-morphe-antinsfw/releases/tag/v2.3.0-nsfw.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`community/dev`&nbsp;&nbsp;•&nbsp;&nbsp;203 patches total
 <details>
 <summary>📦 YouTube&nbsp;&nbsp;•&nbsp;&nbsp;114 patches</summary>
 <br>
@@ -292,7 +292,7 @@ See [design/reference notes](docs/NSFW-DESIGN.md) and the [inherited upstream RE
 | [Media viewer fade](#media-viewer-fade) | Adds an option to lower or remove the dark fade behind the caption when viewing images and videos. |  |
 | [Open links directly](#open-links-directly) | Adds an option to skip over redirection URLs in external links. |  |
 | [Open links externally](#open-links-externally) | Adds an option to always open links in your browser instead of with the in-app-browser. |  |
-| [Permanently disable NSFW content (experimental)](#permanently-disable-nsfw-experimental) | Adds a option to permanently disable NSFW content, removes adult viewing controls after activation, and filters Reddit JSON responses. Experimental: content coverage requires validation. |  |
+| [Permanently disable NSFW content (experimental)](#permanently-disable-nsfw-content-experimental) | Adds an irreversible option to disable NSFW content, removes adult viewing controls after activation, and filters Reddit JSON responses. Experimental: content coverage requires validation. |  |
 | [Redgifs audio](#redgifs-audio) | Adds an option to play the original Redgifs video, which has audio, instead of Reddit's silent copy. |  |
 | [Remember collapsed comments](#remember-collapsed-comments) | Adds an option to keep comments you collapsed collapsed when reopening a post. |  |
 | [Remove subreddit dialog](#remove-subreddit-dialog) | Adds options to remove the NSFW community warning and notifications suggestion dialogs by dismissing them automatically. |  |

@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-15T10:55:39",
-  "description": "## [2.3.0-nsfw.1](https://github.com/abdullahumuth/reddit-morphe-antinsfw/compare/v2.2.0...v2.3.0-nsfw.1) (2026-11-15)\n\n### ✨ New Features\n\n* **Reddit:** Add experimental permanent NSFW lock ([c26913d](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/c26913dc69ec74ebb305a01025849e22b6f73991))\n\n### 🐛 Bug Fixes\n\n* **Reddit:** Avoid obfuscated Okio APIs in NSFW filter ([04a2797](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/04a2797e6715a1b82a2833c0a5593f549f45add5))",
-  "download_url": "https://github.com/abdullahumuth/reddit-morphe-antinsfw/releases/download/v2.3.0-nsfw.1/patches-2.3.0-nsfw.1.mpp",
+  "created_at": "2026-11-15T11:11:41",
+  "description": "## [2.3.0-nsfw.2](https://github.com/abdullahumuth/reddit-morphe-antinsfw/compare/v2.3.0-nsfw.1...v2.3.0-nsfw.2) (2026-11-15)\n\n### 🐛 Bug Fixes\n\n* Explicitly say permanently disable NSFW throughout ([87a94f6](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/87a94f61d88e071fd9e4f9a43b9bf9de5b89bc5c))\n* **Reddit:** Explicitly name permanent NSFW disabling ([dfd055c](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/dfd055c5a4935b9b8839c060e099a2e51ea0b99f))\n* **Reddit:** Make NSFW disabling confirmation explicit ([ed03957](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/ed03957a22282cb44afa288e8f2bc5c1ce41ea01))",
+  "download_url": "https://github.com/abdullahumuth/reddit-morphe-antinsfw/releases/download/v2.3.0-nsfw.2/patches-2.3.0-nsfw.2.mpp",
   "signature_download_url": "",
-  "version": "2.3.0-nsfw.1"
+  "version": "2.3.0-nsfw.2"
 }

@@ -1,3 +1,11 @@
+## [2.3.0-nsfw.2](https://github.com/abdullahumuth/reddit-morphe-antinsfw/compare/v2.3.0-nsfw.1...v2.3.0-nsfw.2) (2026-11-15)
+
+### 🐛 Bug Fixes
+
+* Explicitly say permanently disable NSFW throughout ([87a94f6](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/87a94f61d88e071fd9e4f9a43b9bf9de5b89bc5c))
+* **Reddit:** Explicitly name permanent NSFW disabling ([dfd055c](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/dfd055c5a4935b9b8839c060e099a2e51ea0b99f))
+* **Reddit:** Make NSFW disabling confirmation explicit ([ed03957](https://github.com/abdullahumuth/reddit-morphe-antinsfw/commit/ed03957a22282cb44afa288e8f2bc5c1ce41ea01))
+
 ## [2.3.0-nsfw.1](https://github.com/abdullahumuth/reddit-morphe-antinsfw/compare/v2.2.0...v2.3.0-nsfw.1) (2026-11-15)
 
 ### ✨ New Features
