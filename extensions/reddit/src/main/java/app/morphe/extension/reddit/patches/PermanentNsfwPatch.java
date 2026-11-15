@@ -1,10 +1,16 @@
 package app.morphe.extension.reddit.patches;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.reddit.domain.model.Subreddit;
 
 import app.morphe.extension.reddit.settings.preference.PermanentNsfwPreference;
 import app.morphe.extension.reddit.settings.Settings;
@@ -42,6 +48,33 @@ public final class PermanentNsfwPatch {
 
     public static int disabledMessageResource(int original) {
         return isEnabled() ? ResourceUtils.getStringIdentifier("morphe_permanent_nsfw_blocked_message") : original;
+    }
+
+    /** The native recent-visit writer receives community metadata before saving it. */
+    public static boolean skipRecentSubreddit(Subreddit subreddit) {
+        return isEnabled() && subreddit != null && Boolean.TRUE.equals(subreddit.getOver18());
+    }
+
+    /** Hide records saved before permanent disabling from Reddit's two recent-visit views. */
+    public static List<Subreddit> visibleRecentSubreddits(List<Subreddit> recent) {
+        if (!isEnabled() || recent == null) return recent;
+        List<Subreddit> visible = new ArrayList<>(recent.size());
+        for (Subreddit subreddit : recent) {
+            if (!Boolean.TRUE.equals(subreddit.getOver18())) visible.add(subreddit);
+        }
+        return visible;
+    }
+
+    /** Use the current screen stack when declining a mature-content warning. */
+    @SuppressWarnings("deprecation")
+    public static boolean returnToPreviousScreen(Object context) {
+        if (!isEnabled()) return false;
+        while (context instanceof ContextWrapper && !(context instanceof Activity)) {
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+        if (!(context instanceof Activity)) return false;
+        ((Activity) context).onBackPressed();
+        return true;
     }
 
     /** Called after the existing Morphe settings categories have been built. */

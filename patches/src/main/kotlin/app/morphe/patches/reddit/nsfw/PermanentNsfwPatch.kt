@@ -3,6 +3,7 @@ package app.morphe.patches.reddit.nsfw
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.util.findFreeRegister
+import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import app.morphe.patcher.util.smali.ExternalLabel
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
@@ -12,6 +13,7 @@ import app.morphe.patcher.resourceLiteral
 import app.morphe.patcher.resource.ResourceType
 import app.morphe.patcher.util.numberOfParameterRegistersLogical
 import app.morphe.patcher.methodCall
+import app.morphe.patcher.newInstance
 import app.morphe.patcher.string
 import app.morphe.patcher.util.cloneParameters
 import app.morphe.patcher.util.p0Register
@@ -22,6 +24,8 @@ import app.morphe.patches.reddit.shared.Constants.COMPATIBILITY_REDDIT
 import app.morphe.util.setExtensionIsPatchIncluded
 import app.morphe.util.findInstructionIndicesReversedOrThrow
 import com.android.tools.smali.dexlib2.Opcode
+import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
+import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 private const val EXTENSION = "Lapp/morphe/extension/reddit/patches/PermanentNsfwPatch;"
 
@@ -244,6 +248,87 @@ val permanentNsfwPatch = patch(
                     if-nez v$register, :skipOptIn
                 """, ExternalLabel("skipOptIn", getInstruction(index + 1)))
             }
+        }
+
+        // Reddit's native "No Thanks" handler launches MainActivity, discarding the
+        // screen from which the blocked profile, community or post was opened.
+        // Resolve that home-navigation helper by its body rather than its obfuscated name.
+        val navigateHome = Fingerprint(
+            returnType = "V",
+            filters = listOf(
+                methodCall(smali = "Lkotlin/jvm/functions/Function0;->invoke()Ljava/lang/Object;"),
+                newInstance("Landroid/content/Intent;"),
+                string("com.reddit.frontpage.main_toast_message")
+            )
+        ).method
+        val warningHandler = Fingerprint(
+            definingClass = "Lcom/reddit/agegating/impl/nsfw/NsfwBottomSheetViewModel\$1;",
+            name = "access\$invokeSuspend\$handleEvent", returnType = "Ljava/lang/Object;",
+            filters = listOf(methodCall(smali = navigateHome.toString()))
+        )
+        warningHandler.method.apply {
+            val index = warningHandler.instructionMatches.single().index
+            val call = getInstruction<ReferenceInstruction>(index).reference as MethodReference
+            val providerType = call.parameterTypes.single().toString()
+            val providerMethod = Fingerprint(
+                definingClass = providerType, parameters = listOf(), returnType = "Ljava/lang/Object;",
+                filters = listOf(methodCall(smali = "Lkotlin/jvm/functions/Function0;->invoke()Ljava/lang/Object;"))
+            ).method
+            val providerRegister = getInstruction<FiveRegisterInstruction>(index).registerD
+            val register = findFreeRegister(index)
+            addInstructionsWithLabels(index, """
+                invoke-static {}, $EXTENSION->isEnabled()Z
+                move-result v$register
+                if-eqz v$register, :nativeDismiss
+                invoke-virtual/range { v$providerRegister .. v$providerRegister }, $providerMethod
+                move-result-object v$register
+                invoke-static/range { v$register .. v$register }, $EXTENSION->returnToPreviousScreen(Ljava/lang/Object;)Z
+                move-result v$register
+                if-nez v$register, :dismissed
+                :nativeDismiss
+                nop
+            """, ExternalLabel("dismissed", getInstruction(index + 1)))
+        }
+
+        // A blocked community is already loaded when Reddit records a recent visit.
+        // Guard that single native write using its own over18 metadata.
+        Fingerprint(
+            definingClass = "Lcom/reddit/screens/pager/v2/SubredditPagerViewModel\$setUpSubreddit\$3;",
+            name = "invokeSuspend", returnType = "Ljava/lang/Object;",
+            filters = listOf(methodCall(
+                parameters = listOf("Lcom/reddit/domain/model/Subreddit;", "Lkotlin/coroutines/jvm/internal/ContinuationImpl;"),
+                returnType = "Ljava/lang/Object;"
+            ))
+        ).instructionMatches.single().getMethodCalled().apply {
+            val register = findFreeRegister(0)
+            addInstructionsWithLabels(0, """
+                invoke-static/range { p1 .. p1 }, $EXTENSION->skipRecentSubreddit(Lcom/reddit/domain/model/Subreddit;)Z
+                move-result v$register
+                if-eqz v$register, :recordRecentVisit
+                const/4 v$register, 0x0
+                return-object v$register
+                :recordRecentVisit
+                nop
+            """)
+        }
+
+        // Both the drawer and full history screen read lists saved before activation.
+        // Filter only those lists; ordinary community lists keep their native behavior.
+        listOf(
+            "Lcom/reddit/screens/drawer/community/CommunityDrawerPresenter\$refreshRecentlyVisited\$1;",
+            "Lcom/reddit/screens/drawer/community/recentlyvisited/RecentlyVisitedPresenter\$loadRecentlyVisited\$1;"
+        ).forEach { owner ->
+            Fingerprint(definingClass = owner, name = "invokeSuspend", returnType = "Ljava/lang/Object;")
+                .method.apply {
+                    val index = findInstructionIndicesReversedOrThrow(Opcode.CHECK_CAST).single {
+                        getInstruction<ReferenceInstruction>(it).reference.toString() == "Ljava/util/List;"
+                    }
+                    val register = getInstruction<OneRegisterInstruction>(index).registerA
+                    addInstructionsWithLabels(index + 1, """
+                        invoke-static/range { v$register .. v$register }, $EXTENSION->visibleRecentSubreddits(Ljava/util/List;)Ljava/util/List;
+                        move-result-object v$register
+                    """)
+                }
         }
 
         setExtensionIsPatchIncluded(EXTENSION)
