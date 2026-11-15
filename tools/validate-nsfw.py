@@ -13,6 +13,7 @@ def main():
     parser.add_argument("input", type=Path, help="Reddit APK or APKM")
     parser.add_argument("--sdk", type=Path, default=os.environ.get("ANDROID_SDK_ROOT"))
     parser.add_argument("--verify-sdk", action="store_true", help="Also run strict SDK verification, including stock third-party code")
+    parser.add_argument("--force", action="store_true", help="Force execution on unadvertised versions for compatibility discovery")
     args = parser.parse_args()
     if not args.sdk:
         parser.error("--sdk or ANDROID_SDK_ROOT is required")
@@ -29,6 +30,8 @@ def main():
                "--validate", "--unsigned",
                "-o", str(work / "nsfw-unsigned.apk"),
                "--result-file", str(work / "validation.json")]
+    if args.force:
+        command.append("-f")
     if args.verify_sdk:
         command.append("--verify-with-sdk=" + str(args.sdk))
     (work / "validation.json").unlink(missing_ok=True)
