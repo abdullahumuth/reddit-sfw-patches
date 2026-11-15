@@ -3,8 +3,8 @@
     "main",
     {
       "name": "community/dev",
-      "prerelease": "dev",
-      "channel": "dev"
+      "prerelease": "nsfw",
+      "channel": "nsfw"
     }
   ],
   "plugins": [

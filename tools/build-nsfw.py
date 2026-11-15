@@ -141,6 +141,10 @@ def main():
                 manifest = manifest.replace("Name: Morphe Patches", "Name: Reddit NSFW Lock (unofficial development)")
                 manifest = manifest.replace("Description: Patches for Morphe", "Description: Experimental Reddit NSFW lock based on Morphe Patches")
                 manifest = manifest.replace("Author: MorpheApp", "Author: Reddit NSFW Lock contributors; upstream MorpheApp")
+                manifest = manifest.replace("Source: git@github.com:MorpheApp/morphe-patches.git",
+                    "Source: https://github.com/abdullahumuth/reddit-morphe-antinsfw")
+                manifest = manifest.replace("Website: https://morphe.software",
+                    "Website: https://github.com/abdullahumuth/reddit-morphe-antinsfw")
                 data = manifest.encode()
             output.writestr(entry, data)
         for path in sorted(patch_classes.rglob("*.class")):
