@@ -10,7 +10,9 @@ Add [this repository](https://github.com/abdullahumuth/reddit-sfw-patches) as a 
 
 Select Reddit **2026.40.0** or **2026.45.0**, then explicitly select **Permanently disable NSFW content (experimental)**; it is off by default. See the [phone checklist](docs/PHONE-TEST.md) for activation and checks. No USB debugging is needed.
 
-After confirmation, permanent disabling applies to all accounts and anonymous browsing. There is no in-app undo; clearing app data resets it. The patch filters labelled adult entities, removes adult-viewing/blur controls and the adult-dialog bypass, and restricts account viewing/search settings. It additionally blocks RedGIFs destinations and disables/hides its audio/HD options. Marked NSFW profiles are blocked as a fallback. No keyword or author-name rules are used.
+After confirmation, permanent disabling applies to every account and anonymous browsing. It enforces Reddit's native NSFW-off policy, removes viewing/blur and adult-search controls, refuses native attempts to re-enable viewing, and clears/disables the disclaimer bypass and RedGIFs audio/HD options. Clearing app data resets activation; updating the app must preserve it.
+
+This revision adds no response filter, network interceptor, content classifier or custom blocked screen. Reddit handles content through its ordinary off-state behavior. Test builds through `2.3.0-nsfw.6` failed phone testing and should not be relied on.
 
 ## Repository organization
 
@@ -25,7 +27,7 @@ Changes to the feature go to the upstream feature branch first, then into `pr-te
 
 ## Build and verification
 
-Run `python tools/test-nsfw.py` with Python 3 and JDK 17+. The 18 checks use synthetic fixtures and do not access a device. [Validation notes](docs/validation/reddit-2026.45.0-result.md) and [design notes](docs/NSFW-DESIGN.md) distinguish actual APK validation from pending device/schema coverage.
+Run `python tools/test-nsfw.py` with Python 3 and JDK 17+. The persistence checks use no external dependencies or device access. The rebuilt-APK checker verifies native guards and absence of retired custom filtering. See [design and validation notes](docs/NSFW-DESIGN.md).
 
 The normal source build is `./gradlew :patches:buildAndroid` and needs access to upstream GitHub Maven dependencies. `python tools/validate-nsfw.py path/to/reddit.apkm` validates and rebuilds an unsigned APK for inspection, without installation or adb.
 
