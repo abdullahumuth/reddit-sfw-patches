@@ -3,8 +3,8 @@
     "main",
     {
       "name": "pr-testing",
-      "prerelease": "nsfw",
-      "channel": "nsfw"
+      "prerelease": "sfw",
+      "channel": "sfw"
     }
   ],
   "plugins": [
