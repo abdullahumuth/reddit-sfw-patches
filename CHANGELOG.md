@@ -1,3 +1,9 @@
+## [2.3.0-nsfw.9](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.8...v2.3.0-nsfw.9) (2026-11-16)
+
+### 🐛 Bug Fixes
+
+* **Reddit:** Preserve the warning view model before navigating back ([4d55052](https://github.com/abdullahumuth/reddit-sfw-patches/commit/4d55052852a59aa1730145365a98b1c2f89fe18f))
+
 ## [2.3.0-nsfw.8](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.7...v2.3.0-nsfw.8) (2026-11-15)
 
 ### 🐛 Bug Fixes
