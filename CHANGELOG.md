@@ -1,3 +1,10 @@
+## [2.3.0-nsfw.10](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.9...v2.3.0-nsfw.10) (2026-11-16)
+
+### 🐛 Bug Fixes
+
+* **Reddit:** Guard both dismissal paths and anonymous viewing controls ([4c315ab](https://github.com/abdullahumuth/reddit-sfw-patches/commit/4c315abf140dc628d44cd13e2cc891b0b86178f8))
+* **Reddit:** Replace blocked pages with the native warning ([27668bc](https://github.com/abdullahumuth/reddit-sfw-patches/commit/27668bc82602c414b460969dbf905a4446d7faff))
+
 ## [2.3.0-nsfw.9](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.8...v2.3.0-nsfw.9) (2026-11-16)
 
 ### 🐛 Bug Fixes

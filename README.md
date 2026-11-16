@@ -36,7 +36,7 @@ APKs, generated APKs and downloaded tools stay out of Git. Temporary validation 
 ## Test bundle catalog
 
 <!-- PATCHES_START -->
-> **[v2.3.0-nsfw.9](https://github.com/abdullahumuth/reddit-sfw-patches/releases/tag/v2.3.0-nsfw.9)**&nbsp;&nbsp;•&nbsp;&nbsp;`pr-testing`&nbsp;&nbsp;•&nbsp;&nbsp;203 patches total
+> **[v2.3.0-nsfw.10](https://github.com/abdullahumuth/reddit-sfw-patches/releases/tag/v2.3.0-nsfw.10)**&nbsp;&nbsp;•&nbsp;&nbsp;`pr-testing`&nbsp;&nbsp;•&nbsp;&nbsp;203 patches total
 <details>
 <summary>📦 YouTube&nbsp;&nbsp;•&nbsp;&nbsp;114 patches</summary>
 <br>

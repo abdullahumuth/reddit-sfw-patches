@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-16T06:57:08",
-  "description": "## [2.3.0-nsfw.9](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.8...v2.3.0-nsfw.9) (2026-11-16)\n\n### 🐛 Bug Fixes\n\n* **Reddit:** Preserve the warning view model before navigating back ([4d55052](https://github.com/abdullahumuth/reddit-sfw-patches/commit/4d55052852a59aa1730145365a98b1c2f89fe18f))",
-  "download_url": "https://github.com/abdullahumuth/reddit-sfw-patches/releases/download/v2.3.0-nsfw.9/patches-2.3.0-nsfw.9.mpp",
+  "created_at": "2026-11-16T12:06:22",
+  "description": "## [2.3.0-nsfw.10](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-nsfw.9...v2.3.0-nsfw.10) (2026-11-16)\n\n### 🐛 Bug Fixes\n\n* **Reddit:** Guard both dismissal paths and anonymous viewing controls ([4c315ab](https://github.com/abdullahumuth/reddit-sfw-patches/commit/4c315abf140dc628d44cd13e2cc891b0b86178f8))\n* **Reddit:** Replace blocked pages with the native warning ([27668bc](https://github.com/abdullahumuth/reddit-sfw-patches/commit/27668bc82602c414b460969dbf905a4446d7faff))",
+  "download_url": "https://github.com/abdullahumuth/reddit-sfw-patches/releases/download/v2.3.0-nsfw.10/patches-2.3.0-nsfw.10.mpp",
   "signature_download_url": "",
-  "version": "2.3.0-nsfw.9"
+  "version": "2.3.0-nsfw.10"
 }
