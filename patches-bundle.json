@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-17T05:47:20",
-  "description": "## [2.3.0-sfw.2](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-sfw.1...v2.3.0-sfw.2) (2026-11-17)\n\n### 🐛 Bug Fixes\n\n* **Reddit:** prevent NSFW flashes with native viewing disabled ([9823205](https://github.com/abdullahumuth/reddit-sfw-patches/commit/9823205afe741c977215cbd086c2aec9796cb8dc))\n* **Reddit:** remove experimental suffix from permanent-disable preference ([74c7a71](https://github.com/abdullahumuth/reddit-sfw-patches/commit/74c7a71f7e832bf9de664704821b3fd4848d1a90))",
-  "download_url": "https://github.com/abdullahumuth/reddit-sfw-patches/releases/download/v2.3.0-sfw.2/patches-2.3.0-sfw.2.mpp",
+  "created_at": "2026-11-17T14:42:38",
+  "description": "## [2.3.0-sfw.3](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-sfw.2...v2.3.0-sfw.3) (2026-11-17)\n\n### 🐛 Bug Fixes\n\n* **Reddit:** make NSFW patches independent and selected by default ([6d8f60f](https://github.com/abdullahumuth/reddit-sfw-patches/commit/6d8f60f217e43cff179f6b8fdeae4b4d8bb2c94b))",
+  "download_url": "https://github.com/abdullahumuth/reddit-sfw-patches/releases/download/v2.3.0-sfw.3/patches-2.3.0-sfw.3.mpp",
   "signature_download_url": "",
-  "version": "2.3.0-sfw.2"
+  "version": "2.3.0-sfw.3"
 }
