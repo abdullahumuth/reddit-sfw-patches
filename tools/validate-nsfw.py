@@ -15,6 +15,7 @@ def main():
     parser.add_argument("--verify-sdk", action="store_true", help="Also run strict SDK verification, including stock third-party code")
     parser.add_argument("--force", action="store_true", help="Force execution on unadvertised versions for compatibility discovery")
     parser.add_argument("--with-defaults", action="store_true", help="Include default patches to check integration")
+    parser.add_argument("--normal-off", action="store_true", help="Test flashing/navigation fixes without the permanent-disable patch")
     args = parser.parse_args()
     if not args.sdk:
         parser.error("--sdk or ANDROID_SDK_ROOT is required")
@@ -27,7 +28,7 @@ def main():
             apk.write_bytes(bundle.read("base.apk"))
     command = ["java", "-Xmx4g", "-jar", str(ROOT / "build/tools/morphe-desktop.jar"),
                "patch", str(apk), "-p", str(ROOT / "build/reddit-permanently-disable-nsfw-dev.mpp"),
-               "--exclusive", "-e", "Permanently disable NSFW content",
+               "--exclusive", "-e", "Fix NSFW content flashing" if args.normal_off else "Permanently disable NSFW content",
                "--validate", "--unsigned",
                "-o", str(work / "nsfw-unsigned.apk"),
                "--result-file", str(work / "validation.json")]
