@@ -36,7 +36,7 @@ APKs, generated APKs and downloaded tools stay out of Git. Temporary validation 
 ## Test bundle catalog
 
 <!-- PATCHES_START -->
-> **[v2.3.0-sfw.1](https://github.com/abdullahumuth/reddit-sfw-patches/releases/tag/v2.3.0-sfw.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`pr-testing`&nbsp;&nbsp;•&nbsp;&nbsp;203 patches total
+> **[v2.3.0-sfw.2](https://github.com/abdullahumuth/reddit-sfw-patches/releases/tag/v2.3.0-sfw.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`pr-testing`&nbsp;&nbsp;•&nbsp;&nbsp;205 patches total
 <details>
 <summary>📦 YouTube&nbsp;&nbsp;•&nbsp;&nbsp;114 patches</summary>
 <br>
@@ -231,7 +231,7 @@ APKs, generated APKs and downloaded tools stay out of Git. Temporary validation 
 </details>
 
 <details>
-<summary>📦 Reddit&nbsp;&nbsp;•&nbsp;&nbsp;33 patches</summary>
+<summary>📦 Reddit&nbsp;&nbsp;•&nbsp;&nbsp;35 patches</summary>
 <br>
 
 **🎯 Supported versions:**
@@ -250,6 +250,8 @@ APKs, generated APKs and downloaded tools stay out of Git. Temporary validation 
 | [Disable screenshot popup](#disable-screenshot-popup) | Adds an option to disable the popup that appears when taking a screenshot. |  |
 | [Download location](#download-location) | Adds options to choose the folder and file name of downloaded images and videos, which can use the subreddit, author and account, and can be set per account. |  |
 | [Feed media max height](#feed-media-max-height) | Adds an option to change the maximum height of images, videos and galleries in the feed. |  |
+| [Fix NSFW content flashing](#fix-nsfw-content-flashing) | Prevents flagged posts and profiles from appearing before the warning when Reddit NSFW viewing is off. |  |
+| [Fix NSFW warning navigation](#fix-nsfw-warning-navigation) | Makes the NSFW warning return to the preceding page instead of Home, including the Android back gesture. |  |
 | [Force system font](#force-system-font) | Adds an option that renders Reddit with the device system font instead of Reddit Sans / Roboto. |  |
 | [Full width feed media](#full-width-feed-media) | Adds an option to show images and videos edge to edge in the feed and post details, without side padding and rounded corners. |  |
 | [Hide Ask button](#hide-ask-button) | Adds an option to hide Ask button in the search bar. |  |

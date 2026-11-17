@@ -1,3 +1,10 @@
+## [2.3.0-sfw.2](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-sfw.1...v2.3.0-sfw.2) (2026-11-17)
+
+### 🐛 Bug Fixes
+
+* **Reddit:** prevent NSFW flashes with native viewing disabled ([9823205](https://github.com/abdullahumuth/reddit-sfw-patches/commit/9823205afe741c977215cbd086c2aec9796cb8dc))
+* **Reddit:** remove experimental suffix from permanent-disable preference ([74c7a71](https://github.com/abdullahumuth/reddit-sfw-patches/commit/74c7a71f7e832bf9de664704821b3fd4848d1a90))
+
 ## [2.3.0-sfw.1](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.2.0...v2.3.0-sfw.1) (2026-11-17)
 
 ### ✨ New Features
