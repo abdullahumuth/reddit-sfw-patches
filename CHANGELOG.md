@@ -1,3 +1,9 @@
+## [2.3.0-sfw.3](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-sfw.2...v2.3.0-sfw.3) (2026-11-17)
+
+### 🐛 Bug Fixes
+
+* **Reddit:** make NSFW patches independent and selected by default ([6d8f60f](https://github.com/abdullahumuth/reddit-sfw-patches/commit/6d8f60f217e43cff179f6b8fdeae4b4d8bb2c94b))
+
 ## [2.3.0-sfw.2](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-sfw.1...v2.3.0-sfw.2) (2026-11-17)
 
 ### 🐛 Bug Fixes
