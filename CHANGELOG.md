@@ -1,3 +1,11 @@
+## [2.3.0-sfw.5](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-sfw.4...v2.3.0-sfw.5) (2026-11-24)
+
+### 🐛 Bug Fixes
+
+* **Reddit:** Filter recent communities before mapping and conceal post previews ([9ce6d7f](https://github.com/abdullahumuth/reddit-sfw-patches/commit/9ce6d7f7ad2193410ea6ae71f1ea4e78ff0a9e84))
+* **Reddit:** Handle the older post view branch layout ([8fca288](https://github.com/abdullahumuth/reddit-sfw-patches/commit/8fca288aab9067a7f6139171c671932d632053ab))
+* **Reddit:** Match the inlined recent community collectors literally ([2cee794](https://github.com/abdullahumuth/reddit-sfw-patches/commit/2cee794dda371e08c716915ddb065e83bd69ad3f))
+
 ## [2.3.0-sfw.4](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-sfw.3...v2.3.0-sfw.4) (2026-11-24)
 
 ### ✨ New Features
