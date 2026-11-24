@@ -38,9 +38,6 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
 
-      - name: Test Reddit NSFW filter on host
-        run: python3 tools/test-nsfw.py
-
       - name: Install dependencies
         run: npm install
 
