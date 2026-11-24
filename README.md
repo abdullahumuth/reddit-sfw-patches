@@ -1,24 +1,20 @@
 # Reddit SFW Patches (PR testing)
 
-Temporary test source for [upstream PR #4869](https://github.com/MorpheApp/morphe-patches/pull/4869), which adds an opt-in **Permanently disable NSFW content (experimental)** patch for Reddit. The priority is getting the feature reviewed and merged upstream. A separately maintained community patch is only a fallback if that contribution is not accepted. This repository is not submitted to a community index.
+Temporary test source for [upstream PR #4869](https://github.com/MorpheApp/morphe-patches/pull/4869). It contains **Permanently disable NSFW content**, **Prevent NSFW content flashing**, and **Fix NSFW warning navigation**. Each patch is selected by default and can be unchecked on its own.
 
-This is an independent, experimental derivative of [Morphe Patches](https://github.com/MorpheApp/morphe-patches), not an official release. Required upstream attribution, license and [NOTICE](NOTICE) remain intact. Complete content coverage and device testing are still pending.
+This is an independent test build of [Morphe Patches](https://github.com/MorpheApp/morphe-patches). See the upstream license and [NOTICE](NOTICE).
 
 ## Test on your phone
 
-Add [this repository](https://github.com/abdullahumuth/reddit-sfw-patches) as a source in Manager. Remove the previous source entry first, then refresh. It must display **Reddit SFW Patches (PR testing)**. Both `main` and `dev` metadata endpoints point to the same experimental PR test bundle, so changing the prerelease toggle is unnecessary. This does not imply stable quality.
+Add [this repository](https://github.com/abdullahumuth/reddit-sfw-patches) as a source in Manager and refresh it. The source appears as **Reddit SFW Patches (PR testing)**. Both Manager channels point to the same test bundle.
 
-Select Reddit **2026.40.0** or **2026.45.0**, then explicitly select **Permanently disable NSFW content (experimental)**; it is off by default. See the [phone checklist](docs/PHONE-TEST.md) for activation and checks. No USB debugging is needed.
-
-After confirmation, permanent disabling applies to every account and anonymous browsing. It enforces Reddit's native NSFW-off policy, removes viewing/blur and adult-search controls, refuses native attempts to re-enable viewing, and clears/disables the disclaimer bypass and RedGIFs audio/HD options. Clearing app data resets activation; updating the app must preserve it.
-
-This revision adds no response filter, network interceptor, content classifier or custom blocked screen. Reddit handles content through its ordinary off-state behavior. Test builds through `2.3.0-nsfw.7` failed phone testing and should not be relied on.
+Use an original Reddit **2026.40.0** or **2026.45.0** APKM for the tested versions. After patching and installing, open **Settings > Morphe > Layout** to activate permanent disabling. See the [phone checklist](docs/PHONE-TEST.md).
 
 ## Repository organization
 
 | Branch | Purpose |
 | --- | --- |
-| `feature/reddit-permanent-nsfw` | Focused upstream contribution: feature code, tests and validation notes. |
+| `feature/reddit-permanent-nsfw` | Upstream contribution and maintainer refactor. |
 | `pr-testing` | Source for temporary test builds; repository default. Packaging stays out of the upstream PR. |
 | `main`, `dev` | Manager metadata aliases for the current PR test build. |
 | `community/dev` | Archived earlier distribution experiment; no automatic publication. |
@@ -26,8 +22,6 @@ This revision adds no response filter, network interceptor, content classifier o
 Changes to the feature go to the upstream feature branch first, then into `pr-testing`. Publishing test bundles requires manually dispatching the **Build PR test bundle** workflow on `pr-testing`. Successful manual builds synchronize the Manager metadata aliases. No automatic community publication or index submission is configured. The inherited catalog below includes other upstream patches; this project does not newly verify those patches.
 
 ## Build and verification
-
-Run `python tools/test-nsfw.py` with Python 3 and JDK 17+. The persistence checks use no external dependencies or device access. The rebuilt-APK checker verifies native guards and absence of retired custom filtering. See [design and validation notes](docs/NSFW-DESIGN.md).
 
 The normal source build is `./gradlew :patches:buildAndroid` and needs access to upstream GitHub Maven dependencies. `python tools/validate-nsfw.py path/to/reddit.apkm` validates and rebuilds an unsigned APK for inspection, without installation or adb.
 
