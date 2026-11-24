@@ -31,7 +31,6 @@ private const val VIDEO_ACTION_FILTER =
 private const val QUICK_ACTIONS_FILTER =
     "Lapp/morphe/extension/youtube/patches/components/QuickActionButtonsFilter;"
 
-@Suppress("unused")
 val hideVideoActionButtonsPatch = patch(
     name = "Hide video action buttons",
     description = "Adds options to hide video action buttons in fullscreen and portrait modes."
@@ -60,7 +59,11 @@ val hideVideoActionButtonsPatch = patch(
                             SwitchPreference("morphe_hide_action_bar"),
                             SwitchPreference("morphe_hide_ask_button"),
                             SwitchPreference("morphe_hide_channel_profile_button", summary = true),
-                            SwitchPreference("morphe_hide_channel_profile_subscribe_button", summary = true),
+                            SwitchPreference(
+                                "morphe_hide_channel_profile_subscribe_button",
+                                titleKey = "morphe_hide_subscribe_button_title",
+                                summary = true
+                            ),
                             SwitchPreference("morphe_hide_clip_button", summary = true),
                             SwitchPreference("morphe_hide_comments_button"),
                             SwitchPreference("morphe_hide_connect_button"),

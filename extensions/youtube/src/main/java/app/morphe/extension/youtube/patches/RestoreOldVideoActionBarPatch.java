@@ -15,6 +15,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,11 +41,12 @@ import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.Subscribe
 import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.SubscriptionConfig;
 import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.ToggleButtonViewModel;
 import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.ToggleButtonViewModelHolder;
+import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.VideoActionBarData;
 import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.VideoActionBarItem;
 import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.VideoActionBarItemContent;
-import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.VideoActionBarLayoutConfig;
 import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.VideoActionBarLikeCount;
 import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.VideoActionBarLikeDislike;
+import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.VideoActionBarModel;
 import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.VideoActionBarOverflow;
 import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.VideoActionBarSize;
 import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.VideoActionBarViewModel;
@@ -53,6 +55,7 @@ import app.morphe.extension.youtube.innertube.NextResponseOuterClass.SecondaryCo
 import app.morphe.extension.youtube.innertube.NextResponseOuterClass.SlimVideoMetadataSectionRenderer;
 import app.morphe.extension.youtube.innertube.NextResponseOuterClass.TertiaryContents;
 import app.morphe.extension.youtube.patches.utils.FeedVideoCardsPatch;
+import app.morphe.extension.youtube.patches.utils.ProtoNode;
 import app.morphe.extension.youtube.patches.utils.requests.ConfigRequest;
 import app.morphe.extension.youtube.settings.Settings;
 
@@ -108,6 +111,27 @@ public class RestoreOldVideoActionBarPatch {
             || LAYOUT == VideoActionBarLayout.CLASSIC_TWO_ROWS;
 
     private static final String VIDEO_ACTION_BAR_TEMPLATE = "compactify_video_action_bar.eml";
+    /**
+     * Template of the action bar of the large screens, such as tablets, whose layout is not changed.
+     * The name is also part of the name of {@link #VIDEO_ACTION_BAR_TEMPLATE}.
+     */
+    private static final String LARGE_SCREEN_VIDEO_ACTION_BAR_TEMPLATE = "video_action_bar.eml";
+
+    /**
+     * Template of the title of the watch page, with the channel name, the views and the date below it.
+     */
+    private static final String VIDEO_METADATA_TEMPLATE = "video_metadata.eml";
+
+    /**
+     * Field path of the channel name below the title of the watch page: element, element type,
+     * component type, model, video metadata model, subtitle, subtitle model, channel name.
+     */
+    private static final int[] SUBTITLE_CHANNEL_NAME_PATH = {1, 168777401, 5, 377581260, 6, 1019, 17, 1017, 1};
+
+    /**
+     * Commands of the parts of a text, such as the channel that the channel name opens.
+     */
+    private static final int TEXT_COMMAND_RUNS_FIELD = 5;
     private static final int LAYOUT_STYLE_CLASSIC = 4;
     private static final int LAYOUT_STYLE_MINIMAL = 6;
     /**
@@ -219,20 +243,84 @@ public class RestoreOldVideoActionBarPatch {
     /**
      * Injection point.
      * <p>
+     * The channel name below the title of the watch page opens the channel, next to the views
+     * and the date that open the description, so the channel opens when the description is meant.
+     * The command of the channel name is removed, so the whole subtitle opens the description.
+     */
+    public static byte[] removeSubtitleChannelCommand(byte[] bytes) {
+        if (!FeedVideoCardsPatch.getElementText(bytes).contains(VIDEO_METADATA_TEMPLATE)) {
+            return bytes;
+        }
+
+        try {
+            List<ProtoNode> element = ProtoNode.parse(bytes);
+            if (element == null) {
+                return bytes;
+            }
+            List<ProtoNode> channelName = ProtoNode.message(element, SUBTITLE_CHANNEL_NAME_PATH);
+            ProtoNode commandRuns = ProtoNode.field(channelName, TEXT_COMMAND_RUNS_FIELD);
+            if (commandRuns == null) {
+                return bytes;
+            }
+            do {
+                commandRuns.remove();
+                commandRuns = ProtoNode.field(channelName, TEXT_COMMAND_RUNS_FIELD);
+            } while (commandRuns != null);
+            return ProtoNode.write(element);
+        } catch (Exception ex) {
+            Logger.printException(() -> "removeSubtitleChannelCommand failure", ex);
+            return bytes;
+        }
+    }
+
+    /**
+     * Injection point.
+     * <p>
      * Both layouts are the same element of the watch page with another style, and the server
      * chooses the style, so the action bar of the chosen layout is built from the element it sends.
      */
     public static byte[] setVideoActionBarLayout(byte[] bytes) {
-        if (LAYOUT == VideoActionBarLayout.DEFAULT
-                || !FeedVideoCardsPatch.getElementText(bytes).contains(VIDEO_ACTION_BAR_TEMPLATE)) {
+        final String elementText = FeedVideoCardsPatch.getElementText(bytes);
+        if (!elementText.contains(LARGE_SCREEN_VIDEO_ACTION_BAR_TEMPLATE)) {
             return bytes;
         }
 
         try {
             Element element = Element.parseFrom(bytes);
             ComponentType componentType = element.getType().getComponentType();
+            if (!elementText.contains(VIDEO_ACTION_BAR_TEMPLATE)) {
+                // The action bar of the large screens keeps its layout, but the buttons that the server sends
+                // without an icon name, such as the like and dislike buttons, get the icon of the button.
+                VideoActionBarModel actionBarModel = componentType.getModel().getVideoActionBarModel();
+                VideoActionBarData data = actionBarModel.getVideoActionBarData();
+                VideoActionBarViewModel actionBar = VideoActionBarViewModel.newBuilder()
+                        .addAllActions(data.getActionsList())
+                        .build();
+                VideoActionBarViewModel newActionBar = withButtonIcons(actionBar);
+                return newActionBar == actionBar
+                        ? bytes
+                        : element.toBuilder()
+                        .setType(element.getType().toBuilder()
+                                .setComponentType(componentType.toBuilder()
+                                        .setModel(componentType.getModel().toBuilder()
+                                                .setVideoActionBarModel(actionBarModel.toBuilder()
+                                                        .setVideoActionBarData(data.toBuilder()
+                                                                .clearActions()
+                                                                .addAllActions(newActionBar.getActionsList()))))))
+                        .build().toByteArray();
+            }
+
             LockupModel lockupModel = componentType.getModel().getLockupModel();
             VideoActionBarViewModel actionBar = lockupModel.getViewModel().getVideoActionBarViewModel();
+            if (LAYOUT == VideoActionBarLayout.DEFAULT) {
+                // The layout of the server is kept, but the buttons that the server sends without an icon,
+                // such as the Save item of the More menu, get the icon of the button.
+                VideoActionBarViewModel newActionBar = withButtonIcons(actionBar);
+                return newActionBar == actionBar
+                        ? bytes
+                        : withActionBar(element, componentType, lockupModel, newActionBar).toByteArray();
+            }
+
             final boolean minimal = LAYOUT == VideoActionBarLayout.MINIMAL;
             if (actionBar.getLayoutStyle() != (minimal ? LAYOUT_STYLE_CLASSIC : LAYOUT_STYLE_MINIMAL)) {
                 // The server sends the chosen layout, or a layout that is not changed.
@@ -831,6 +919,7 @@ public class RestoreOldVideoActionBarPatch {
      * @return If the serialized protocol buffer message has a top level field with the given number.
      *         If the message cannot be read, true is returned.
      */
+    @SuppressWarnings("SameParameterValue")
     private static boolean hasTopLevelField(byte[] message, int fieldNumber) {
         int position = 0;
         final int end = message.length;
@@ -899,15 +988,6 @@ public class RestoreOldVideoActionBarPatch {
                 configInfo.patch_setColdHashData(coldHashData);
             }
         }
-    }
-
-    /**
-     * Injection point.
-     */
-    public static String getVideoActionBarAppVersionOverride(String original) {
-        return FIX_VIDEO_ACTION_BAR
-                ? "20.13.41"
-                : original;
     }
 
     /**

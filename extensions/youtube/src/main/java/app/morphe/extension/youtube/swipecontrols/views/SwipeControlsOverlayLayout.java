@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,6 +17,7 @@ import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import app.morphe.extension.shared.ResourceType;
@@ -23,6 +25,7 @@ import app.morphe.extension.shared.ResourceUtils;
 import app.morphe.extension.shared.ui.ViewAnimations;
 import app.morphe.extension.youtube.patches.SoundBoostPatch;
 import app.morphe.extension.youtube.patches.VideoInformation;
+import app.morphe.extension.youtube.patches.playback.speed.ReplaySwipeGesture;
 import app.morphe.extension.youtube.swipecontrols.SwipeControlsConfigurationProvider;
 import app.morphe.extension.youtube.swipecontrols.SwipeControlsConfigurationProvider.SwipeOverlayStyle;
 import app.morphe.extension.youtube.swipecontrols.misc.SwipeControlsOverlay;
@@ -32,6 +35,7 @@ import app.morphe.extension.youtube.videoplayer.PlayerIcons;
  * Main overlay layout for displaying volume, brightness, and playback speed level with circular, horizontal and vertical progress bars.
  */
 @SuppressLint("ViewConstructor")
+@SuppressWarnings("unused")
 public final class SwipeControlsOverlayLayout extends RelativeLayout implements SwipeControlsOverlay {
 
     private static final int VOLUME_BOOST_PERCENT_PER_STEP = 25;
@@ -64,6 +68,9 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
     private final HorizontalProgressView horizontalProgressView;
     private final VerticalProgressView verticalBrightnessProgressView;
     private final VerticalProgressView verticalVolumeProgressView;
+
+    @Nullable
+    private HorizontalProgressView replayProgressView;
 
     // Handler and callback for hiding progress bars.
     private final Handler feedbackHideHandler = new Handler(Looper.getMainLooper());
@@ -181,6 +188,39 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
         );
         drawable.setTint(SwipeControlsConfigurationProvider.OVERLAY_TEXT_COLOR);
         return drawable;
+    }
+
+    /** Shows the selected rewind inside the player, including in portrait mode. */
+    public void showReplayFeedback(int seconds, Rect playerBounds) {
+        if (replayProgressView == null) {
+            replayProgressView = new HorizontalProgressView(getContext(),
+                    config.getOverlayBackgroundOpacity(), true, config.getOverlaySpeedProgressColor(),
+                    SwipeControlsConfigurationProvider.OVERLAY_FILL_BACKGROUND_COLOR,
+                    SwipeControlsConfigurationProvider.OVERLAY_TEXT_COLOR, config.getOverlayTextSize());
+            replayProgressView.icon = getDrawable("morphe_replay_video_button");
+            replayProgressView.setVisibility(GONE);
+            addView(replayProgressView);
+        }
+        String text = str("morphe_replay_video_swipe_preview", seconds);
+        replayProgressView.setProgress(seconds, ReplaySwipeGesture.MAX_REWIND_SECONDS, text, false);
+        replayProgressView.setContentDescription(text);
+        final int maxWidth = playerBounds.width() * 4 / 5;
+        final int height = (int) toDisplayPixels(32f);
+        replayProgressView.measure(MeasureSpec.makeMeasureSpec(maxWidth, MeasureSpec.AT_MOST),
+                MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
+        final int width = replayProgressView.getMeasuredWidth();
+        int[] location = new int[2];
+        getLocationOnScreen(location);
+        LayoutParams params = new LayoutParams(width, height);
+        params.leftMargin = playerBounds.centerX() - location[0] - width / 2;
+        params.topMargin = playerBounds.centerY() - location[1] - height / 2;
+        replayProgressView.setLayoutParams(params);
+        // Also cancels a pending fade-out when another swipe starts immediately.
+        ViewAnimations.fadeIn(replayProgressView, FADE_DURATION_MILLIS);
+    }
+
+    public void hideReplayFeedback() {
+        if (replayProgressView != null) ViewAnimations.fadeOut(replayProgressView, FADE_DURATION_MILLIS);
     }
 
     /**
@@ -350,6 +390,8 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
             textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             textPaint.setColor(overlayTextColor);
             textPaint.setTextAlign(Paint.Align.CENTER);
+            // Also the custom font of the Custom font patch, which a paint without a typeface does not use.
+            textPaint.setTypeface(Typeface.DEFAULT);
             textPaint.setTextSize(toDisplayPixels(overlayTextSize));
         }
 
@@ -389,6 +431,7 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
     private static final class CircularProgressView extends AbstractProgressView {
         private final RectF rectF = new RectF();
 
+        @SuppressWarnings("SameParameterValue")
         CircularProgressView(Context context, int overlayBackgroundOpacity, boolean isMinimalStyle,
                              int overlayProgressColor, int overlayFillBackgroundPaint,
                              int overlayTextColor, int overlayTextSize) {
@@ -404,7 +447,7 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
         }
 
         @Override
-        protected void onDraw(Canvas canvas) {
+        protected void onDraw(@NonNull Canvas canvas) {
             super.onDraw(canvas);
 
             final int width = getWidth();
@@ -455,6 +498,7 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
         private final float progressBarHeight = toDisplayPixels(3f);
         private final float progressBarWidth;
 
+        @SuppressWarnings("SameParameterValue")
         HorizontalProgressView(Context context, int overlayBackgroundOpacity, boolean isMinimalStyle,
                                int overlayProgressColor, int overlayFillBackgroundPaint,
                                int overlayTextColor, int overlayTextSize) {
@@ -496,7 +540,7 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
         }
 
         @Override
-        protected void onDraw(Canvas canvas) {
+        protected void onDraw(@NonNull Canvas canvas) {
             super.onDraw(canvas);
 
             final float viewWidth = getWidth();
@@ -505,8 +549,6 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
 
             textWidth = measureTextWidth(displayText, textPaint);
 
-            final float cornerRadius = viewHeightHalf;
-
             final float startX = padding;
             final float iconEndX = startX + iconSize;
 
@@ -514,7 +556,7 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
 
             canvas.drawRoundRect(
                     0f, 0f, viewWidth, viewHeight,
-                    cornerRadius, cornerRadius, backgroundPaint
+                    viewHeightHalf, viewHeightHalf, backgroundPaint
             );
 
             if (icon != null) {
@@ -586,6 +628,7 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
         private final float progressBarWidth = toDisplayPixels(3f);
         private final float progressBarHeight;
 
+        @SuppressWarnings("SameParameterValue")
         VerticalProgressView(Context context, int overlayBackgroundOpacity, boolean isMinimalStyle,
                              int overlayProgressColor, int overlayFillBackgroundPaint,
                              int overlayTextColor, int overlayTextSize) {
@@ -625,13 +668,12 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
         }
 
         @Override
-        protected void onDraw(Canvas canvas) {
+        protected void onDraw(@NonNull Canvas canvas) {
             super.onDraw(canvas);
 
             final float viewWidth = getWidth();
             final float viewHeight = getHeight();
             final float viewWidthHalf = viewWidth / 2;
-            final float cornerRadius = viewWidthHalf;
 
             final float startY = padding;
             final float iconEndY = startY + iconSize;
@@ -640,7 +682,7 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
 
             canvas.drawRoundRect(
                     0f, 0f, viewWidth, viewHeight,
-                    cornerRadius, cornerRadius, backgroundPaint
+                    viewWidthHalf, viewWidthHalf, backgroundPaint
             );
 
             if (icon != null) {
@@ -654,11 +696,10 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
                 icon.draw(canvas);
             }
 
-            final float textX = viewWidthHalf;
             textPaint.setTextAlign(Paint.Align.CENTER);
 
             if (isMinimalStyle) {
-                canvas.drawText(displayText, textX, textStartY, textPaint);
+                canvas.drawText(displayText, viewWidthHalf, textStartY, textPaint);
             } else {
                 final float progressStartY = iconEndY + padding;
                 final float progressEndY = textStartY - textPaint.getTextSize() - padding;
@@ -666,13 +707,13 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
 
                 if (progressHeight > 50) {
                     final float progressBarWidthHalf = progressBarWidth / 2;
-                    final float viewHeightHalfMinusProgressBarHeightHalf = viewWidthHalf - progressBarWidthHalf;
-                    final float viewHeightHalfPlusProgressBarHeightHalf = viewWidthHalf + progressBarWidthHalf;
+                    final float viewWidthHalfMinusProgressBarWidthHalf = viewWidthHalf - progressBarWidthHalf;
+                    final float viewWidthHalfPlusProgressBarWidthHalf = viewWidthHalf + progressBarWidthHalf;
 
                     canvas.drawRoundRect(
-                            viewHeightHalfMinusProgressBarHeightHalf,
+                            viewWidthHalfMinusProgressBarWidthHalf,
                             progressStartY,
-                            viewHeightHalfPlusProgressBarHeightHalf,
+                            viewWidthHalfPlusProgressBarWidthHalf,
                             progressEndY,
                             progressBarWidthHalf,
                             progressBarWidthHalf,
@@ -681,16 +722,16 @@ public final class SwipeControlsOverlayLayout extends RelativeLayout implements 
 
                     final float progressValue = ((float) progress / maxProgress) * progressHeight;
                     canvas.drawRoundRect(
-                            viewHeightHalfMinusProgressBarHeightHalf,
+                            viewWidthHalfMinusProgressBarWidthHalf,
                             progressEndY - progressValue,
-                            viewHeightHalfPlusProgressBarHeightHalf,
+                            viewWidthHalfPlusProgressBarWidthHalf,
                             progressEndY,
                             progressBarWidthHalf,
                             progressBarWidthHalf,
                             progressPaint
                     );
                 }
-                canvas.drawText(displayText, textX, textStartY, textPaint);
+                canvas.drawText(displayText, viewWidthHalf, textStartY, textPaint);
             }
         }
 

@@ -10,20 +10,20 @@
 
 package app.morphe.extension.music.settings;
 
-import static app.morphe.extension.shared.StringRef.str;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.BlendMode;
 import android.graphics.BlendModeColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceFragment;
 import android.view.View;
 import android.widget.Toolbar;
 
-import app.morphe.extension.music.patches.downloads.LocalDownloadsFragment;
 import app.morphe.extension.music.settings.preference.MusicPreferenceFragment;
 import app.morphe.extension.music.settings.search.MusicSearchViewController;
 import app.morphe.extension.shared.Logger;
@@ -42,9 +42,17 @@ import app.morphe.extension.shared.theme.ThemeUtils;
 @SuppressWarnings({"deprecation", "RedundantSuppression"})
 public class MusicActivityHook extends BaseActivityHook {
 
+    private static final String GOOGLE_API_ACTIVITY_CLASS = "com.google.android.gms.common.api.GoogleApiActivity";
+
+    private static final String YOUTUBE_MUSIC_SETTINGS_ACTIVITY_CLASS =
+            "com.google.android.apps.youtube.music.settings.SettingsCompatActivity";
+    private static final String YOUTUBE_MUSIC_SETTINGS_FRAGMENT_CLASS =
+            "com.google.android.apps.youtube.music.settings.fragment.SettingsHeadersFragment";
+    private static final String EXTRA_SHOW_FRAGMENT = ":android:show_fragment";
+    private static final String EXTRA_NO_HEADERS = ":android:no_headers";
+
     @SuppressLint("StaticFieldLeak")
     public static MusicSearchViewController searchViewController;
-    private static boolean downloadsMode;
 
     private static final boolean USE_BOLD_ICONS = Settings.SETTINGS_INITIALIZED.get()
             && !SpoofAppVersionPatch.isSpoofingToLessThan("8.40.00");
@@ -69,10 +77,6 @@ public class MusicActivityHook extends BaseActivityHook {
      */
     @SuppressWarnings("unused")
     public static void initialize(Activity parentActivity) {
-
-        downloadsMode = BaseActivityHook.MORPHE_DOWNLOADS_INTENT.equals(
-                parentActivity.getIntent().getDataString());
-
         // Prevent opening multiple settings activities if menu is double tapped quickly.
         if (Utils.isFastClick()) {
             parentActivity.finish();
@@ -88,6 +92,35 @@ public class MusicActivityHook extends BaseActivityHook {
         Utils.setIsDarkModeEnabled(true);
 
         BaseActivityHook.initialize(new MusicActivityHook(), parentActivity);
+    }
+
+    /**
+     * Opens the Morphe settings.
+     */
+    public static void openSettings(Context context) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.setData(Uri.parse(MORPHE_SETTINGS_INTENT));
+            intent.setClassName(context, GOOGLE_API_ACTIVITY_CLASS);
+            context.startActivity(intent);
+        } catch (Exception ex) {
+            Logger.printException(() -> "Failed to open Morphe settings", ex);
+        }
+    }
+
+    /**
+     * Opens the YouTube Music settings, with the extras the app uses to open them.
+     */
+    public static void openYouTubeMusicSettings(Context context) {
+        try {
+            Intent intent = new Intent();
+            intent.setClassName(context, YOUTUBE_MUSIC_SETTINGS_ACTIVITY_CLASS);
+            intent.putExtra(EXTRA_SHOW_FRAGMENT, YOUTUBE_MUSIC_SETTINGS_FRAGMENT_CLASS);
+            intent.putExtra(EXTRA_NO_HEADERS, true);
+            context.startActivity(intent);
+        } catch (Exception ex) {
+            Logger.printException(() -> "Failed to open YouTube Music settings", ex);
+        }
     }
 
     /**
@@ -148,9 +181,7 @@ public class MusicActivityHook extends BaseActivityHook {
      */
     @Override
     protected void onPostToolbarSetup(Activity activity, Toolbar toolbar, PreferenceFragment fragment) {
-        if (fragment instanceof LocalDownloadsFragment) {
-            toolbar.setTitle(str("morphe_music_downloads_screen_title"));
-        } else if (fragment instanceof MusicPreferenceFragment) {
+        if (fragment instanceof MusicPreferenceFragment) {
             searchViewController = MusicSearchViewController.addSearchViewComponents(
                     activity, toolbar, (MusicPreferenceFragment) fragment);
         }
@@ -161,7 +192,7 @@ public class MusicActivityHook extends BaseActivityHook {
      */
     @Override
     protected PreferenceFragment createPreferenceFragment() {
-        return downloadsMode ? new LocalDownloadsFragment() : new MusicPreferenceFragment();
+        return new MusicPreferenceFragment();
     }
 
     /**
@@ -174,13 +205,7 @@ public class MusicActivityHook extends BaseActivityHook {
     @SuppressWarnings("unused")
     public static boolean handleFinish(Activity activity) {
         return MusicSearchViewController.handleFinish(searchViewController)
-                || handleDownloadsBack(activity)
                 || AbstractPreferenceFragment.showRestartDialogIfNeeded(activity);
-    }
-
-    private static boolean handleDownloadsBack(Activity activity) {
-        return activity.getFragmentManager().findFragmentById(ID_MORPHE_SETTINGS_FRAGMENTS)
-                instanceof LocalDownloadsFragment downloads && downloads.handleBack();
     }
 
     /**

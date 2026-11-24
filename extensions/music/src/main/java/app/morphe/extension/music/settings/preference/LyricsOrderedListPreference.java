@@ -9,11 +9,13 @@ package app.morphe.extension.music.settings.preference;
 
 import static app.morphe.extension.shared.StringRef.str;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Pair;
@@ -27,6 +29,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -35,11 +40,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import androidx.annotation.Nullable;
 
 import app.morphe.extension.music.patches.lyrics.derive.ProcessingProviders;
-import app.morphe.extension.music.patches.lyrics.romanizers.RimeDictStore;
+import app.morphe.extension.music.patches.lyrics.romanizers.RimeDictionaryStore;
 import app.morphe.extension.music.settings.Settings;
 import app.morphe.extension.shared.Logger;
 import app.morphe.extension.shared.Utils;
@@ -138,7 +144,7 @@ public final class LyricsOrderedListPreference extends Preference {
      * A CheckBox defaults to the dialog theme's own label colour, which the dark app theme leaves
      * black on a dark dialog. Its box follows the text colour too, so both are set from the app.
      */
-    private static void styleCheckBox(CheckBox box, int fg) {
+    private static void styleCheckBox(CompoundButton box, int fg) {
         box.setTextColor(fg);
         final int[][] states = {{android.R.attr.state_checked}, {}};
         box.setButtonTintList(new ColorStateList(states, new int[]{fg, withAlpha(fg, 0x66)}));
@@ -207,7 +213,7 @@ public final class LyricsOrderedListPreference extends Preference {
     /** The star marks a row that needs a token before it can be on, as in the source list. */
     private static boolean isQuickLrcKeyMissing() {
         final String key = Settings.LYRICS_TRANSCRIBE_KEY.get();
-        return key == null || key.trim().isEmpty();
+        return key.trim().isEmpty();
     }
 
     /** Providers whose settings are entered in a dialog when their name is tapped. */
@@ -232,7 +238,7 @@ public final class LyricsOrderedListPreference extends Preference {
     }
 
     private void showConfigDialog(String id) {
-        if (!(getContext() instanceof android.app.Activity activity)
+        if (!(getContext() instanceof Activity activity)
                 || activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
@@ -298,7 +304,7 @@ public final class LyricsOrderedListPreference extends Preference {
         }
 
         final Context context = getContext();
-        if (!(context instanceof android.app.Activity activity)
+        if (!(context instanceof Activity activity)
                 || activity.isFinishing() || activity.isDestroyed()) {
             onRefused.run();
             return;
@@ -318,7 +324,7 @@ public final class LyricsOrderedListPreference extends Preference {
     /** The name opens the same chooser the switch asks with, without turning the row on. */
     private void showLocalSettings() {
         final Context context = getContext();
-        if (!(context instanceof android.app.Activity activity)
+        if (!(context instanceof Activity activity)
                 || activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
@@ -332,11 +338,11 @@ public final class LyricsOrderedListPreference extends Preference {
      */
     private void showRimeSettings() {
         final Context context = getContext();
-        if (!(context instanceof android.app.Activity activity)
+        if (!(context instanceof Activity activity)
                 || activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
-        LyricsRimeDictDialog.show(context, () -> {
+        LyricsRimeDictionaryDialog.show(context, () -> {
             // A ticked table for the language above turns the row on (checklist §4.1),
             // the same background-fetch + toast model the Local dictionary uses.
             turnOnRimeIfTable();
@@ -349,7 +355,7 @@ public final class LyricsOrderedListPreference extends Preference {
      *  beside that fetch rather than leaving it off until the user taps the switch. */
     private void turnOnRimeIfTable() {
         for (Item item : items) {
-            if (isRimeProvider(item.id) && !item.enabled && RimeDictStore.isActive()) {
+            if (isRimeProvider(item.id) && !item.enabled && RimeDictionaryStore.isActive()) {
                 item.enabled = true;
                 saveItems();
                 rebuildRows();
@@ -362,7 +368,7 @@ public final class LyricsOrderedListPreference extends Preference {
      *  leave it on to return nothing, and toast why. */
     private void turnOffRimeWithoutTable() {
         for (Item item : items) {
-            if (isRimeProvider(item.id) && item.enabled && !RimeDictStore.isActive()) {
+            if (isRimeProvider(item.id) && item.enabled && !RimeDictionaryStore.isActive()) {
                 item.enabled = false;
                 saveItems();
                 rebuildRows();
@@ -382,19 +388,19 @@ public final class LyricsOrderedListPreference extends Preference {
      * table for the chosen language.
      */
     private void enableRime(Switch switchV, TextView name, Runnable onEnabled, Runnable onRefused) {
-        if (!RimeDictStore.isActive()) {
+        if (!RimeDictionaryStore.isActive()) {
             final Context context = getContext();
-            if (!(context instanceof android.app.Activity activity)
+            if (!(context instanceof Activity activity)
                     || activity.isFinishing() || activity.isDestroyed()) {
                 onRefused.run();
                 return;
             }
             final boolean[] turnedOn = {false};
-            LyricsRimeDictDialog.show(context, () -> {
-                if (turnedOn[0] || !RimeDictStore.isActive()) {
+            LyricsRimeDictionaryDialog.show(context, () -> {
+                if (turnedOn[0] || !RimeDictionaryStore.isActive()) {
                     return;
                 }
-                // The dialog's Save already fetches every ticked table, this language's
+                // The dialog's "Save" already fetches every ticked table, this language's
                 // included, so the row is turned on beside that fetch rather than by another.
                 turnedOn[0] = true;
                 enableRow(switchV, name);
@@ -412,7 +418,7 @@ public final class LyricsOrderedListPreference extends Preference {
         enableRow(switchV, name);
         onEnabled.run();
         Utils.runOnBackgroundThread(
-                () -> RimeDictStore.ensureForProvider(RimeDictStore.SILENT));
+                () -> RimeDictionaryStore.ensureForProvider(RimeDictionaryStore.SILENT));
     }
 
     private static void enableRow(Switch switchV, TextView name) {
@@ -437,10 +443,72 @@ public final class LyricsOrderedListPreference extends Preference {
         hint.setText(str("morphe_music_lyrics_local_romanization_summary"));
         hint.setPadding(0, 0, 0, Dim.dp12);
 
+        final CheckBox jaParent = new CheckBox(context);
+        jaParent.setText(str("morphe_music_lyrics_local_romanization_dict_ja_parent"));
+        jaParent.setChecked(chosen[LyricsLocalRomanizationDownloads.KUROMOJI]
+                || chosen[LyricsLocalRomanizationDownloads.SUDACHI]);
+        styleCheckBox(jaParent, fg);
+
+        final LinearLayout jaOptionsBox = new LinearLayout(context);
+        jaOptionsBox.setOrientation(LinearLayout.VERTICAL);
+        jaOptionsBox.setPadding(Dim.dp24, 0, 0, Dim.dp4);
+
+        final CheckBox kuromoji = new CheckBox(context);
+        kuromoji.setText(str("morphe_music_lyrics_local_romanization_dict_kuromoji"));
+        kuromoji.setChecked(chosen[LyricsLocalRomanizationDownloads.KUROMOJI]);
+        styleCheckBox(kuromoji, fg);
+        jaOptionsBox.addView(kuromoji);
+
         final CheckBox japanese = new CheckBox(context);
         japanese.setText(str("morphe_music_lyrics_local_romanization_dict_japanese"));
         japanese.setChecked(chosen[LyricsLocalRomanizationDownloads.SUDACHI]);
         styleCheckBox(japanese, fg);
+        jaOptionsBox.addView(japanese);
+
+        // When both Japanese dictionaries are ticked, let the user choose priority & fallback order.
+        final LinearLayout jaEngineBox = new LinearLayout(context);
+        jaEngineBox.setOrientation(LinearLayout.VERTICAL);
+        jaEngineBox.setPadding(Dim.dp20, Dim.dp4, 0, Dim.dp6);
+
+        final TextView jaEngineLabel = new TextView(context);
+        jaEngineLabel.setText(str("morphe_music_lyrics_japanese_dict_engine_title"));
+        jaEngineLabel.setTextSize(13);
+        jaEngineLabel.setTextColor(withAlpha(fg, 0xBB));
+        jaEngineBox.addView(jaEngineLabel);
+
+        final RadioGroup jaEngineGroup = new RadioGroup(context);
+        jaEngineGroup.setOrientation(RadioGroup.VERTICAL);
+        final RadioButton useKuromojiRadio = new RadioButton(context);
+        useKuromojiRadio.setId(View.generateViewId());
+        useKuromojiRadio.setText(str("morphe_music_lyrics_japanese_engine_kuromoji_first"));
+        styleCheckBox(useKuromojiRadio, fg);
+        final RadioButton useSudachiRadio = new RadioButton(context);
+        useSudachiRadio.setId(View.generateViewId());
+        useSudachiRadio.setText(str("morphe_music_lyrics_japanese_engine_sudachi_first"));
+        styleCheckBox(useSudachiRadio, fg);
+        jaEngineGroup.addView(useKuromojiRadio);
+        jaEngineGroup.addView(useSudachiRadio);
+        final boolean preferSudachi = "sudachi".equalsIgnoreCase(
+                Settings.LYRICS_JAPANESE_DICT_ENGINE.get());
+        jaEngineGroup.check(preferSudachi ? useSudachiRadio.getId() : useKuromojiRadio.getId());
+        jaEngineBox.addView(jaEngineGroup);
+        jaOptionsBox.addView(jaEngineBox);
+
+        final Runnable updateJaVisibility = () -> {
+            final boolean jaOn = jaParent.isChecked();
+            jaOptionsBox.setVisibility(jaOn ? View.VISIBLE : View.GONE);
+            jaEngineBox.setVisibility(
+                    jaOn && kuromoji.isChecked() && japanese.isChecked() ? View.VISIBLE : View.GONE);
+        };
+        updateJaVisibility.run();
+        jaParent.setOnCheckedChangeListener((b, checked) -> {
+            if (checked && !kuromoji.isChecked() && !japanese.isChecked()) {
+                kuromoji.setChecked(true);
+            }
+            updateJaVisibility.run();
+        });
+        kuromoji.setOnCheckedChangeListener((b, c) -> updateJaVisibility.run());
+        japanese.setOnCheckedChangeListener((b, c) -> updateJaVisibility.run());
 
         final CheckBox unidict = new CheckBox(context);
         unidict.setText(str("morphe_music_lyrics_local_romanization_dict_unidict"));
@@ -469,7 +537,8 @@ public final class LyricsOrderedListPreference extends Preference {
         final LinearLayout content = new LinearLayout(context);
         content.setOrientation(LinearLayout.VERTICAL);
         content.addView(hint);
-        content.addView(japanese);
+        content.addView(jaParent);
+        content.addView(jaOptionsBox);
         content.addView(unidict);
         content.addView(chinese);
         content.addView(cldr);
@@ -495,7 +564,7 @@ public final class LyricsOrderedListPreference extends Preference {
 
         final Dialog dialog = pair.first;
         final LinearLayout mainLayout = pair.second;
-        final android.widget.ScrollView scrollView = new android.widget.ScrollView(context);
+        final ScrollView scrollView = new ScrollView(context);
         scrollView.addView(content, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         LinearLayout.LayoutParams scrollParams = new LinearLayout.LayoutParams(
@@ -506,11 +575,22 @@ public final class LyricsOrderedListPreference extends Preference {
         // Save writes the choice and closes; the download runs in the background and answers with
         // a toast. Cancel closes without changing anything, and the dismiss listener puts the row
         // back if the dialog went away without an agreed choice.
-        final Button ok = ThemedInput.findButton(mainLayout, str("morphe_settings_save"));
+        final Button ok = Objects.requireNonNull(ThemedInput.findButton(mainLayout, str("morphe_settings_save")));
         ok.setOnClickListener(v -> {
+            final boolean saveKuromoji = jaParent.isChecked() && kuromoji.isChecked();
+            final boolean saveSudachi = jaParent.isChecked() && japanese.isChecked();
+            if (saveKuromoji && saveSudachi) {
+                Settings.LYRICS_JAPANESE_DICT_ENGINE.save(
+                        jaEngineGroup.getCheckedRadioButtonId() == useSudachiRadio.getId()
+                                ? "sudachi" : "kuromoji");
+            } else if (saveSudachi) {
+                Settings.LYRICS_JAPANESE_DICT_ENGINE.save("sudachi");
+            } else if (saveKuromoji) {
+                Settings.LYRICS_JAPANESE_DICT_ENGINE.save("kuromoji");
+            }
             // Saving with nothing ticked is a choice of its own: the rules alone.
             LyricsLocalRomanizationDownloads.saveChoice(
-                    japanese.isChecked(), unidict.isChecked(),
+                    saveKuromoji, saveSudachi, unidict.isChecked(),
                     chinese.isChecked(), cldr.isChecked());
             accepted[0] = true;
             if (switchV == null) {
@@ -524,7 +604,7 @@ public final class LyricsOrderedListPreference extends Preference {
             }
             dialog.dismiss();
             LyricsLocalRomanizationDownloads.resetForUserDownload();
-            enableRow(switchV, name);
+            enableRow(switchV, Objects.requireNonNull(name));
             // Started before the row is saved, so the "dictionaries are missing" repair that
             // save runs does not turn the row back off while its download is running.
             LyricsLocalRomanizationDownloads.ensure();
@@ -609,7 +689,7 @@ public final class LyricsOrderedListPreference extends Preference {
     }
 
     @Override
-    protected void onAttachedToHierarchy(android.preference.PreferenceManager preferenceManager) {
+    protected void onAttachedToHierarchy(PreferenceManager preferenceManager) {
         super.onAttachedToHierarchy(preferenceManager);
         // Keep the summary correct before the first draw.
         try {
@@ -652,7 +732,7 @@ public final class LyricsOrderedListPreference extends Preference {
         });
 
         CharSequence title = getTitle();
-        if (!TextUtils.isEmpty(title)) {
+        if (Utils.isNotEmpty(title)) {
             TextView titleView = new TextView(context);
             titleView.setText(title);
             titleView.setTextSize(16);
@@ -664,7 +744,7 @@ public final class LyricsOrderedListPreference extends Preference {
         }
 
         CharSequence summary = getSummary();
-        if (!TextUtils.isEmpty(summary)) {
+        if (Utils.isNotEmpty(summary)) {
             TextView summaryView = new TextView(context);
             summaryView.setText(summary);
             summaryView.setTextSize(13);
@@ -724,12 +804,8 @@ public final class LyricsOrderedListPreference extends Preference {
         if (kind() == Kind.TRANSLATION && ProcessingProviders.DEEPL.equals(id)) {
             return Settings.LYRICS_DEEPL_API_KEY.get().isBlank();
         }
-        return switch (id) {
-            case ProcessingProviders.OPENAI_COMPATIBLE ->
-                    Settings.LYRICS_AI_BASE_URL.get().isBlank()
-                            || Settings.LYRICS_AI_MODEL.get().isBlank();
-            default -> false;
-        };
+        return ProcessingProviders.OPENAI_COMPATIBLE.equals(id)
+                && (Settings.LYRICS_AI_BASE_URL.get().isBlank() || Settings.LYRICS_AI_MODEL.get().isBlank());
     }
 
     private static boolean isTokenRequired(String id) {
@@ -806,7 +882,7 @@ public final class LyricsOrderedListPreference extends Preference {
         if (!locked) {
             name.setClickable(true);
             name.setOnClickListener(v -> LyricsTranscribeKeyPreference.showKeyDialog(
-                    context, () -> rebuildRows()));
+                    context, this::rebuildRows));
         }
 
         Switch switchV = new Switch(context);
@@ -1062,7 +1138,7 @@ public final class LyricsOrderedListPreference extends Preference {
     private void loadItems() {
         items.clear();
         String stored = providerSetting().get();
-        if (isLyricsSource() && (stored == null || !stored.contains(","))) {
+        if (isLyricsSource() && !stored.contains(",")) {
             // Match LyricsProviders, which treats a legacy single source as the default order.
             stored = Settings.DEFAULT_LYRICS_ORDER;
         }
@@ -1114,7 +1190,7 @@ public final class LyricsOrderedListPreference extends Preference {
             }
             // Rime Wordlist reads through the word list of the language above, so a row with no table
             // is turned off rather than left on to return an empty line.
-            if (isRimeProvider(item.id) && !RimeDictStore.isActive()) {
+            if (isRimeProvider(item.id) && !RimeDictionaryStore.isActive()) {
                 item.enabled = false;
                 changed = true;
             }

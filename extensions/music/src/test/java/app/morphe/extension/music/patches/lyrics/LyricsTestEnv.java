@@ -14,12 +14,14 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import app.morphe.extension.music.settings.Settings;
 import app.morphe.extension.shared.Utils;
 
 /**
@@ -37,7 +39,6 @@ import app.morphe.extension.shared.Utils;
 public final class LyricsTestEnv {
 
     private static boolean bootstrapped;
-    private static File filesDir;
 
     private LyricsTestEnv() {
     }
@@ -51,24 +52,36 @@ public final class LyricsTestEnv {
         if (bootstrapped) {
             return;
         }
+        File filesDir;
         try {
-            filesDir = java.nio.file.Files.createTempDirectory("morphe-lyrics-test").toFile();
+            filesDir = Files.createTempDirectory("morphe-lyrics-test").toFile();
         } catch (Exception ex) {
             throw new RuntimeException("Could not create the lyrics test files dir", ex);
         }
-        Utils.setContext(new FakeContext(filesDir));
+        FakeContext fakeContext = new FakeContext(filesDir);
+        // Set Utils.context via reflection BEFORE calling Utils.setContext().
+        // Utils.setContext() calls Logger.printInfo() which triggers
+        // includeStackTrace() -> DEBUG_STACKTRACE.get() -> BaseSettings.<clinit>
+        // -> Setting.<clinit> -> SharedPrefCategory -> Utils.getContext().
+        // If context is null at that point, SharedPrefCategory's Objects.requireNonNull NPEs.
+        // Pre-setting context breaks the chicken-and-egg deadlock.
+        try {
+            java.lang.reflect.Field contextField = Utils.class.getDeclaredField("context");
+            contextField.setAccessible(true);
+            contextField.set(null, fakeContext);
+        } catch (Exception ex) {
+            throw new RuntimeException("Could not set Utils.context via reflection", ex);
+        }
+        Utils.setContext(fakeContext);
         // The mockable android.jar stubs Resources.getSystem() to null, which makes
         // Utils.isDarkModeEnabled() NPE. SharedYouTubeSettings reads it during its static init,
         // which Settings pulls in. Pin the value so no static initializer hits the system resources.
         Utils.setIsDarkModeEnabled(false);
+        // Settings and LyricsFilterDefaults use each other in their static initializers. Load them
+        // here on one thread. Otherwise two LyricsManager fetch threads started by a test can load
+        // them at the same time and deadlock.
+        Settings.LYRICS_ENABLED.get();
         bootstrapped = true;
-    }
-
-    /** The temp directory backing {@link FakeContext#getFilesDir()}. */
-    @SuppressWarnings("unused")
-    public static File filesDir() {
-        bootstrap();
-        return filesDir;
     }
 
     static final class FakeContext extends ContextWrapper {

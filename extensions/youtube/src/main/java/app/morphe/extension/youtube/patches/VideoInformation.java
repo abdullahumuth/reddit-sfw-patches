@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import app.morphe.extension.shared.Logger;
 import app.morphe.extension.shared.Utils;
+import app.morphe.extension.shared.patches.BaseVideoInformation;
 import app.morphe.extension.shared.patches.ExoPlayerInterface;
 import app.morphe.extension.shared.patches.components.ContextInterface;
 import app.morphe.extension.youtube.patches.originaltitles.RestoreOriginalTitlesPatch;
@@ -39,7 +40,7 @@ import app.morphe.extension.youtube.shared.ShortsPlayerState;
  * Hooking class for the current playing video.
  * @noinspection unused
  */
-public final class VideoInformation {
+public final class VideoInformation extends BaseVideoInformation {
 
     public interface PlaybackController {
         // Methods are added during patching.
@@ -163,6 +164,11 @@ public final class VideoInformation {
      * Fires whenever the playback speed changes.
      */
     public static final Event<Float> onPlaybackSpeedChange = new Event<>();
+    /**
+     * Fires when the user selects a playback speed in a native or Morphe speed menu,
+     * including a selection of the speed that is already playing.
+     */
+    public static final Event<Float> onUserSelectedPlaybackSpeed = new Event<>();
 
     /**
      * The current playback audio pitch
@@ -222,6 +228,7 @@ public final class VideoInformation {
         playerVideo.videoIdSet = false;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private static boolean isPatchIncluded() {
         return false;  // Modified during patching.
     }
@@ -610,6 +617,7 @@ public final class VideoInformation {
      */
     public static void userSelectedPlaybackSpeed(float userSelectedPlaybackSpeed) {
         Logger.printDebug(() -> "User selected playback speed: " + userSelectedPlaybackSpeed);
+        onUserSelectedPlaybackSpeed.invoke(userSelectedPlaybackSpeed);
         updatePlaybackSpeedValue(userSelectedPlaybackSpeed);
         if (isPlaybackAudioPitchLinked()) {
             RememberPlaybackSpeedPatch.userSelectedPlaybackAudioPitch(userSelectedPlaybackSpeed);
@@ -1096,6 +1104,7 @@ public final class VideoInformation {
      * @param newlyLoadedPlaybackSpeed The current playback speed.
      */
     public static void setPlaybackSpeed(float newlyLoadedPlaybackSpeed) {
+        onUserSelectedPlaybackSpeed.invoke(newlyLoadedPlaybackSpeed);
         if (!updatePlaybackSpeedValue(newlyLoadedPlaybackSpeed)) {
             // The Shorts player can play at another speed than the one last recorded,
             // such as when it reopens, so the selected speed is always applied.

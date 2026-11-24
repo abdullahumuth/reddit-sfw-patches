@@ -9,9 +9,12 @@ package app.morphe.extension.youtube.patches;
 
 import static app.morphe.extension.shared.StringRef.str;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
@@ -23,6 +26,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.LocaleList;
 import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.view.HapticFeedbackConstants;
@@ -40,6 +44,7 @@ import com.facebook.litho.TextContent;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -48,9 +53,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,8 +78,10 @@ import app.morphe.extension.youtube.settings.Settings;
  * <p>
  * Posts are drawn by Litho, so a post has no view of its own and does not know its images.
  * The element of a post includes the urls of its images and the texts it shows. When the element
- * is parsed, its texts are mapped to its images. When a post is laid out, the texts it shows are
- * looked up, and the images most of the texts belong to are the images of the post.
+ * is parsed, the label of its Share button gets an invisible marker of the post, and its texts are
+ * mapped to its images. When a post is laid out, its Share button gives the images of the post.
+ * Without the marker, such as for the posts of a shelf, the texts it shows are looked up,
+ * and the images most of the texts belong to are the images of the post.
  * <p>
  * A download button is drawn left of the Share button of the post, which downloads the image
  * the post shows, and a Download images item is added to the menu of the post, which downloads
@@ -92,7 +101,8 @@ public final class PostImageDownloadPatch {
 
     /**
      * App texts of the Share button. The Share button of a post is described by a text
-     * of the server, which is the same in the language of the app.
+     * of the server, which is the same in the language of YouTube. The language of Morphe
+     * can differ from it, so the texts are read in every language YouTube can use.
      */
     private static final String[] SHARE_LABEL_NAMES = {
             "reel_footer_share",
@@ -141,6 +151,23 @@ public final class PostImageDownloadPatch {
      * Included in the identifier of the post elements.
      */
     private static final String POST = "post";
+
+    /**
+     * Invisible character added to the label of the Share button of an image post, followed by
+     * the number of the post in invisible tag digits (U+E0030 to U+E0039). The card of the post
+     * is found by its Share button, also if its texts are too short or the post has no text.
+     */
+    private static final char SHARE_LABEL_MARKER = '\u2064';
+    private static final int TAG_DIGIT_ZERO = 0xE0030;
+
+    /**
+     * Field numbers of the Share button of a post: the button runs a command with the share
+     * endpoint of the post, and has the label of the button next to the command.
+     */
+    private static final int BUTTON_COMMAND_FIELD = 1;
+    private static final int BUTTON_LABEL_FIELD = 2;
+    private static final int INNERTUBE_COMMAND_FIELD = 169495254;
+    private static final int SHARE_ENDPOINT_FIELD = 90650344;
     private static final byte[] GGPHT_BYTES = "ggpht.com/".getBytes(StandardCharsets.US_ASCII);
     private static final byte[] GOOGLE_USER_CONTENT_BYTES =
             "googleusercontent.com/".getBytes(StandardCharsets.US_ASCII);
@@ -164,6 +191,17 @@ public final class PostImageDownloadPatch {
     private static final Map<String, List<PostImage>> postImages = Utils
             .createSizeRestrictedMap(MAX_POSTS, true);
 
+    /** Key of the post images -> marker of the post, see {@link #SHARE_LABEL_MARKER}. */
+    @GuardedBy("postMarkers")
+    private static final Map<String, String> postMarkers = Utils.createSizeRestrictedMap(MAX_POSTS, true);
+
+    /** Marker of the post -> key of the post images. */
+    @GuardedBy("postMarkers")
+    private static final Map<String, String> markerPostKeys = Utils.createSizeRestrictedMap(MAX_POSTS, true);
+
+    @GuardedBy("postMarkers")
+    private static int lastPostNumber;
+
     /** Root host -> the post it shows. Used only on the main thread. */
     private static final Map<ComponentHost, PostCard> cards = new WeakHashMap<>();
 
@@ -171,6 +209,9 @@ public final class PostImageDownloadPatch {
     private static Drawable downloadIcon;
     @Nullable
     private static List<String> shareLabels;
+    /** Languages of {@link #shareLabels}. */
+    @Nullable
+    private static String shareLabelLanguages;
     @Nullable
     private static PostCard pressedCard;
 
@@ -202,6 +243,7 @@ public final class PostImageDownloadPatch {
         }
     }
 
+    @SuppressWarnings("SameReturnValue")
     public static boolean isPatchIncluded() {
         return false; // Modified during patching.
     }
@@ -293,10 +335,10 @@ public final class PostImageDownloadPatch {
     /**
      * Injection point.
      * <p>
-     * Called when an element is parsed. The element is not changed.
+     * Called when an element is parsed. Only the label of the Share button of image posts is changed.
      */
     public static byte[] onElementLoaded(byte[] bytes) {
-        if (!ENABLED || bytes == null || !FeedVideoCardsPatch.emlTextMayContain(bytes, POST)
+        if (!ENABLED || bytes == null || FeedVideoCardsPatch.emlTextLacks(bytes, POST)
                 || !(FeedVideoCardsPatch.contains(bytes, GGPHT_BYTES)
                 || FeedVideoCardsPatch.contains(bytes, GOOGLE_USER_CONTENT_BYTES))) {
             return bytes;
@@ -322,8 +364,8 @@ public final class PostImageDownloadPatch {
             }
 
             if (!elementIdentifier.contains("shelf")) {
-                registerPost(texts, elementIdentifier, isImagePost(texts, elementIdentifier));
-                return bytes;
+                String key = registerPost(texts, elementIdentifier, isImagePost(texts, elementIdentifier));
+                return key == null || key.equals(NOT_IMAGE_POST) ? bytes : markShareButton(root, key, bytes);
             }
 
             // A shelf of many posts. Each post starts with the avatar of its channel.
@@ -383,14 +425,17 @@ public final class PostImageDownloadPatch {
      * Maps the texts of a post to its images. The texts of a post that is not used, such as
      * a poll, are mapped too, so its card is not matched to another post that shares some
      * of its texts.
+     *
+     * @return The key of the post images, {@link #NOT_IMAGE_POST}, or null if the post has no images.
      */
-    private static void registerPost(List<String> texts, String elementIdentifier,
-                                     boolean isImagePost) {
+    @Nullable
+    private static String registerPost(List<String> texts, String elementIdentifier,
+                                       boolean isImagePost) {
         String key = NOT_IMAGE_POST;
         if (isImagePost) {
             Map<String, PostImage> images = findImages(texts);
             if (images.isEmpty()) {
-                return;
+                return null;
             }
             key = String.join("\n", images.keySet());
             synchronized (postImages) {
@@ -413,6 +458,65 @@ public final class PostImageDownloadPatch {
                     textPostKeys.put(text, AMBIGUOUS);
                 }
             }
+        }
+        return key;
+    }
+
+    /**
+     * Adds the marker of the post to the label of its Share button, see {@link #SHARE_LABEL_MARKER}.
+     *
+     * @return The element with the marker, or the element unchanged if it has no Share button
+     *         or already has the marker.
+     */
+    private static byte[] markShareButton(List<ProtoNode> root, String key, byte[] bytes) throws IOException {
+        String marker;
+        synchronized (postMarkers) {
+            marker = postMarkers.get(key);
+            if (marker == null) {
+                StringBuilder builder = new StringBuilder().append(SHARE_LABEL_MARKER);
+                String number = String.valueOf(++lastPostNumber);
+                for (int i = 0, length = number.length(); i < length; i++) {
+                    builder.appendCodePoint(TAG_DIGIT_ZERO + number.charAt(i) - '0');
+                }
+                marker = builder.toString();
+                postMarkers.put(key, marker);
+                markerPostKeys.put(marker, key);
+            }
+        }
+
+        boolean marked = false;
+        for (ProtoNode endpoint : ProtoNode.findMessages(root,
+                BUTTON_COMMAND_FIELD, INNERTUBE_COMMAND_FIELD, SHARE_ENDPOINT_FIELD)) {
+            // The endpoint is inside the command of the button.
+            ProtoNode command = endpoint.getParent();
+            ProtoNode button = command == null || command.getParent() == null
+                    ? null
+                    : command.getParent().getParent();
+            ProtoNode label = button == null ? null : ProtoNode.field(button.children, BUTTON_LABEL_FIELD);
+            if (label != null && label.isText() && label.getText().indexOf(SHARE_LABEL_MARKER) < 0) {
+                label.setText(label.getText() + marker);
+                marked = true;
+            }
+        }
+        return marked ? ProtoNode.write(root) : bytes;
+    }
+
+    /**
+     * @return The key of the post images from the marker of the Share button, or null if it has no marker.
+     */
+    @Nullable
+    private static String getMarkedPostKey(View share) {
+        CharSequence description = share.getContentDescription();
+        if (description == null) {
+            return null;
+        }
+        String text = description.toString();
+        final int markerIndex = text.indexOf(SHARE_LABEL_MARKER);
+        if (markerIndex < 0) {
+            return null;
+        }
+        synchronized (postMarkers) {
+            return markerPostKeys.get(text.substring(markerIndex));
         }
     }
 
@@ -557,19 +661,70 @@ public final class PostImageDownloadPatch {
         }
     }
 
-    private static List<String> getShareLabels() {
-        if (shareLabels == null) {
+    /**
+     * @return The languages YouTube can show the texts of the server in: the language of the
+     *         YouTube views, the languages of the device, and the language of Morphe.
+     */
+    private static Set<Locale> getShareLabelLocales(View view) {
+        Set<Locale> locales = new LinkedHashSet<>();
+        addLocales(locales, view.getResources().getConfiguration().getLocales());
+        locales.add(Locale.getDefault());
+        addLocales(locales, LocaleList.getDefault());
+        return locales;
+    }
+
+    private static void addLocales(Set<Locale> locales, LocaleList list) {
+        for (int i = 0, size = list.size(); i < size; i++) {
+            locales.add(list.get(i));
+        }
+    }
+
+    /**
+     * The languages are only changed to read texts of the app. If the app does not have a language
+     * (such as an APKM bundle without it), the texts fall back like the texts the app shows.
+     */
+    @SuppressLint("AppBundleLocaleChanges")
+    private static List<String> getShareLabels(View view) {
+        Set<Locale> locales = getShareLabelLocales(view);
+        String languages = locales.toString();
+        if (shareLabels == null || !languages.equals(shareLabelLanguages)) {
             List<String> labels = new ArrayList<>();
+            // Texts in the language of Morphe.
             for (String name : SHARE_LABEL_NAMES) {
                 addShareLabel(labels, ResourceUtils.getString(name));
             }
-            // Framework texts are given in the language of the app.
             final int systemShareId = ResourceUtils.getSystemStringIdentifier("share");
             if (systemShareId != 0) {
                 addShareLabel(labels, Utils.getContext().getString(systemShareId));
             }
-            Logger.printDebug(() -> "Share button labels: " + labels);
+            // Texts in the languages YouTube can use. The resources are read from the view,
+            // since the resources of Morphe are in the language of Morphe.
+            List<Integer> ids = new ArrayList<>();
+            for (String name : SHARE_LABEL_NAMES) {
+                final int id = ResourceUtils.getStringIdentifier(name);
+                if (id != 0) {
+                    ids.add(id);
+                }
+            }
+            if (systemShareId != 0) {
+                ids.add(systemShareId);
+            }
+            Context context = view.getContext();
+            for (Locale locale : locales) {
+                try {
+                    Configuration configuration = new Configuration(view.getResources().getConfiguration());
+                    configuration.setLocales(new LocaleList(locale));
+                    Resources resources = context.createConfigurationContext(configuration).getResources();
+                    for (int id : ids) {
+                        addShareLabel(labels, resources.getString(id));
+                    }
+                } catch (Exception ex) {
+                    Logger.printInfo(() -> "Could not read the Share labels of: " + locale, ex);
+                }
+            }
+            Logger.printDebug(() -> "Share button labels: " + labels + " languages: " + languages);
             shareLabels = labels;
+            shareLabelLanguages = languages;
         }
         return shareLabels;
     }
@@ -584,9 +739,11 @@ public final class PostImageDownloadPatch {
         }
     }
 
-    private static boolean isShareDescription(CharSequence description) {
-        String text = description.toString().trim();
-        for (String label : getShareLabels()) {
+    private static boolean isShareDescription(CharSequence description, List<String> labels) {
+        String text = description.toString();
+        final int markerIndex = text.indexOf(SHARE_LABEL_MARKER);
+        text = (markerIndex < 0 ? text : text.substring(0, markerIndex)).trim();
+        for (String label : labels) {
             if (text.equalsIgnoreCase(label)) {
                 return true;
             }
@@ -598,14 +755,15 @@ public final class PostImageDownloadPatch {
      * @return The Share button of the post, or null if it is not shown.
      */
     @Nullable
-    private static View findShareButton(ComponentHost root, ViewGroup group, Rect rect) {
+    private static View findShareButton(ComponentHost root, ViewGroup group, Rect rect,
+                                        List<String> labels) {
         for (int i = 0, count = group.getChildCount(); i < count; i++) {
             View child = group.getChildAt(i);
             if (child.getVisibility() != View.VISIBLE) {
                 continue;
             }
             CharSequence description = child.getContentDescription();
-            if (description != null && isShareDescription(description)) {
+            if (description != null && isShareDescription(description, labels)) {
                 rect.set(0, 0, child.getWidth(), child.getHeight());
                 root.offsetDescendantRectToMyCoords(child, rect);
                 if (rect.width() > 0 && rect.width() <= Dim.dp(MAX_SHARE_BUTTON_DP)) {
@@ -613,7 +771,7 @@ public final class PostImageDownloadPatch {
                 }
             }
             if (child instanceof ComponentHost host) {
-                View found = findShareButton(root, host, rect);
+                View found = findShareButton(root, host, rect, labels);
                 if (found != null) {
                     return found;
                 }
@@ -660,8 +818,13 @@ public final class PostImageDownloadPatch {
             // Most root hosts are not posts and have no Share button,
             // so the texts are only looked up for the ones that do.
             Rect shareRect = new Rect();
-            View share = FeedVideoCardsPatch.isInDialog(root) ? null : findShareButton(root, root, shareRect);
-            String key = share == null ? null : findPostKey(root);
+            View share = FeedVideoCardsPatch.isInDialog(root)
+                    ? null
+                    : findShareButton(root, root, shareRect, getShareLabels(root));
+            String key = share == null ? null : getMarkedPostKey(share);
+            if (key == null && share != null) {
+                key = findPostKey(root);
+            }
             if (key == null) {
                 if (card != null) {
                     card.removeButton(root);
@@ -784,6 +947,7 @@ public final class PostImageDownloadPatch {
         public void setColorFilter(@Nullable ColorFilter colorFilter) {
         }
 
+        @Deprecated
         @Override
         public int getOpacity() {
             return PixelFormat.TRANSLUCENT;
@@ -1100,13 +1264,20 @@ public final class PostImageDownloadPatch {
     /**
      * @return The folder the images are saved to, as shown to the user.
      */
-    private static String getSaveFolderName() {
+    public static String getSaveFolderName() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
                 ? Environment.DIRECTORY_PICTURES + File.separator + FOLDER
                 : getLegacySaveFolder().getPath();
     }
 
-    private static boolean save(byte[] data, String name) throws Exception {
+    /**
+     * Saves an image to the pictures of the device.
+     *
+     * @param data Image file as JPEG, PNG, WebP or GIF.
+     * @param name File name without the extension.
+     * @return Whether the image was saved.
+     */
+    public static boolean save(byte[] data, String name) throws Exception {
         ImageType type = getType(data);
         String fileName = name + '.' + type.extension;
 

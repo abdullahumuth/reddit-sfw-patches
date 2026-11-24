@@ -9,18 +9,12 @@ package app.morphe.extension.youtube.patches.components;
 
 import static app.morphe.extension.shared.StringRef.str;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.text.InputType;
-import android.util.Pair;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -35,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,9 +43,9 @@ import app.morphe.extension.shared.patches.components.ContextInterface;
 import app.morphe.extension.shared.patches.components.Filter;
 import app.morphe.extension.shared.patches.components.StringFilterGroup;
 import app.morphe.extension.shared.theme.ThemeUtils;
-import app.morphe.extension.shared.ui.CustomDialog;
 import app.morphe.extension.shared.ui.Dim;
 import app.morphe.extension.youtube.patches.VideoInformation;
+import app.morphe.extension.youtube.patches.utils.SearchDialog;
 import app.morphe.extension.youtube.settings.Settings;
 import app.morphe.extension.youtube.shared.EngagementPanel;
 
@@ -79,7 +74,7 @@ public final class CommentsSearchFilter extends Filter {
         boolean patch_reload();
     }
 
-    private static final String SEARCH_BUTTON_TAG = "morphe_search_comments_button";
+    private static final String SEARCH_BUTTON_TAG = "morphe_comment_search_button";
 
     /**
      * Start of the ids of the comments panels of videos, posts and Shorts. Newer app versions use
@@ -122,7 +117,7 @@ public final class CommentsSearchFilter extends Filter {
     /**
      * The comment of each thread is laid out from its outermost component to its innermost.
      * Each component has a buffer of its own, and only the buffer of the outermost component
-     * holds all of the comment, such as its author and its text. The comment is shown or hidden
+     * holds the whole comment, such as its author and its text. The comment is shown or hidden
      * as a whole by the outermost component, and its inner components are never hidden alone.
      * <p>
      * Litho lays out on more than one thread, so each thread keeps its own comment.
@@ -166,20 +161,19 @@ public final class CommentsSearchFilter extends Filter {
         }
     }
 
-    private final StringFilterGroup commentThread = new StringFilterGroup(
-            Settings.SEARCH_COMMENTS,
-            COMMENT_THREAD_PATH
-    );
-
     /**
      * The button that shows the replies of a comment is not inside the comment.
      */
     private final StringFilterGroup commentReplies = new StringFilterGroup(
-            Settings.SEARCH_COMMENTS,
+            Settings.COMMENT_SEARCH,
             "repl"
     );
 
     public CommentsSearchFilter() {
+        StringFilterGroup commentThread = new StringFilterGroup(
+                Settings.COMMENT_SEARCH,
+                COMMENT_THREAD_PATH
+        );
         addPathCallbacks(commentThread, commentReplies);
     }
 
@@ -345,7 +339,7 @@ public final class CommentsSearchFilter extends Filter {
             String term = phrase != null
                     ? phrase.trim().replaceAll("\\s+", " ")
                     // An unclosed quote is ignored.
-                    : matcher.group(2).replace("\"", "");
+                    : Objects.requireNonNull(matcher.group(2)).replace("\"", "");
             if (!term.isEmpty()) {
                 terms.add(term);
             }
@@ -378,7 +372,7 @@ public final class CommentsSearchFilter extends Filter {
      * Called when the controller of a section list is created.
      */
     public static void onSectionListCreated(SectionListAccess sectionList) {
-        if (!Settings.SEARCH_COMMENTS.get()) {
+        if (!Settings.COMMENT_SEARCH.get()) {
             return;
         }
 
@@ -398,6 +392,7 @@ public final class CommentsSearchFilter extends Filter {
      *
      * @return If the list is reloaded.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean reloadPanelList(View searchButton) {
         SectionListAccess sectionList = findPanelList(searchButton);
         if (sectionList == null) {
@@ -451,7 +446,7 @@ public final class CommentsSearchFilter extends Filter {
      * @param panel The layout of the panel, which holds its header.
      */
     public static void onPanelHeaderSetUp(View panel) {
-        if (panel == null || !Settings.SEARCH_COMMENTS.get() || ID_CLOSE_BUTTON == 0) {
+        if (panel == null || !Settings.COMMENT_SEARCH.get() || ID_CLOSE_BUTTON == 0) {
             return;
         }
 
@@ -490,9 +485,9 @@ public final class CommentsSearchFilter extends Filter {
     @Nullable
     private static View createSearchButton(ViewGroup header, View closeButton) {
         Context context = header.getContext();
-        Drawable icon = ResourceUtils.getDrawable("morphe_search_comments_button");
+        Drawable icon = ResourceUtils.getDrawable("morphe_comment_search_button");
         if (icon == null) {
-            Logger.printException(() -> "Search comments drawable not found");
+            Logger.printException(() -> "Comment search drawable not found");
             return null;
         }
 
@@ -513,7 +508,7 @@ public final class CommentsSearchFilter extends Filter {
 
         FrameLayout button = new FrameLayout(context);
         button.setTag(SEARCH_BUTTON_TAG);
-        button.setContentDescription(str("morphe_search_comments_dialog_title"));
+        button.setContentDescription(str("morphe_comment_search_dialog_title"));
         button.setClickable(true);
         button.setFocusable(true);
 
@@ -541,52 +536,29 @@ public final class CommentsSearchFilter extends Filter {
     }
 
     private static void showSearchDialog(Context context, View searchButton) {
-        try {
-            EditText editText = CustomDialog.createEditText(context);
-            editText.setHint(str("morphe_search_comments_hint"));
-            editText.setSingleLine(true);
-            editText.setInputType(InputType.TYPE_CLASS_TEXT);
-            String text = isSearching() ? searchText : "";
-            editText.setText(text);
-            editText.setSelection(text.length());
-
-            Pair<Dialog, LinearLayout> dialogPair = CustomDialog.create(
-                    context,
-                    str("morphe_search_comments_dialog_title"),
-                    null,
-                    editText,
-                    str("morphe_search_comments_search"),
-                    () -> {
-                        String newText = editText.getText().toString();
-                        setSearch(newText);
-                        updateSearchButtonIcon(searchButton);
-                        if (!reloadPanelList(searchButton)) {
-                            // Such as only quotes, which are not a search.
-                            Utils.showSnackbarLong(str(!isSearching()
-                                    ? "morphe_search_comments_cleared"
-                                    : "morphe_search_comments_applied"));
-                        }
-                    },
-                    () -> {},
-                    str("morphe_search_comments_clear"),
-                    () -> {
-                        setSearch("");
-                        updateSearchButtonIcon(searchButton);
-                        if (!reloadPanelList(searchButton)) {
-                            Utils.showSnackbarLong(str("morphe_search_comments_cleared"));
-                        }
-                    },
-                    true
-            );
-            Dialog dialog = dialogPair.first;
-            Window window = dialog.getWindow();
-            if (window != null) {
-                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-            }
-            editText.requestFocus();
-            dialog.show();
-        } catch (Exception ex) {
-            Logger.printException(() -> "showSearchDialog failure", ex);
-        }
+        SearchDialog.show(
+                context,
+                str("morphe_comment_search_dialog_title"),
+                str("morphe_comment_search_hint"),
+                isSearching() ? searchText : "",
+                newText -> {
+                    setSearch(newText);
+                    updateSearchButtonIcon(searchButton);
+                    if (!reloadPanelList(searchButton)) {
+                        // Such as only quotes, which are not a search.
+                        Utils.showSnackbarLong(str(!isSearching()
+                                ? "morphe_comment_search_cleared"
+                                : "morphe_comment_search_applied"));
+                    }
+                },
+                str("morphe_comment_search_clear"),
+                () -> {
+                    setSearch("");
+                    updateSearchButtonIcon(searchButton);
+                    if (!reloadPanelList(searchButton)) {
+                        Utils.showSnackbarLong(str("morphe_comment_search_cleared"));
+                    }
+                }
+        );
     }
 }

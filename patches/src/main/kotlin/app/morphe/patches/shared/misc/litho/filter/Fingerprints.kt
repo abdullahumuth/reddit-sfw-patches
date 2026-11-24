@@ -218,6 +218,159 @@ internal object ListSectionUpdateRowsFingerprint : Fingerprint(
     )
 )
 
+/**
+ * Constructor of the item of an element in a list, such as a card of the feed or a cell of a grid,
+ * which keeps the bytes of the element.
+ */
+internal object ElementItemConstructorFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.CONSTRUCTOR),
+    returnType = "V",
+    parameters = listOf("L"),
+    filters = listOf(
+        methodCall(
+            opcode = Opcode.INVOKE_STATIC,
+            returnType = "[B"
+        ),
+        fieldAccess(
+            opcode = Opcode.IPUT_OBJECT,
+            type = "[B",
+            location = MatchAfterWithin(1)
+        ),
+        opcode(Opcode.CONST_4, MatchAfterImmediately()),
+        opcode(Opcode.IPUT_OBJECT, MatchAfterImmediately()),
+        opcode(Opcode.RETURN_VOID, MatchAfterImmediately())
+    )
+)
+
+/**
+ * Puts the lists of a section, such as the lists of the cards of the feed of the tablet layout, in the order
+ * that fills the rows of the grid. Each list with more or less than one item is laid out as wide as the grid.
+ */
+internal object ReorderedListSectionFingerprint : Fingerprint(
+    returnType = "V",
+    parameters = listOf(),
+    filters = listOf(
+        // The lists of the section, copied to know if the order changed.
+        fieldAccess(opcode = Opcode.IGET_OBJECT, type = "Ljava/util/List;"),
+        methodCall(
+            definingClass = "Ljava/util/ArrayList;",
+            name = "<init>",
+            parameters = listOf("Ljava/util/Collection;"),
+            location = MatchAfterWithin(3)
+        ),
+        methodCall(definingClass = "Ljava/util/List;", name = "indexOf"),
+        methodCall(definingClass = "Ljava/util/Collections;", name = "swap", location = MatchAfterWithin(3)),
+        methodCall(definingClass = "Ljava/util/List;", name = "equals")
+    )
+)
+
+/**
+ * Removes a list from a section that puts its lists in the order that fills the rows of the grid,
+ * which puts the other lists in order again.
+ */
+internal object ReorderedListSectionRemoveListFingerprint : Fingerprint(
+    classFingerprint = ReorderedListSectionFingerprint,
+    returnType = "V",
+    filters = listOf(
+        opcode(Opcode.INVOKE_SUPER),
+        methodCall(definingClass = "Ljava/util/List;", name = "size", location = MatchAfterWithin(3)),
+        // The removed list.
+        fieldAccess(opcode = Opcode.IGET_OBJECT, location = MatchAfterWithin(10)),
+        opcode(Opcode.IF_NE, location = MatchAfterImmediately()),
+        methodCall(
+            definingClass = "Ljava/util/List;",
+            name = "remove",
+            parameters = listOf("I"),
+            location = MatchAfterImmediately()
+        )
+    )
+)
+
+/**
+ * The count of the items of a section of a list.
+ */
+internal fun listSectionIsEmptyFingerprint(sectionType: String) = Fingerprint(
+    definingClass = sectionType,
+    name = "isEmpty",
+    returnType = "Z",
+    parameters = listOf(),
+    filters = listOf(
+        methodCall(opcode = Opcode.INVOKE_VIRTUAL, definingClass = "this", returnType = "I", parameters = listOf()),
+        opcode(Opcode.MOVE_RESULT, location = MatchAfterImmediately())
+    )
+)
+
+/**
+ * Updates an item of a Litho list with new render info.
+ */
+internal object LithoBinderUpdateItemFingerprint : Fingerprint(
+    returnType = "V",
+    parameters = listOf("I", "L"),
+    filters = listOf(
+        string("Trying to update an item while the list of components is empty (index=")
+    )
+)
+
+/**
+ * Updates a range of items of a Litho list with new render info.
+ */
+internal object LithoBinderUpdateItemRangeFingerprint : Fingerprint(
+    classFingerprint = LithoBinderUpdateItemFingerprint,
+    returnType = "V",
+    parameters = listOf("I", "Ljava/util/List;"),
+    filters = listOf(
+        string(") updateRangeAt ")
+    )
+)
+
+/**
+ * The view of an updated item of a Litho list is bound again if the old or the new render info renders a view.
+ * Otherwise, the view keeps the size of the old render info.
+ */
+internal fun lithoBinderUpdateRenderInfoFingerprint(
+    binderType: String,
+    methodName: String,
+    parameters: List<String>,
+    renderInfoType: String
+) = Fingerprint(
+    definingClass = binderType,
+    name = methodName,
+    returnType = "V",
+    parameters = parameters,
+    filters = listOf(
+        // The old render info of the item.
+        methodCall(opcode = Opcode.INVOKE_VIRTUAL, returnType = renderInfoType, parameters = listOf()),
+        opcode(Opcode.MOVE_RESULT_OBJECT, location = MatchAfterImmediately()),
+        // If it renders a view.
+        methodCall(
+            opcode = Opcode.INVOKE_INTERFACE,
+            definingClass = renderInfoType,
+            returnType = "Z",
+            parameters = listOf(),
+            location = MatchAfterImmediately()
+        ),
+        opcode(Opcode.MOVE_RESULT, location = MatchAfterImmediately()),
+        // Sets the new render info of the item.
+        methodCall(
+            opcode = Opcode.INVOKE_STATIC,
+            returnType = "V",
+            parameters = listOf("L", renderInfoType),
+            location = MatchAfterWithin(10)
+        )
+    )
+)
+
+/**
+ * If the item of a render info of a Litho list is laid out as wide as the list.
+ */
+internal object RenderInfoIsFullSpanFingerprint : Fingerprint(
+    returnType = "Z",
+    parameters = listOf(),
+    filters = listOf(
+        string("is_full_span")
+    )
+)
+
 // region Sticky headers
 
 /**
@@ -278,13 +431,13 @@ internal fun stickyHeaderCreateFingerprint(stickyHeadersType: String) = Fingerpr
         ),
         // Binds the position to the view holder.
         methodCall(returnType = "V", parameters = listOf("L", "I"), location = MatchAfterImmediately()),
-        // Id of the current header.
+        // ID of the current header.
         methodCall(returnType = "J", parameters = listOf(), location = MatchAfterImmediately())
     )
 )
 
 /**
- * Id of the current sticky header, read from its entry in the list of headers.
+ * ID of the current sticky header, read from its entry in the list of headers.
  */
 internal fun stickyHeaderCurrentIdFingerprint(headerListType: String, methodName: String) = Fingerprint(
     definingClass = headerListType,
@@ -317,3 +470,85 @@ internal fun stickyHeaderEntryCompareFingerprint(entryType: String) = Fingerprin
 )
 
 // endregion
+
+/**
+ * Saves the scroll position of a list, such as the feed or the search results, when the list is left.
+ * The position is -1 if an item before it was removed or changed since the list was loaded,
+ * and the list is then shown again from the top.
+ */
+internal object ListSaveScrollPositionFingerprint : Fingerprint(
+    returnType = "Landroid/os/Bundle;",
+    parameters = listOf(),
+    filters = listOf(
+        // The observer of the changes of the list, and the first position that changed.
+        fieldAccess(opcode = Opcode.IGET_OBJECT),
+        fieldAccess(opcode = Opcode.IGET, type = "I", location = MatchAfterImmediately()),
+        opcode(Opcode.IF_GE, location = MatchAfterImmediately()),
+        literal(-1L, location = MatchAfterImmediately()),
+        string("scroll_position", location = MatchAfterImmediately())
+    )
+)
+
+/**
+ * Removes an item from an observable list, and notifies the observers of the list.
+ */
+internal object ObservableListRemoveFingerprint : Fingerprint(
+    definingClass = { ObservableListConstructorFingerprint.originalClassDef.type },
+    name = "remove",
+    returnType = "Ljava/lang/Object;",
+    parameters = listOf("I"),
+    filters = listOf(
+        // The notification of the removed range, or before YouTube 21.30 of the removed position,
+        // which notifies the removed range.
+        methodCall(opcode = Opcode.INVOKE_VIRTUAL, returnType = "V")
+    )
+)
+
+/**
+ * Notifies the observers of a list that the item at a position was removed. Inlined since YouTube 21.30.
+ */
+internal fun listNotifyItemRemovedFingerprint(notifierType: String, methodName: String) = Fingerprint(
+    definingClass = notifierType,
+    name = methodName,
+    parameters = listOf("I"),
+    filters = listOf(
+        methodCall(opcode = Opcode.INVOKE_VIRTUAL, returnType = "V", parameters = listOf("I", "I"))
+    )
+)
+
+/**
+ * Notifies the observers of a list that items were removed.
+ */
+internal fun listNotifyItemsRemovedFingerprint(notifierType: String, methodName: String) = Fingerprint(
+    definingClass = notifierType,
+    name = methodName,
+    filters = listOf(
+        methodCall(opcode = Opcode.INVOKE_INTERFACE, returnType = "V", parameters = listOf("I", "I"))
+    )
+)
+
+/**
+ * Called on the observer of the changes of a list when items are removed from the list.
+ */
+internal fun listObserverItemsRemovedFingerprint(observerType: String, methodName: String) = Fingerprint(
+    definingClass = observerType,
+    name = methodName,
+    returnType = "V",
+    parameters = listOf("I", "I")
+)
+
+/**
+ * Called on the observer of the changes of a list when all the items of the list are loaded again.
+ * No position of the list changed since then.
+ */
+internal fun listObserverReloadFingerprint(observerType: String) = Fingerprint(
+    definingClass = observerType,
+    returnType = "V",
+    parameters = listOf(),
+    filters = listOf(
+        // The item count of the list.
+        methodCall(opcode = Opcode.INVOKE_INTERFACE, returnType = "I", parameters = listOf()),
+        opcode(Opcode.MOVE_RESULT, location = MatchAfterImmediately()),
+        fieldAccess(opcode = Opcode.IPUT, type = "I", location = MatchAfterImmediately())
+    )
+)

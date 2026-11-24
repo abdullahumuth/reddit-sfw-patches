@@ -19,6 +19,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -55,19 +56,23 @@ import app.morphe.extension.shared.ResourceType;
 import app.morphe.extension.shared.ResourceUtils;
 import app.morphe.extension.shared.StringRef;
 import app.morphe.extension.shared.Utils;
+import app.morphe.extension.shared.patches.VideoEffectsPatch;
 import app.morphe.extension.shared.patches.components.BufferAsciiStrings;
 import app.morphe.extension.shared.patches.components.LithoFilterPatch.LithoLogging;
+import app.morphe.extension.shared.patches.glassmenus.GlassMenusPatch;
 import app.morphe.extension.shared.theme.ThemeUtils;
 import app.morphe.extension.shared.ui.Dim;
 import app.morphe.extension.youtube.patches.AddToQueuePatch;
 import app.morphe.extension.youtube.patches.FeedVideoActionsPatch;
 import app.morphe.extension.youtube.patches.LocalQueuePatch;
+import app.morphe.extension.youtube.patches.LoopCountPatch;
 import app.morphe.extension.youtube.patches.PictureinPictureButtonPatch;
 import app.morphe.extension.youtube.patches.PostImageDownloadPatch;
 import app.morphe.extension.youtube.patches.PostTranslatePatch;
 import app.morphe.extension.youtube.patches.SaveToWatchLaterPatch;
 import app.morphe.extension.youtube.patches.VideoDelayPatch;
 import app.morphe.extension.youtube.patches.VideoInformation;
+import app.morphe.extension.youtube.patches.ghostplay.GhostPlayPatch;
 import app.morphe.extension.youtube.patches.components.PlayerFlyoutMenuComponentsFilter;
 import app.morphe.extension.youtube.patches.onthego.OnTheGoPatch;
 import app.morphe.extension.youtube.patches.playback.speed.ShortsPlaybackSpeedFlyoutPatch;
@@ -78,10 +83,12 @@ import app.morphe.extension.youtube.settings.Settings;
 import app.morphe.extension.youtube.shared.EngagementPanel;
 import app.morphe.extension.youtube.shared.ShortsPlayerState;
 import app.morphe.extension.youtube.videoplayer.ExportDownloadButton;
+import app.morphe.extension.youtube.videoplayer.LoopCountFlyoutButton;
 import app.morphe.extension.youtube.videoplayer.PictureinPictureButton;
 import app.morphe.extension.youtube.videoplayer.SaveToWatchLaterButton;
 import app.morphe.extension.youtube.videoplayer.ShortsDownloadButton;
 import app.morphe.extension.youtube.videoplayer.VideoDelayDialogButton;
+import app.morphe.extension.youtube.videoplayer.VideoEffectFlyoutButton;
 import app.morphe.extension.youtube.whitelist.ChannelWhitelist;
 
 @SuppressWarnings("unused")
@@ -115,8 +122,14 @@ public final class FlyoutUtils {
     ) {}
 
     /**
-     * Holds the injected items apart from the app list, and scrolls them on its own
-     * when they do not all fit. Its height is limited by the space that the menu can use
+     * Holds the injected items.
+     * <p>
+     * If the app list is a RecyclerView, the list is moved into this view below the injected items
+     * and this view takes its place, so the injected items and the app items scroll together
+     * as one list, such as in landscape where the menu does not fit.
+     * <p>
+     * Otherwise this view is placed above the app list and scrolls the injected items on its own
+     * when they do not all fit. Its height is then limited by the space that the menu can use
      * in the window, which depends on the orientation and the window size, such as in split
      * screen, minus the space of the other items of the menu, so the whole menu fits.
      */
@@ -141,24 +154,233 @@ public final class FlyoutUtils {
          * Width that the app gave to the menu before the items were injected, or 0 if it's not known.
          */
         private final int appMenuWidth;
+        /**
+         * App list that scrolls together with the injected items, or null if the injected items scroll on their own.
+         */
+        @Nullable
+        private final RecyclerView appList;
+        /**
+         * Divider between the injected items and the app list, or null if it's not added yet.
+         */
+        @Nullable
+        private View divider;
 
-        InjectedItemsScrollView(Context context, ViewGroup menuContainer, @Nullable PopupWindow popupWindow) {
+        private InjectedItemsScrollView(Context context, ViewGroup menuContainer,
+                                        @Nullable PopupWindow popupWindow, @Nullable RecyclerView appList) {
             super(context);
             this.menuContainer = menuContainer;
             this.popupWindow = popupWindow;
+            this.appList = appList;
             appMenuWidth = menuContainer.getWidth();
 
             setVerticalScrollBarEnabled(false);
+            setOverScrollMode(OVER_SCROLL_IF_CONTENT_SCROLLS);
 
             itemsContainer = new LinearLayout(context);
             itemsContainer.setOrientation(LinearLayout.VERTICAL);
-            addView(itemsContainer, new ScrollView.LayoutParams(
+
+            if (appList == null) {
+                addView(itemsContainer, new ScrollView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                ));
+
+                // The bottom sheet follows only one nested scrolling child, which must stay the app list.
+                setNestedScrollingEnabled(false);
+                return;
+            }
+
+            LinearLayout content = new LinearLayout(context);
+            content.setOrientation(LinearLayout.VERTICAL);
+            content.addView(itemsContainer, new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            ));
+            content.addView(appList, new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            ));
+            addView(content, new ScrollView.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
             ));
 
-            setNestedScrollingEnabled(false);
-            setOverScrollMode(OVER_SCROLL_IF_CONTENT_SCROLLS);
+            // The bottom sheet follows the first nested scrolling view it finds, which is now this view,
+            // and the app list scrolls inside this view with nested scrolling.
+            setNestedScrollingEnabled(true);
+        }
+
+        /**
+         * The app list cannot show all its items at once, as it only lays out the items that fit.
+         * It's limited to the height of this view and scrolls its items itself, while the injected
+         * items above it scroll with this view. The nested scrolling methods make both scroll as one list.
+         */
+        @Override
+        protected void measureChildWithMargins(View child, int parentWidthMeasureSpec, int widthUsed,
+                                               int parentHeightMeasureSpec, int heightUsed) {
+            if (appList == null || MeasureSpec.getMode(parentHeightMeasureSpec) == MeasureSpec.UNSPECIFIED
+                    || !(child instanceof ViewGroup content)) {
+                super.measureChildWithMargins(child, parentWidthMeasureSpec, widthUsed,
+                        parentHeightMeasureSpec, heightUsed);
+                return;
+            }
+
+            final int contentWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
+                    getPaddingLeft() + getPaddingRight() + widthUsed, child.getLayoutParams().width);
+            final int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
+                    MeasureSpec.getSize(contentWidthMeasureSpec), MeasureSpec.EXACTLY);
+            final int unspecifiedHeightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+
+            int headerHeight = 0;
+            for (int i = 0, count = content.getChildCount(); i < count; i++) {
+                View contentChild = content.getChildAt(i);
+                if (contentChild != appList && contentChild.getVisibility() != GONE) {
+                    contentChild.measure(childWidthMeasureSpec, getChildMeasureSpec(
+                            unspecifiedHeightMeasureSpec, 0, contentChild.getLayoutParams().height));
+                    headerHeight += contentChild.getMeasuredHeight() + getVerticalMargins(contentChild);
+                }
+            }
+
+            final int listMaxHeight = MeasureSpec.getSize(parentHeightMeasureSpec)
+                    - getPaddingTop() - getPaddingBottom() - heightUsed;
+            child.measure(contentWidthMeasureSpec, MeasureSpec.makeMeasureSpec(
+                    headerHeight + Math.max(listMaxHeight, 0), MeasureSpec.AT_MOST));
+        }
+
+        /**
+         * Scrolling down, the injected items scroll out before the app list scrolls.
+         */
+        @Override
+        public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+            // The bottom sheet expands first, as it does with the app list.
+            // This is not the touch scroll of this view, so the override below is skipped.
+            super.dispatchNestedPreScroll(dx, dy, consumed, null);
+
+            final int remainingY = dy - consumed[1];
+            if (remainingY > 0) {
+                final int oldScrollY = getScrollY();
+                scrollBy(0, remainingY);
+                consumed[1] += getScrollY() - oldScrollY;
+            }
+        }
+
+        /**
+         * A fling of the app list scrolls the injected items if they are partly shown,
+         * or shows them if the list is at its top.
+         */
+        @Override
+        public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+            if ((velocityY > 0 && canScrollVertically(1))
+                    || (velocityY < 0 && canScrollVertically(-1) && !target.canScrollVertically(-1))) {
+                fling((int) velocityY);
+                return true;
+            }
+            return super.onNestedPreFling(target, velocityX, velocityY);
+        }
+
+        /**
+         * Called by the touch scroll of this view, when the drag starts on the injected items.
+         * Scrolling up, the app list scrolls back to its top before the injected items are shown again.
+         */
+        @Override
+        public boolean dispatchNestedPreScroll(int dx, int dy, @Nullable int[] consumed, @Nullable int[] offsetInWindow) {
+            if (appList != null && dy < 0 && appList.canScrollVertically(-1)) {
+                appList.scrollBy(0, dy);
+                if (consumed != null) {
+                    consumed[0] = 0;
+                    consumed[1] = dy;
+                }
+                if (offsetInWindow != null) {
+                    offsetInWindow[0] = 0;
+                    offsetInWindow[1] = 0;
+                }
+                return true;
+            }
+            return super.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+        }
+
+        /**
+         * Called by the touch scroll of this view, and by the nested scroll of the app list.
+         * Scrolling down, once the injected items are scrolled out, a drag that started
+         * on the injected items scrolls the app list.
+         */
+        @Override
+        public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
+                                            @Nullable int[] offsetInWindow) {
+            if (appList != null && dyUnconsumed > 0 && appList.canScrollVertically(1)) {
+                appList.scrollBy(0, dyUnconsumed);
+                dyConsumed += dyUnconsumed;
+                dyUnconsumed = 0;
+            }
+            return super.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
+        }
+
+        /**
+         * Adds the view above the item of the menu at the index. If that item is the app list,
+         * the list is moved into this view, which takes its place.
+         *
+         * @param dragHandleHeight Height of the bottom sheet drag handle, that the injected items must clear.
+         */
+        static InjectedItemsScrollView addToMenu(Context context, FlyoutMenuInfo menuInfo, int dragHandleHeight) {
+            LinearLayout menuContainer = menuInfo.menuContainer();
+            final int index = menuInfo.adjustedIndex();
+
+            if (menuContainer.getChildAt(index) instanceof RecyclerView appList) {
+                ViewGroup.LayoutParams appListParams = appList.getLayoutParams();
+                menuContainer.removeViewAt(index);
+
+                InjectedItemsScrollView injectedItems = new InjectedItemsScrollView(
+                        context, menuContainer, menuInfo.popupWindow(), appList);
+                ((MarginLayoutParams) injectedItems.itemsContainer.getLayoutParams()).topMargin = dragHandleHeight;
+                menuContainer.addView(injectedItems, index, appListParams);
+                return injectedItems;
+            }
+
+            InjectedItemsScrollView injectedItems = new InjectedItemsScrollView(
+                    context, menuContainer, menuInfo.popupWindow(), null);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.topMargin = dragHandleHeight;
+            menuContainer.addView(injectedItems, index, params);
+            return injectedItems;
+        }
+
+        /**
+         * Adds the divider that separates the injected items from the app list.
+         */
+        void addDivider(View view) {
+            ViewGroup dividerParent = appList == null ? menuContainer : (ViewGroup) itemsContainer.getParent();
+            View itemsView = appList == null ? this : itemsContainer;
+            dividerParent.addView(view, dividerParent.indexOfChild(itemsView) + 1);
+            divider = view;
+        }
+
+        /**
+         * Removes the injected item that holds the view. Once no item is left,
+         * this view is removed from the menu and the app list is put back in its place.
+         */
+        void removeItem(View view) {
+            while (view.getParent() instanceof View parent && parent != itemsContainer) {
+                view = parent;
+            }
+            Utils.hideViewByRemovingFromParentUnderCondition(true, view);
+            if (itemsContainer.getChildCount() > 0) {
+                return;
+            }
+
+            if (divider != null) {
+                Utils.hideViewByRemovingFromParentUnderCondition(true, divider);
+            }
+            final int index = menuContainer.indexOfChild(this);
+            ViewGroup.LayoutParams params = getLayoutParams();
+            menuContainer.removeView(this);
+
+            if (appList != null) {
+                ((ViewGroup) appList.getParent()).removeView(appList);
+                menuContainer.addView(appList, index, params);
+            }
         }
 
         /**
@@ -249,10 +471,6 @@ public final class FlyoutUtils {
                 return;
             }
 
-            // The height given by a bottom sheet is ignored, as the bottom sheet can be measured
-            // before the injected items are added, and it's resized afterward.
-            int maxHeight = getMaxHeight();
-
             if (popupWindow != null) {
                 // A popup window is as wide as the widest item of the menu, up to most of the window width,
                 // so the injected items are not made wider than the width that the app gave to the menu,
@@ -266,15 +484,33 @@ public final class FlyoutUtils {
                     widthMeasureSpec = MeasureSpec.makeMeasureSpec(menuWidth,
                             appMenuWidth > 0 ? MeasureSpec.EXACTLY : MeasureSpec.AT_MOST);
                 }
+            }
 
-                // A popup window keeps the space that the app chose for the menu when it was shown,
-                // before the injected items were added, so the injected items use the space left
-                // by the other items, and the items of the app are not cut.
-                if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
-                    final int menuSpace = MeasureSpec.getSize(heightMeasureSpec)
-                            - getFollowingItemsHeight(widthMeasureSpec);
-                    maxHeight = Math.min(maxHeight, Math.max(menuSpace, getMinHeight()));
-                }
+            // With the app list inside, this view uses the space that the menu gives to the list.
+            if (appList != null) {
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+                return;
+            }
+
+            // The items are measured for the first time when the scroll view is measured, and the menu
+            // may not measure the scroll view again, so the items are measured before its height is chosen.
+            // Otherwise the minimum height is zero, and the height depends on the space left by the
+            // other items, which can be less than one item.
+            if (itemsContainer.getMeasuredHeight() == 0) {
+                measureChild(itemsContainer, widthMeasureSpec, heightMeasureSpec);
+            }
+
+            // The height given by a bottom sheet is ignored, as the bottom sheet can be measured
+            // before the injected items are added, and it's resized afterward.
+            int maxHeight = getMaxHeight();
+
+            // A popup window keeps the space that the app chose for the menu when it was shown,
+            // before the injected items were added, so the injected items use the space left
+            // by the other items, and the items of the app are not cut.
+            if (popupWindow != null && MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
+                final int menuSpace = MeasureSpec.getSize(heightMeasureSpec)
+                        - getFollowingItemsHeight(widthMeasureSpec);
+                maxHeight = Math.min(maxHeight, Math.max(menuSpace, getMinHeight()));
             }
 
             if (maxHeight > 0) {
@@ -285,7 +521,10 @@ public final class FlyoutUtils {
 
         @Override
         public boolean dispatchTouchEvent(MotionEvent ev) {
-            if (ev.getActionMasked() == MotionEvent.ACTION_DOWN &&
+            // Without this the bottom sheet takes a vertical drag over and moves itself
+            // instead of letting the injected items scroll. With the app list inside,
+            // the bottom sheet follows this view as it follows the app list.
+            if (appList == null && ev.getActionMasked() == MotionEvent.ACTION_DOWN &&
                     (canScrollVertically(1)
                             || canScrollVertically(-1))) {
                 ViewParent parent = getParent();
@@ -297,7 +536,6 @@ public final class FlyoutUtils {
         }
     }
 
-    private static final int VIDEO_ID_LENGTH = 11;
     private static final byte[] PLAYLIST_ID_PREFIX_BYTES =
             getAsciiBytes("playlist?list=");
     private static final List<byte[]> VIDEO_ID_PREFIXES_BYTES = List.of(
@@ -311,18 +549,33 @@ public final class FlyoutUtils {
     private static final String[] SAVE_TO_PLAYLIST_ICON_NAMES = {"PLAYLIST_ADD", "ADD_TO_PLAYLIST", "BOOKMARK", "SAVE"};
     private static final Pattern APP_SAVE_BUTTON_PATTERN =
             Pattern.compile("WATCH_LATER|" + String.join("|", SAVE_TO_PLAYLIST_ICON_NAMES));
+    /**
+     * Icon names of the download items, such as download, resume, or remove from downloads.
+     */
+    private static final String APP_DOWNLOAD_BUTTON_PREFIX = "OFFLINE";
     private static final List<byte[]> SHORTS_VIDEO_ELEMENT_BYTES = List.of(
             getAsciiBytes("history-shorts-shelf-item"),
             getAsciiBytes("shorts-shelf-item")
     );
+    /**
+     * Menus of the videos in the list of the watch page.
+     */
+    private static final byte[] WATCH_RELATED_MENU_BYTES = getAsciiBytes("watch-related-menu-button");
+    /**
+     * Command of the Save to playlist item. The server leaves the save items out of the menus
+     * of the videos in the watch page of a video for kids, and of the Shorts in the feed.
+     */
+    private static final byte[] ADD_TO_PLAYLIST_COMMAND_BYTES = getAsciiBytes("add_to_playlist");
     private static final List<byte[]> HORIZONTAL_SHELF_HISTORY_BYTES = List.of(
             getAsciiBytes("horizontal_shelf.e"),
             getAsciiBytes("FEhistory")
     );
 
+    private static final int SECONDARY_CONTAINER_ID = ResourceUtils.getIdentifier(
+            ResourceType.ID, "list_item_secondary_container");
     // 20.21 has no container, and its secondary views are direct children of the item.
     private static final List<Integer> SECONDARY_VIEW_IDS = List.of(
-            ResourceUtils.getIdentifier(ResourceType.ID, "list_item_secondary_container"),
+            SECONDARY_CONTAINER_ID,
             ResourceUtils.getIdentifier(ResourceType.ID, "list_item_text_secondary"),
             ResourceUtils.getIdentifier(ResourceType.ID, "list_item_text_secondary_separator"),
             ResourceUtils.getIdentifier(ResourceType.ID, "list_item_icon_secondary")
@@ -348,14 +601,27 @@ public final class FlyoutUtils {
      * Injected save item. The app menu can bind its items after the injected items are added.
      */
     private static WeakReference<View> injectedSaveButtonRef = new WeakReference<>(null);
+    /**
+     * If the app menu has a download item, also if the item is hidden by a Morphe setting.
+     */
+    private static boolean flyoutHasAppDownloadButton;
+    /**
+     * Injected download item, removed like the injected save item.
+     */
+    private static WeakReference<View> injectedDownloadButtonRef = new WeakReference<>(null);
 
     private static WeakReference<View> senderViewRef = new WeakReference<>(null);
 
 
     /**
-     * If the elements were added to the open menu. Menus opened on top of it stay as they are.
+     * If the elements were added to the open menu. Menus opened on top of it, or opened before it closes,
+     * only get the elements of nested menus.
      */
     private static boolean flyoutElementsAdded;
+    /**
+     * The menu that the elements were last added to.
+     */
+    private static WeakReference<Object> flyoutElementsPanelRef = new WeakReference<>(null);
     private static Dialog flyoutDialog;
     private static PopupWindow flyoutPopupWindow;
     private static String flyoutVideoId = "";
@@ -368,6 +634,11 @@ public final class FlyoutUtils {
 
     private static boolean isMyTabHistoryFlyout;
     private static boolean isShortFlyout;
+    /**
+     * Menu of a video in the watch page of a video for kids, or of a Short in the feed, which has no save item.
+     * The server data is used, as a save item hidden by a Morphe setting can be left out before the app binds it.
+     */
+    private static boolean isVideoFlyoutWithoutSaveItem;
     /**
      * If the open menu is the menu of the Shorts player, which has another layout
      * and only gets the items that apply to the playing Short.
@@ -416,6 +687,14 @@ public final class FlyoutUtils {
         }
     }
 
+    /**
+     * @return If the open menu is of a Short in the feed or on a channel, and not of the Shorts player.
+     */
+    public static boolean isShortsFeedMenu() {
+        // The buffer is cleared when the menu closes, but the Shorts flag is not.
+        return isShortFlyout && flyoutBuffer != null && !ShortsPlayerState.isOpen();
+    }
+
     public static String getFlyoutPlaylistId() {
         return flyoutPlaylistId;
     }
@@ -435,10 +714,10 @@ public final class FlyoutUtils {
         byte[] prefix = VIDEO_ID_PREFIXES_BYTES.get(0);
         final int index = byteIndexOf(buffer, prefix);
         final int videoIdStart = index + prefix.length;
-        if (index < 0 || videoIdStart + VIDEO_ID_LENGTH > buffer.length) {
+        if (index < 0 || videoIdStart + VideoInformation.VIDEO_ID_LENGTH > buffer.length) {
             return "";
         }
-        return new String(buffer, videoIdStart, VIDEO_ID_LENGTH, StandardCharsets.US_ASCII);
+        return new String(buffer, videoIdStart, VideoInformation.VIDEO_ID_LENGTH, StandardCharsets.US_ASCII);
     }
 
     public static boolean hasVisibleFlyoutButton(String buttonName) {
@@ -514,6 +793,9 @@ public final class FlyoutUtils {
             OnTheGoPatch.onFlyoutCreated();
         }
         flyoutPopupWindow = popupWindow;
+        if (GlassMenusPatch.isPatchIncluded()) {
+            GlassMenusPatch.onPopupWindow(popupWindow);
+        }
 
         // The app can set the content view after this call, in the same method that shows the popup.
         Utils.runOnMainThreadDelayed(() -> {
@@ -545,8 +827,14 @@ public final class FlyoutUtils {
         Runnable addElements = () -> {
             if (!flyoutElementsAdded) {
                 flyoutElementsAdded = true;
+                flyoutElementsPanelRef = new WeakReference<>(flyoutPanel);
                 addFlyoutElements(flyoutPanel);
                 onFlyoutListBound(flyoutPanel);
+            } else if (flyoutElementsPanelRef.get() != flyoutPanel) {
+                // The menu of the additional player settings is shown before the player settings menu closes,
+                // so the state of the player settings menu is not reset.
+                flyoutElementsPanelRef = new WeakReference<>(flyoutPanel);
+                addNestedFlyoutElements(flyoutPanel);
             }
         };
 
@@ -582,11 +870,14 @@ public final class FlyoutUtils {
         visibleFlyoutButtonTexts.clear();
         flyoutHasAppSaveButton = false;
         injectedSaveButtonRef = new WeakReference<>(null);
+        flyoutHasAppDownloadButton = false;
+        injectedDownloadButtonRef = new WeakReference<>(null);
         currentButtonIndex = 0;
         flyoutVideoId = "";
         flyoutPlaylistId = "";
         nativeQueuePlaylistSource = null;
         flyoutBuffer = null;
+        isVideoFlyoutWithoutSaveItem = false;
         if (flyoutChannelIdRequest != null) {
             // The buttons waiting for the channel are gone with the menu.
             flyoutChannelIdRequest.cancelIfNotDone();
@@ -610,12 +901,32 @@ public final class FlyoutUtils {
         }
 
         if (nextButtonIndex > 0) {
-            addFlyoutMenuItem(flyoutPanel, null, null, null, nextButtonIndex, true, null);
+            addFlyoutMenuItem(flyoutPanel, null, null, null, nextButtonIndex, true, null, null, true);
         }
 
         // Reset 'topFlyoutMenuVisible' field, once the buttons have been injected into the player's
         // overlay settings, to prevent them from also being added into nested menus.
         PlayerFlyoutMenuComponentsFilter.resetTopFlyoutMenuVisible();
+    }
+
+    /**
+     * Adds the elements of a menu opened on top of another menu, or opened before another menu closes.
+     * The state of the flyout is still the state of the other menu, so only elements that do not use it are added.
+     */
+    private static void addNestedFlyoutElements(Object flyoutPanel) {
+        Logger.printDebug(() -> "Adding the elements of a nested menu");
+        int nextButtonIndex = 0;
+
+        // The items of the other menu are not in this menu.
+        customItemTextRefs.clear();
+
+        if (LoopCountPatch.isPatchIncluded()) {
+            nextButtonIndex = LoopCountFlyoutButton.addFlyoutButton(flyoutPanel, nextButtonIndex, "", false);
+        }
+
+        if (nextButtonIndex > 0) {
+            addFlyoutMenuItem(flyoutPanel, null, null, null, nextButtonIndex, true, null, null, true);
+        }
     }
 
     /**
@@ -626,7 +937,7 @@ public final class FlyoutUtils {
         if (!ShortsPlayerState.isOpen()
                 || isShortFlyout
                 // Menus opened inside a panel, such as the menu of a comment.
-                || EngagementPanel.getLastOpenedPanelId() != null) {
+                || EngagementPanel.getLastOpenedShortsPanelId() != null) {
             return false;
         }
         for (Pair<String, Integer> button : visibleFlyoutButtons) {
@@ -647,7 +958,7 @@ public final class FlyoutUtils {
         final String shortVideoId = flyoutVideoId.isEmpty() ? VideoInformation.getVideoId() : flyoutVideoId;
 
         if (ShortsDownloadButton.isPatchIncluded()) {
-            nextButtonIndex = ShortsDownloadButton.addFlyoutButton(flyoutPanel, nextButtonIndex, shortVideoId);
+            nextButtonIndex = ShortsDownloadButton.addFlyoutButton(flyoutPanel, nextButtonIndex, shortVideoId, true, null);
         }
 
         nextButtonIndex = AiSListSubmitDialog.addFlyoutButton(flyoutPanel, nextButtonIndex, shortVideoId);
@@ -672,7 +983,9 @@ public final class FlyoutUtils {
             nextButtonIndex = PostTranslatePatch.addFlyoutButton(
                     flyoutPanel,
                     nextButtonIndex,
-                    senderViewRef.get()
+                    senderViewRef.get(),
+                    flyoutBuffer,
+                    flyoutVideoId
             );
         }
 
@@ -701,6 +1014,14 @@ public final class FlyoutUtils {
                     allButtonsVideoId
             );
 
+            if (GhostPlayPatch.isPatchIncluded()) {
+                nextButtonIndex = GhostPlayPatch.addFlyoutButton(
+                        flyoutPanel,
+                        nextButtonIndex,
+                        allButtonsVideoId
+                );
+            }
+
             nextButtonIndex = ChannelWhitelist.addFlyoutButtons(flyoutPanel, nextButtonIndex, isMyTabHistoryFlyout);
         }
 
@@ -720,16 +1041,20 @@ public final class FlyoutUtils {
                     flyoutPanel,
                     nextButtonIndex,
                     flyoutVideoId,
+                    isVideoFlyoutWithoutSaveItem,
                     PlayerFlyoutMenuComponentsFilter.getTopFlyoutMenuVisible()
             );
         }
 
-        // The menus of Shorts in the feed have no download option.
-        if (ShortsDownloadButton.isPatchIncluded() && isShortFlyout) {
+        // The menus of Shorts in the feed have no download option,
+        // and the menus of some videos have none, such as videos only Premium members can download.
+        if (ShortsDownloadButton.isPatchIncluded()) {
             nextButtonIndex = ShortsDownloadButton.addFlyoutButton(
                     flyoutPanel,
                     nextButtonIndex,
-                    flyoutVideoId
+                    flyoutVideoId,
+                    isShortFlyout,
+                    flyoutBuffer
             );
         }
 
@@ -754,6 +1079,23 @@ public final class FlyoutUtils {
             );
         }
 
+        if (VideoEffectsPatch.isPatchIncluded()) {
+            nextButtonIndex = VideoEffectFlyoutButton.addFlyoutButton(
+                    flyoutPanel,
+                    nextButtonIndex,
+                    PlayerFlyoutMenuComponentsFilter.getTopFlyoutMenuVisible()
+            );
+        }
+
+        if (LoopCountPatch.isPatchIncluded()) {
+            nextButtonIndex = LoopCountFlyoutButton.addFlyoutButton(
+                    flyoutPanel,
+                    nextButtonIndex,
+                    flyoutVideoId,
+                    PlayerFlyoutMenuComponentsFilter.getTopFlyoutMenuVisible()
+            );
+        }
+
         return nextButtonIndex;
     }
 
@@ -764,7 +1106,7 @@ public final class FlyoutUtils {
      */
     private static void onFlyoutListBound(Object flyoutPanel) {
         try {
-            FlyoutMenuInfo menuInfo = getFlyoutMenuInfo(flyoutPanel, 0);
+            FlyoutMenuInfo menuInfo = getFlyoutMenuInfo(flyoutPanel);
             if (menuInfo == null) {
                 return;
             }
@@ -772,6 +1114,9 @@ public final class FlyoutUtils {
             // The items are inside the list, which is the last view of the menu container.
             LinearLayout menuContainer = menuInfo.menuContainer();
             View lastChild = menuContainer.getChildAt(menuContainer.getChildCount() - 1);
+            if (lastChild instanceof InjectedItemsScrollView injectedItems && injectedItems.appList != null) {
+                lastChild = injectedItems.appList;
+            }
             if (!(lastChild instanceof ViewGroup itemList) || itemList.getChildCount() == 0) {
                 return;
             }
@@ -822,7 +1167,6 @@ public final class FlyoutUtils {
         return 0;
     }
 
-    @SuppressWarnings("SameParameterValue")
     public static int addFlyoutButton(
             Object flyoutPanel,
             Drawable icon,
@@ -830,22 +1174,30 @@ public final class FlyoutUtils {
             View.OnClickListener clickListener,
             int index
     ) {
-        return addFlyoutMenuItem(flyoutPanel, icon, text, clickListener, index, false, null);
+        return addFlyoutMenuItem(flyoutPanel, icon, text, clickListener, index, false, null, null, true);
     }
 
     /**
-     * Adds a save item, which is removed if the app menu binds its own save item afterwards.
+     * Adds a save or download item, which is removed if the app menu binds its own item afterward.
+     *
+     * @param isDownload If the item is a download item, otherwise it is a save item.
      */
     public static int addFlyoutSaveButton(
             Object flyoutPanel,
             Drawable icon,
             String text,
             View.OnClickListener clickListener,
-            int index
+            int index,
+            boolean isDownload
     ) {
         final int nextIndex = addFlyoutButton(flyoutPanel, icon, text, clickListener, index);
         if (nextIndex >= 0 && !customItemTextRefs.isEmpty()) {
-            injectedSaveButtonRef = new WeakReference<>(customItemTextRefs.get(customItemTextRefs.size() - 1).get());
+            WeakReference<View> injectedRef = new WeakReference<>(customItemTextRefs.get(customItemTextRefs.size() - 1).get());
+            if (isDownload) {
+                injectedDownloadButtonRef = injectedRef;
+            } else {
+                injectedSaveButtonRef = injectedRef;
+            }
         }
         return nextIndex;
     }
@@ -855,6 +1207,33 @@ public final class FlyoutUtils {
      */
     public static boolean hasAppSaveButton() {
         return flyoutHasAppSaveButton;
+    }
+
+    /**
+     * @return If the app menu has its own item to download the video, or to manage its download.
+     */
+    public static boolean hasAppDownloadButton() {
+        return flyoutHasAppDownloadButton;
+    }
+
+    /**
+     * Removes an injected save or download item, once the app menu has bound its own item.
+     */
+    private static void removeInjectedItem(@Nullable View view) {
+        if (view == null) {
+            return;
+        }
+
+        ViewParent parent = view.getParent();
+        while (parent != null && !(parent instanceof InjectedItemsScrollView)) {
+            parent = parent.getParent();
+        }
+        if (parent instanceof InjectedItemsScrollView injectedItems) {
+            injectedItems.removeItem(view);
+            if (flyoutPopupWindow != null && flyoutPopupWindow.isShowing()) {
+                flyoutPopupWindow.update();
+            }
+        }
     }
 
     /**
@@ -868,7 +1247,26 @@ public final class FlyoutUtils {
             int index,
             FlyoutButtonResource buttonResource
     ) {
-        return addFlyoutMenuItem(flyoutPanel, icon, text, clickListener, index, false, buttonResource);
+        return addFlyoutMenuItem(flyoutPanel, icon, text, clickListener, index, false, buttonResource, null, true);
+    }
+
+    /**
+     * Adds a button with a view at its end, such as controls that change a value without closing the menu.
+     *
+     * @param endView View shown at the end of the button, in place of the secondary text and icon of the app items.
+     *                If the button is not enabled, the end view must disable its own controls.
+     * @param enabled If the button can be used.
+     */
+    public static int addFlyoutButton(
+            Object flyoutPanel,
+            @Nullable Drawable icon,
+            String text,
+            View.OnClickListener clickListener,
+            int index,
+            View endView,
+            boolean enabled
+    ) {
+        return addFlyoutMenuItem(flyoutPanel, icon, text, clickListener, index, false, null, endView, enabled);
     }
 
     private static int addFlyoutMenuItem(
@@ -878,10 +1276,12 @@ public final class FlyoutUtils {
             @Nullable View.OnClickListener clickListener,
             int index,
             boolean isDivider,
-            @Nullable FlyoutButtonResource buttonResource
+            @Nullable FlyoutButtonResource buttonResource,
+            @Nullable View endView,
+            boolean enabled
     ) {
         try {
-            FlyoutMenuInfo menuInfo = getFlyoutMenuInfo(flyoutPanel, 0);
+            FlyoutMenuInfo menuInfo = getFlyoutMenuInfo(flyoutPanel);
             if (menuInfo == null) {
                 return -1;
             }
@@ -908,22 +1308,12 @@ public final class FlyoutUtils {
                     return -1;
                 }
 
-                // The divider separates the injected items from the app list,
-                // so it stays outside the injected items scroll view.
-                menuContainer.addView(
-                        createFlyoutDivider(context),
-                        menuContainer.indexOfChild(currentInjectedItems) + 1
-                );
+                currentInjectedItems.addDivider(createFlyoutDivider(context));
             } else {
                 if (currentInjectedItems == null) {
-                    currentInjectedItems = new InjectedItemsScrollView(context, menuContainer, menuInfo.popupWindow());
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                    );
-                    // The scroll view ends up under the drag handle, so it has to clear it.
-                    params.topMargin = getDragHandleHeight(menuContainer);
-                    menuContainer.addView(currentInjectedItems, menuInfo.adjustedIndex(), params);
+                    // The injected items end up under the drag handle, so they have to clear it.
+                    currentInjectedItems = InjectedItemsScrollView.addToMenu(
+                            context, menuInfo, getDragHandleHeight(menuContainer));
                 }
 
                 currentInjectedItems.itemsContainer.addView(
@@ -933,7 +1323,9 @@ public final class FlyoutUtils {
                                 icon,
                                 text,
                                 clickListener,
-                                buttonResource
+                                buttonResource,
+                                endView,
+                                enabled
                         )
                 );
             }
@@ -967,31 +1359,18 @@ public final class FlyoutUtils {
      */
     public static void setCurrentButtonInfo(@Nullable Enum<?> buttonEnum, @Nullable Object buttonInfo,
                                             @Nullable CharSequence buttonText) {
-        // Before the checks below, as a save item hidden by a Morphe setting must not be replaced by the injected one.
-        if (buttonEnum != null && !flyoutHasAppSaveButton) {
+        // Before the checks below, as a save or download item hidden by a Morphe setting
+        // must not be replaced by the injected one.
+        if (buttonEnum != null) {
             String name = buttonEnum.name();
-            if (APP_SAVE_BUTTON_PATTERN.matcher(name).find() && !name.contains("REMOVE")) {
+            if (!flyoutHasAppSaveButton && APP_SAVE_BUTTON_PATTERN.matcher(name).find() && !name.contains("REMOVE")) {
                 flyoutHasAppSaveButton = true;
-
-                View view = injectedSaveButtonRef.get();
+                removeInjectedItem(injectedSaveButtonRef.get());
                 injectedSaveButtonRef = new WeakReference<>(null);
-                while (view != null && view.getParent() instanceof ViewGroup parent) {
-                    if (parent.getParent() instanceof InjectedItemsScrollView injectedItems) {
-                        Utils.hideViewByRemovingFromParentUnderCondition(true, view);
-                        if (parent.getChildCount() == 0) {
-                            // The divider is right after the injected items.
-                            ViewGroup menuContainer = injectedItems.menuContainer;
-                            Utils.hideViewByRemovingFromParentUnderCondition(true,
-                                    menuContainer.getChildAt(menuContainer.indexOfChild(injectedItems) + 1));
-                            Utils.hideViewByRemovingFromParentUnderCondition(true, injectedItems);
-                        }
-                        if (flyoutPopupWindow != null && flyoutPopupWindow.isShowing()) {
-                            flyoutPopupWindow.update();
-                        }
-                        break;
-                    }
-                    view = parent;
-                }
+            } else if (!flyoutHasAppDownloadButton && name.startsWith(APP_DOWNLOAD_BUTTON_PREFIX)) {
+                flyoutHasAppDownloadButton = true;
+                removeInjectedItem(injectedDownloadButtonRef.get());
+                injectedDownloadButtonRef = new WeakReference<>(null);
             }
         }
 
@@ -1020,8 +1399,7 @@ public final class FlyoutUtils {
         currentButtonIndex++;
 
         visibleFlyoutButtons.add(new Pair<>(currentButtonName, currentButtonIndex));
-        //noinspection SizeReplaceableByIsEmpty
-        if (buttonText != null && buttonText.length() > 0) {
+        if (Utils.isNotEmpty(buttonText)) {
             visibleFlyoutButtonTexts.putIfAbsent(currentButtonName, buttonText.toString());
         }
     }
@@ -1046,12 +1424,11 @@ public final class FlyoutUtils {
         currentButtonIndex = 0;
     }
 
-    @SuppressWarnings("SameParameterValue")
     @Nullable
-    private static FlyoutMenuInfo getFlyoutMenuInfo(Object flyoutPanel, int initialIndex) {
+    private static FlyoutMenuInfo getFlyoutMenuInfo(Object flyoutPanel) {
         LinearLayout menuContainer = null;
         PopupWindow popupWindow = null;
-        int adjustedIndex = initialIndex;
+        int adjustedIndex = 0;
 
         if (flyoutPanel instanceof PopupWindow checkedPopupWindow) {
             popupWindow = checkedPopupWindow;
@@ -1070,8 +1447,14 @@ public final class FlyoutUtils {
                             if (menuRoot instanceof ViewGroup group &&
                                     group.getChildAt(0) instanceof LinearLayout linearLayout) {
                                 menuContainer = linearLayout;
-                                // Skip an index to inject the button after the bottom sheet handle.
-                                adjustedIndex += 1;
+                                // Skip an index to inject the button after the bottom sheet handle,
+                                // unless the handle is after the list, as in the menu of the additional
+                                // player settings. The handle is drawn over the top of the menu either way.
+                                final int childCount = linearLayout.getChildCount();
+                                if (childCount < 2 || !(linearLayout.getChildAt(0) instanceof ViewGroup)
+                                        || linearLayout.getChildAt(childCount - 1) instanceof ViewGroup) {
+                                    adjustedIndex += 1;
+                                }
                             }
                         }
                     }
@@ -1100,8 +1483,10 @@ public final class FlyoutUtils {
                     view -> view instanceof RecyclerView || view instanceof AbsListView);
             ViewParent parent = child == null ? null : child.getParent();
             while (parent instanceof ViewGroup parentGroup && child != root) {
+                // The list can be inside the injected items scroll view, below the injected items.
                 if (parentGroup instanceof LinearLayout linearLayout
-                        && linearLayout.getOrientation() == LinearLayout.VERTICAL) {
+                        && linearLayout.getOrientation() == LinearLayout.VERTICAL
+                        && !(linearLayout.getParent() instanceof InjectedItemsScrollView)) {
                     return new FlyoutMenuInfo(linearLayout, linearLayout.indexOfChild(child), popupWindow);
                 }
                 child = parentGroup;
@@ -1153,7 +1538,9 @@ public final class FlyoutUtils {
             @Nullable Drawable icon,
             String text,
             View.OnClickListener clickListener,
-            @Nullable FlyoutButtonResource buttonResource
+            @Nullable FlyoutButtonResource buttonResource,
+            @Nullable View endView,
+            boolean enabled
     ) {
         // Inflating the same layout the app uses for its own items keeps the row height,
         // paddings, font and icon size identical to them.
@@ -1204,6 +1591,14 @@ public final class FlyoutUtils {
 
         customButton.setOnClickListener(clickListener);
 
+        if (endView != null) {
+            addFlyoutButtonEndView(customButton, endView);
+        }
+
+        if (!enabled) {
+            setFlyoutButtonEnabled(customButton, false);
+        }
+
         if (buttonResource != null) {
             Future<?> resource = buttonResource.resource();
             if (resource.isDone()) {
@@ -1249,6 +1644,24 @@ public final class FlyoutUtils {
         return customButton;
     }
 
+    private static void addFlyoutButtonEndView(View button, View endView) {
+        // The secondary container is at the end of the item, and the item text ends before it.
+        if (button.findViewById(SECONDARY_CONTAINER_ID) instanceof ViewGroup secondaryContainer) {
+            for (int i = 0, count = secondaryContainer.getChildCount(); i < count; i++) {
+                secondaryContainer.getChildAt(i).setVisibility(View.GONE);
+            }
+            secondaryContainer.setVisibility(View.VISIBLE);
+            secondaryContainer.addView(endView, new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    Gravity.CENTER_VERTICAL
+            ));
+        } else {
+            // 20.21 has no container. The button is still usable with its click listener.
+            Logger.printDebug(() -> "Flyout button has no place for its end view");
+        }
+    }
+
     /**
      * Shows the button text again and enables the button if its resource can be used.
      * Can run more than once for the same button.
@@ -1263,6 +1676,18 @@ public final class FlyoutUtils {
             textView.setText(text);
         }
         setFlyoutButtonEnabled(button, buttonResource.onLoaded().test(textView));
+    }
+
+    /**
+     * Enables or disables a menu item that was added with an end view, after it was added.
+     */
+    public static void setFlyoutButtonWithEndViewEnabled(View endView, boolean enabled) {
+        // The end view is in the secondary container of the menu item.
+        if (endView.getParent() instanceof View secondaryContainer
+                && secondaryContainer.getId() == SECONDARY_CONTAINER_ID
+                && secondaryContainer.getParent() instanceof View button) {
+            setFlyoutButtonEnabled(button, enabled);
+        }
     }
 
     private static void setFlyoutButtonEnabled(View button, boolean enabled) {
@@ -1308,6 +1733,17 @@ public final class FlyoutUtils {
      * Injection point.
      */
     public static void extractFlyoutIdFromObject(@Nullable Object bufferObject) {
+        byte[] flyoutBuffer = bufferObject instanceof ProtocolBufferFieldInterface bufferInterface
+                && !(bufferObject instanceof FlyoutMenuVideoIdInterface)
+                ? bufferInterface.patch_getBuffer()
+                : null;
+        FlyoutUtils.flyoutBuffer = flyoutBuffer;
+        // Set before the queue reads the source. A Short has no duration badge,
+        // so the queue would otherwise treat its card as a playlist.
+        isShortFlyout = flyoutBuffer != null && byteIndexesOf(flyoutBuffer, SHORTS_VIDEO_ELEMENT_BYTES).size() == 1;
+        isVideoFlyoutWithoutSaveItem = flyoutBuffer != null
+                && (isShortFlyout || byteIndexOf(flyoutBuffer, WATCH_RELATED_MENU_BYTES) >= 0)
+                && byteIndexOf(flyoutBuffer, ADD_TO_PLAYLIST_COMMAND_BYTES) < 0;
         if (AddToQueuePatch.isPatchIncluded() && AddToQueuePatch.isNativeQueueEnabled()) {
             nativeQueuePlaylistSource = QueueFlyoutActions.playlistSource(bufferObject, senderViewRef.get());
         }
@@ -1321,15 +1757,10 @@ public final class FlyoutUtils {
                 // An empty typed ID must clear the previous menu's video as well.
                 flyoutVideoId = videoId;
                 flyoutPlaylistId = "";
-                isShortFlyout = false;
             }
             return;
         }
 
-        byte[] flyoutBuffer = bufferObject instanceof ProtocolBufferFieldInterface bufferInterface
-                ? bufferInterface.patch_getBuffer()
-                : null;
-        FlyoutUtils.flyoutBuffer = flyoutBuffer;
         if (flyoutBuffer == null) {
             return;
         }
@@ -1343,10 +1774,6 @@ public final class FlyoutUtils {
                 !horizontalShelfHistoryBytesIndexes.isEmpty() &&
                         horizontalShelfHistoryBytesIndexes.size() == HORIZONTAL_SHELF_HISTORY_BYTES.size() &&
                         horizontalShelfHistoryBytesIndexes.get(0) <= 30;
-
-        // Check if Shorts flyout is triggered only in the feed or on channels.
-        List<Integer> shortsVideoElementsBytesIndexes = byteIndexesOf(flyoutBuffer, SHORTS_VIDEO_ELEMENT_BYTES);
-        isShortFlyout = shortsVideoElementsBytesIndexes.size() == 1;
 
         setFlyoutPlaylistId(flyoutBuffer);
 
@@ -1469,12 +1896,12 @@ public final class FlyoutUtils {
 
             if (index >= 0) {
                 final int videoIdStart = index + VIDEO_ID_PREFIX_BYTES.length;
-                final int videoIdEnd = videoIdStart + VIDEO_ID_LENGTH;
+                final int videoIdEnd = videoIdStart + VideoInformation.VIDEO_ID_LENGTH;
                 if (videoIdEnd <= buffer.length) {
                     flyoutVideoId = new String(
                             buffer,
                             videoIdStart,
-                            VIDEO_ID_LENGTH,
+                            VideoInformation.VIDEO_ID_LENGTH,
                             StandardCharsets.US_ASCII
                     );
 

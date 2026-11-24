@@ -17,9 +17,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import app.morphe.extension.shared.Utils;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer;
 
 /** Read-only access to YouTube's authenticated watch-page service, without player callbacks. */
+@SuppressWarnings("unused")
 public final class PlaylistPages {
     private static final long REQUEST_TIMEOUT_SECONDS = 15;
 

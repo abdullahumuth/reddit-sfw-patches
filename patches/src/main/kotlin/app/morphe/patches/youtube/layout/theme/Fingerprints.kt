@@ -106,7 +106,23 @@ internal object RiveSplashScreenViewFingerprint : Fingerprint(
         resourceLiteral(
             ResourceType.LAYOUT,
             "main_activity_modern_rive_startup_animation",
-            location = MatchAfterWithin(5)
+            // 21.47+ checks the SurfaceView flag before.
+            location = MatchAfterWithin(25)
+        )
+    )
+)
+
+/**
+ * 21.47+ flag to draw the Rive animation with a SurfaceView renderer instead of the ImageView.
+ */
+internal object RiveSurfaceSplashScreenFeatureFlagFingerprint : Fingerprint(
+    returnType = "Landroid/view/View;",
+    filters = listOf(
+        literal(1073831350L),
+        resourceLiteral(
+            ResourceType.LAYOUT,
+            "main_activity_rive_surface_startup_animation",
+            location = MatchAfterWithin(10)
         )
     )
 )
@@ -119,11 +135,9 @@ internal object RiveSplashScreenAnimationViewFingerprint : Fingerprint(
     returnType = "V",
     filters = listOf(
         resourceLiteral(ResourceType.ID, "rive_animation"),
-        methodCall(
-            name = "findViewById",
-            // 21.44+ loads the id before a check.
-            location = MatchAfterWithin(4)
-        ),
+        // 21.44+ loads the id before a check,
+        // and 21.47+ first uses it for the SurfaceView of another branch.
+        methodCall(name = "findViewById"),
         opcode(
             opcode = Opcode.MOVE_RESULT_OBJECT,
             location = MatchAfterImmediately()
@@ -172,22 +186,38 @@ internal object RiveSplashScreenAnimationViewLegacyFingerprint : Fingerprint(
 )
 
 /**
- * Closes the startup animation as soon as the home feed is shown.
+ * Lifecycle onStart, which closes the startup animation as soon as the home feed is shown.
+ * 21.47+ obfuscates the method name.
  */
 internal object SplashScreenOnStartFingerprint : Fingerprint(
     classFingerprint = RiveSplashScreenViewFingerprint,
-    name = "onStart",
     returnType = "V",
+    parameters = listOf("L"),
     filters = listOf(
         literal(1073815019L),
         literal(1073828809L)
     )
 )
 
-internal object SplashScreenOnStopFingerprint : Fingerprint(
+/**
+ * 21.46 and lower.
+ */
+internal object SplashScreenOnStopLegacyFingerprint : Fingerprint(
     classFingerprint = RiveSplashScreenViewFingerprint,
     name = "onStop",
     returnType = "V"
+)
+
+/**
+ * Lifecycle onStop. 21.47+ obfuscates the method name.
+ */
+internal object SplashScreenOnStopFingerprint : Fingerprint(
+    classFingerprint = RiveSplashScreenViewFingerprint,
+    returnType = "V",
+    parameters = listOf("L"),
+    filters = listOf(
+        methodCall(smali = "Landroid/view/ViewPropertyAnimator;->cancel()V")
+    )
 )
 
 /**
@@ -252,11 +282,28 @@ internal object RiveReadRawResourceFingerprint : Fingerprint(
 )
 
 /**
- * Stores each frame the Rive renderer draws.
+ * Publishes each frame the Rive renderer draws, as a bitmap or as a signal that the frame can be drawn.
+ * 21.46+ obfuscates the Rive library, except the v1 library that calls an accessor to store the bitmap.
  */
-internal object RiveCanvasSessionSetLatestBitmapFingerprint : Fingerprint(
+internal object RiveCanvasSessionFrameAvailableFingerprint : Fingerprint(
+    filters = listOf(
+        string("Rive/CanvasSession/FrameAvailable"),
+        string("Rive/CanvasSession/PublishLatestBitmap"),
+        fieldAccess(
+            opcode = Opcode.IPUT_OBJECT,
+            type = "Landroid/graphics/Bitmap;",
+            location = MatchAfterWithin(20)
+        )
+    )
+)
+
+/**
+ * Stores each frame the Rive renderer draws.
+ * 21.45 and older.
+ */
+internal object RiveCanvasSessionSetLatestBitmapLegacyFingerprint : Fingerprint(
     definingClass = "Lapp/rive/RiveCanvasSession;",
-    name = "access\$setLatestBitmap\$p",
+    name = $$"access$setLatestBitmap$p",
     returnType = "V",
     parameters = listOf("Lapp/rive/RiveCanvasSession;", "Landroid/graphics/Bitmap;")
 )

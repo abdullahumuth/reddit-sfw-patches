@@ -7,7 +7,6 @@
  *
  * See the included NOTICE file for GPLv3 Section 7 terms that apply to Morphe contributions.
  */
-@file:Suppress("SpellCheckingInspection")
 
 package app.morphe.patches.youtube.video.information
 
@@ -155,11 +154,11 @@ internal object PlayerStatusEnumFingerprint : Fingerprint(
     )
 )
 
-internal fun getPlayerStatusFingerprint(playerStatusEnumClass: String) = object : Fingerprint(
+internal object PlayerStatusFingerprint : Fingerprint(
     classFingerprint = PlayerInitFingerprint,
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "V",
-    parameters = listOf(playerStatusEnumClass),
+    parameters = { listOf(PlayerStatusEnumFingerprint.originalClassDef.type) },
     filters = listOf(
         // The opcode for the first index of the method is sget-object.
         // Even in sufficiently old versions, such as YT 17.34, the opcode for the first index is sget-object.
@@ -169,7 +168,7 @@ internal fun getPlayerStatusFingerprint(playerStatusEnumClass: String) = object 
             name = "plus"
         )
     )
-) {}
+)
 
 internal object SeekFingerprint : Fingerprint(
     classFingerprint = PlayerInitFingerprint,
@@ -204,7 +203,8 @@ internal object VideoLengthFingerprint : Fingerprint(
         methodCall(returnType = "J", location = MatchAfterWithin(10)),
 
         methodCall(returnType = "Z", parameters = listOf()),
-        opcode(Opcode.CMP_LONG, location = MatchAfterWithin(8))
+        // 21.47+ has a branch before the compare that can skip it.
+        opcode(Opcode.CMP_LONG, location = MatchAfterWithin(30))
     )
 )
 
@@ -306,18 +306,6 @@ internal object SetPlaybackSpeedFormattedStringFingerprint : Fingerprint(
             name = "userSelectedPlaybackSpeed",
             parameters = listOf("F")
         )
-    )
-)
-
-// Class name is un-obfuscated in targets before 21.01
-internal object VideoQualityFingerprint : Fingerprint(
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.CONSTRUCTOR),
-    parameters = listOf(
-        "I", // Resolution.
-        "L",
-        "Ljava/lang/String;", // Human readable resolution: "480p", "1080p Premium", etc
-        "Z",
-        "L"
     )
 )
 

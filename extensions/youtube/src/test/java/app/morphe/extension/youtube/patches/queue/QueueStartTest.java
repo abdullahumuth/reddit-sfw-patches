@@ -16,8 +16,8 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.NavigationEndpoint;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.WatchEndpoint;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.NavigationEndpoint;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.WatchEndpoint;
 
 public class QueueStartTest {
     private final QueueStart start = new QueueStart(new PlaylistQueue("abcdefghijk", "Selected"), "lmnopqrstuv");
@@ -44,7 +44,7 @@ public class QueueStartTest {
         assertTrue(start.isSupersededBy("ZYXWVUTSRQP"));
     }
 
-    @Test public void closedPlayerStartPreservesSelectedDuplicateAndUsesSavedTime() throws Exception {
+    @Test public void closedPlayerStartPreservesSelectedDuplicateAndUsesSavedTime() {
         var queue = start.candidate().playLast("ZYXWVUTSRQP").playLast("abcdefghijk")
                 .select(2).withRepeatMode(PlaylistQueue.REPEAT_ONE);
         var restore = new QueueStart(queue, "", 75_432);

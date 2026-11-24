@@ -16,28 +16,29 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.AddToPlaylistEndpoint;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.CreatePlaylistDialogEndpoint;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.NavigationEndpoint;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.PlaylistEditAction;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.PlaylistEditEndpoint;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.QueueSaveDestination;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.QueueSaveDestinationItem;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.QueueSaveEditResponse;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.QueueSaveHeader;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.QueueSaveHeaderItem;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.QueueSavePickerRenderer;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.QueueSaveResponse;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.QueueSaveResponseItem;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.RatingEndpoint;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.SwipeAction;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.SwipeButton;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.Text;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.TextRun;
-import app.morphe.extension.youtube.innertube.queue.PlaylistQueueRenderer.WatchEndpoint;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.AddToPlaylistEndpoint;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.CreatePlaylistDialogEndpoint;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.NavigationEndpoint;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.PlaylistEditAction;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.PlaylistEditEndpoint;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.QueueSaveDestination;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.QueueSaveDestinationItem;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.QueueSaveEditResponse;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.QueueSaveHeader;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.QueueSaveHeaderItem;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.QueueSavePickerRenderer;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.QueueSaveResponse;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.QueueSaveResponseItem;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.RatingEndpoint;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.SwipeAction;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.SwipeButton;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.Text;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.TextRun;
+import app.morphe.extension.shared.innertube.queue.PlaylistQueueRenderer.WatchEndpoint;
 
 public class QueueSaveActionsTest {
     private static final List<String> IDS = List.of("abcdefghijk", "lmnopqrstuv", "ZYXWVUTSRQP");
@@ -45,15 +46,16 @@ public class QueueSaveActionsTest {
     // Write the native wire shape independently of our generated header
     // builder, which previously hid an incorrect field declaration.
     static QueueSaveHeader nativeHeader(SwipeAction button) throws Exception {
-        var bytes = new java.io.ByteArrayOutputStream();
+        var bytes = new ByteArrayOutputStream();
         var output = com.google.protobuf.CodedOutputStream.newInstance(bytes);
         output.writeMessage(2, button);
         output.writeMessage(3, Text.newBuilder().setSimpleText("New playlist").build());
         output.flush();
         return QueueSaveHeader.parseFrom(bytes.toByteArray());
     }
+    @SuppressWarnings("ClassCanBeRecord")
     static class Picker implements QueueSaveActions.Picker {
-        List<String> videoIds;
+        final List<String> videoIds;
         Picker(List<String> ids) { videoIds = ids; }
         public List<String> patch_getQueueSaveVideoIds() { return videoIds; }
         public com.google.protobuf.MessageLite patch_parseQueueSaveResponse(byte[] bytes) {
@@ -102,6 +104,7 @@ public class QueueSaveActionsTest {
         var saved = QueueSaveActions.copyVideoIds(copy);
         ids.clear();
         assertEquals(IDS, saved);
+        //noinspection DataFlowIssue
         saved.add(IDS.get(2));
         assertEquals(IDS, QueueSaveActions.copyVideoIds(copy));
         assertEquals(List.of(IDS.get(0), IDS.get(0)),
@@ -173,7 +176,7 @@ public class QueueSaveActionsTest {
     }
 
     @Test public void bindingPreservesUnknownNativeResponseFields() throws Exception {
-        var wire = new java.io.ByteArrayOutputStream();
+        var wire = new ByteArrayOutputStream();
         wire.write(response(createButton()).toByteArray());
         var output = com.google.protobuf.CodedOutputStream.newInstance(wire);
         output.writeInt32(127, 99);

@@ -71,6 +71,7 @@ public class PreferredCaptionLanguagePatch {
          * Selects a track as the native player does for a default selection.
          * Added only for YouTube 21.10 and newer, where it is used.
          */
+        @SuppressWarnings("EmptyMethod")
         default void patch_selectCaptionTrack(CaptionTrackInterface track) {
         }
     }
@@ -403,7 +404,11 @@ public class PreferredCaptionLanguagePatch {
         return getLanguageKey(target == null ? actualLanguage : target);
     }
 
-    /** Preserve a selected original; otherwise use the active audio's default caption. */
+    /**
+     * Resolves the untranslated source track for dual-caption translation: returns the direct
+     * original track matching {@code selected} if given, or falls back to the active audio track's
+     * default caption source.
+     */
     @Nullable
     static CaptionTrackInterface blockTranslationSource(SubtitleManagerInterface manager,
             @Nullable CaptionTrackInterface selected) {

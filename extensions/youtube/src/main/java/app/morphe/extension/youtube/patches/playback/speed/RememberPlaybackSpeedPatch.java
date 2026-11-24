@@ -13,6 +13,7 @@ package app.morphe.extension.youtube.patches.playback.speed;
 import static app.morphe.extension.shared.StringRef.str;
 
 import java.util.Collections;
+import java.util.Locale;
 
 import app.morphe.extension.shared.Logger;
 import app.morphe.extension.shared.Utils;
@@ -245,7 +246,7 @@ public final class RememberPlaybackSpeedPatch {
 
                 if (Settings.REMEMBER_PLAYBACK_SPEED_LAST_SELECTED_TOAST.get())
                     Utils.showSnackbarShort(str("morphe_remember_playback_speed_toast",
-                            (String.format(java.util.Locale.US, "%.2fx", finalPlaybackSpeed))));
+                            (String.format(Locale.US, "%.2fx", finalPlaybackSpeed))));
             }, TOAST_DELAY_MILLISECONDS);
         } catch (Exception ex) {
             Logger.printException(() -> "userSelectedPlaybackSpeed failure", ex);
@@ -287,7 +288,7 @@ public final class RememberPlaybackSpeedPatch {
                 // Sharing message with video speed
                 if (Settings.REMEMBER_PLAYBACK_SPEED_LAST_SELECTED_TOAST.get()) {
                     Utils.showSnackbarShort(str("morphe_remember_playback_audio_pitch_toast",
-                            (String.format(java.util.Locale.US, "%.2fx", finalPlaybackAudioPitch))));
+                            (String.format(Locale.US, "%.2fx", finalPlaybackAudioPitch))));
                 }
             }, TOAST_DELAY_MILLISECONDS);
         } catch (Exception ex) {
@@ -371,8 +372,10 @@ public final class RememberPlaybackSpeedPatch {
                 } else if (DISABLE_PLAYBACK_SPEED_MUSIC) {
                     String videoId = VideoInformation.getVideoId();
                     GetMixPlaylistRequest request = GetMixPlaylistRequest.getRequestForVideoId(videoId);
-                    final boolean isMusic = request != null && Boolean.TRUE.equals(request.getResult());
-                    if (isMusic) {
+                    if (request == null && !VideoInformation.lastPlayerResponseIsShort()) {
+                        // A downloaded video plays without a player request, so it was not prefetched.
+                        setMusicVideoSpeedOnceFetched(videoId, defaultSpeed);
+                    } else if (request != null && Boolean.TRUE.equals(request.getResult())) {
                         Logger.printDebug(() -> "Overriding music video speed to 1.0x: " + videoId);
                         defaultSpeed = 1.0f;
                     }
@@ -383,6 +386,28 @@ public final class RememberPlaybackSpeedPatch {
                 VideoInformation.changePlaybackSpeed(defaultSpeed);
             }
         }
+    }
+
+    /**
+     * Fetches if the video is music, and sets 1.0x once it is known,
+     * if the video still plays at the default speed.
+     */
+    private static void setMusicVideoSpeedOnceFetched(String videoId, float defaultSpeed) {
+        Logger.printDebug(() -> "Fetching music video status of a video without a prefetch: " + videoId);
+        GetMixPlaylistRequest request = GetMixPlaylistRequest.fetchRequestIfNeeded(
+                videoId, Collections.emptyMap());
+        Utils.runOnBackgroundThread(() -> {
+            if (!Boolean.TRUE.equals(request.getResult())) {
+                return;
+            }
+            Utils.runOnMainThread(() -> {
+                if (videoId.equals(VideoInformation.getVideoId())
+                        && VideoInformation.getPlaybackSpeed() == defaultSpeed) {
+                    Logger.printDebug(() -> "Overriding music video speed to 1.0x: " + videoId);
+                    VideoInformation.changePlaybackSpeed(1.0f);
+                }
+            });
+        });
     }
 
     /**

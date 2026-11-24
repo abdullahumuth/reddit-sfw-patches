@@ -35,9 +35,11 @@ import app.morphe.extension.youtube.swipecontrols.controller.SwipeZonesControlle
 import app.morphe.extension.youtube.swipecontrols.controller.VolumeKeysController;
 import app.morphe.extension.youtube.swipecontrols.controller.gesture.ClassicSwipeController;
 import app.morphe.extension.youtube.swipecontrols.controller.gesture.PressToSwipeController;
+import app.morphe.extension.youtube.swipecontrols.controller.gesture.ReplaySwipeController;
 import app.morphe.extension.youtube.swipecontrols.controller.gesture.core.GestureController;
 import app.morphe.extension.youtube.swipecontrols.misc.Rectangle;
 import app.morphe.extension.youtube.swipecontrols.views.SwipeControlsOverlayLayout;
+import app.morphe.extension.youtube.videoplayer.ReplayVideoButton;
 
 /**
  * The main controller for volume and brightness swipe controls.
@@ -96,6 +98,9 @@ public class SwipeControlsHostActivity extends Activity {
      */
     private GestureController gesture;
 
+    @Nullable
+    private ReplaySwipeController replayGesture;
+
     /**
      * Main volume keys controller.
      */
@@ -133,8 +138,19 @@ public class SwipeControlsHostActivity extends Activity {
     }
 
     @Override
+    protected void onStop() {
+        if (replayGesture != null) {
+            replayGesture.cancel();
+        }
+        super.onStop();
+    }
+
+    @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         ensureInitialized();
+        if (submitReplayTouchEvent(ev)) {
+            return true;
+        }
         if (gesture.submitTouchEvent(ev)) {
             // The consumed event does not reach Activity.dispatchTouchEvent, which reports the
             // user interaction. Without it YouTube thinks the user is idle and stops the autoplay
@@ -145,6 +161,30 @@ public class SwipeControlsHostActivity extends Activity {
             return true;
         }
         return super.dispatchTouchEvent(ev);
+    }
+
+    /**
+     * The replay swipe goes first, and cancels the other gestures once it owns the touch.
+     */
+    private boolean submitReplayTouchEvent(MotionEvent ev) {
+        try {
+            if (ReplayVideoButton.isPatchIncluded() && Settings.REPLAY_VIDEO_BUTTON.get()
+                    && Settings.REPLAY_VIDEO_SWIPE.get()) {
+                if (replayGesture == null) {
+                    replayGesture = new ReplaySwipeController(this);
+                }
+                return replayGesture.submitTouchEvent(ev);
+            }
+            if (replayGesture != null) {
+                replayGesture.cancel();
+            }
+        } catch (Exception ex) {
+            Logger.printException(() -> "submitReplayTouchEvent failure", ex);
+            if (replayGesture != null) {
+                replayGesture.cancel();
+            }
+        }
+        return false;
     }
 
     @Override
@@ -164,8 +204,15 @@ public class SwipeControlsHostActivity extends Activity {
      * @param event The event to dispatch.
      * @return Whether the event was consumed.
      */
+    @SuppressWarnings("UnusedReturnValue")
     public boolean dispatchDownstreamTouchEvent(MotionEvent event) {
         return super.dispatchTouchEvent(event);
+    }
+
+    /** Cancels the existing detectors once a replay swipe owns the touch sequence. */
+    public void cancelTouchGestures(MotionEvent canceled) {
+        gesture.submitTouchEvent(canceled);
+        super.dispatchTouchEvent(canceled);
     }
 
     @Nullable
@@ -204,7 +251,7 @@ public class SwipeControlsHostActivity extends Activity {
     /**
      * Ensures that swipe controllers are initialized and attached.
      * On some ROMs with SDK <= 23, {@link #onCreate} and {@link #onStart} may not be called correctly.
-     * See https://github.com/revanced/revanced-patches/issues/446
+     * See <a href="https://github.com/revanced/revanced-patches/issues/446">revanced-patches issue 446</a>
      */
     private void ensureInitialized() {
         if (config == null) {

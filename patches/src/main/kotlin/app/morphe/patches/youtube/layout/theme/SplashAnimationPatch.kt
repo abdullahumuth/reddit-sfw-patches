@@ -38,6 +38,8 @@ import app.morphe.patches.youtube.misc.playservice.is_21_35_or_greater
 import app.morphe.patches.youtube.misc.playservice.is_21_39_or_greater
 import app.morphe.patches.youtube.misc.playservice.is_21_44_or_greater
 import app.morphe.patches.youtube.misc.playservice.is_21_45_or_greater
+import app.morphe.patches.youtube.misc.playservice.is_21_46_or_greater
+import app.morphe.patches.youtube.misc.playservice.is_21_47_or_greater
 import app.morphe.patches.youtube.misc.playservice.versionCheckPatch
 import app.morphe.patches.youtube.misc.settings.PreferenceScreen
 import app.morphe.patches.youtube.misc.settings.settingsPatch
@@ -199,6 +201,14 @@ val splashAnimationPatch = patch {
                 }
             }
 
+            // 21.47+ can draw the Rive animation in a SurfaceView, which the
+            // splash screen hooks do not support, so the ImageView is always used.
+            if (is_21_47_or_greater) {
+                RiveSurfaceSplashScreenFeatureFlagFingerprint.let {
+                    it.method.insertLiteralOverride(it.instructionMatches.first().index, false)
+                }
+            }
+
             // 21.44+ has a second Rive library that the server can turn on,
             // and the app then shows the Lottie animation instead of the Rive animation.
             if (is_21_44_or_greater) {
@@ -276,12 +286,28 @@ val splashAnimationPatch = patch {
 
             // The system splash screen is kept until the glow animation has drawn,
             // otherwise a blank screen is shown while the animation loads.
-            RiveCanvasSessionSetLatestBitmapFingerprint.method.addInstruction(
-                0,
-                "invoke-static { }, $EXTENSION_CLASS->onRiveFrameAvailable()V"
-            )
+            if (is_21_46_or_greater) {
+                RiveCanvasSessionFrameAvailableFingerprint.let {
+                    // The bitmap store and the frame signal. The last instruction is hooked first.
+                    listOf(
+                        it.instructionMatches.last().index,
+                        it.instructionMatches.first().index
+                    ).forEach { index ->
+                        it.method.addInstruction(
+                            index,
+                            "invoke-static { }, $EXTENSION_CLASS->onRiveFrameAvailable()V"
+                        )
+                    }
+                }
+            } else {
+                RiveCanvasSessionSetLatestBitmapLegacyFingerprint.method.addInstruction(
+                    0,
+                    "invoke-static { }, $EXTENSION_CLASS->onRiveFrameAvailable()V"
+                )
+            }
 
-            SplashScreenOnStopFingerprint.method.addInstruction(
+            (if (is_21_47_or_greater) SplashScreenOnStopFingerprint
+            else SplashScreenOnStopLegacyFingerprint).method.addInstruction(
                 0,
                 "invoke-static { }, $EXTENSION_CLASS->onSplashScreenStop()V"
             )

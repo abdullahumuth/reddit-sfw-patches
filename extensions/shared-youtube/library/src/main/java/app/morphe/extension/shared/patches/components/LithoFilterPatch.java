@@ -13,10 +13,15 @@ package app.morphe.extension.shared.patches.components;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.protobuf.CodedInputStream;
+import com.google.protobuf.WireFormat;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import app.morphe.extension.shared.Logger;
 import app.morphe.extension.shared.StringTrieSearch;
@@ -133,6 +138,9 @@ public final class LithoFilterPatch {
         /**
          * Removes the item from the section, which lays itself out again without it.
          * The rows of the grids are laid out again too, also when the section is no longer a grid.
+         * The sections that put their lists in the order that fills the rows of the grid, such as
+         * the feed of the tablet layout, remove the list that holds only the item, and put the
+         * other lists in order again.
          *
          * @return If the section has the item.
          */
@@ -176,6 +184,24 @@ public final class LithoFilterPatch {
      * Sections of the lists, such as the feed or the related videos, that hold the items.
      */
     private static final List<WeakReference<ListSectionInterface>> listSections = new ArrayList<>();
+
+    /**
+     * Positions of the items removed from the lists, by the observer that keeps the scroll position of the list.
+     * Each entry is the position and the count of the removed items, in the order they were removed.
+     * Only used on the main thread.
+     */
+    private static final Map<Object, List<int[]>> removedListItemPositions = new WeakHashMap<>();
+
+    /**
+     * If the item of a filtered element is being removed from its list. Only used on the main thread.
+     */
+    private static boolean isRemovingListItem;
+
+    /**
+     * Path of the position of an item in its grid in the element of the item, such as a Short of the grid of Shorts
+     * of the search results (shorts_video_cell.eml). The element lays the item out for the column of its position.
+     */
+    private static final int[] GRID_ITEM_POSITION_PATH = {1, 168777401, 5, 519005951, 17, 16};
 
     private static final StringTrieSearch contextSearchTree = new StringTrieSearch();
     private static final StringTrieSearch pathSearchTree = new StringTrieSearch();
@@ -245,8 +271,7 @@ public final class LithoFilterPatch {
         try {
             String identifier = contextInterface.patch_getIdentifier();
             StringBuilder pathBuilder = contextInterface.patch_getPathBuilder();
-            //noinspection SizeReplaceableByIsEmpty
-            if (identifier == null || identifier.isEmpty() || pathBuilder.length() == 0) {
+            if (Utils.isEmpty(identifier) || Utils.isEmpty(pathBuilder)) {
                 return false;
             }
 
@@ -341,62 +366,218 @@ public final class LithoFilterPatch {
                 if (decorator instanceof ListItemDecoratorInterface listItemDecorator) {
                     Object item = listItemDecorator.patch_getListItem();
                     if (item != null) {
-                        // The lists can only be changed on the main thread.
-                        Utils.runOnMainThread(() -> {
-                            // The sections group their items into the rows of some grids, such as
-                            // the related videos, and lay the rows out again. Other grids, such as
-                            // the feed, have a list for each item.
-                            List<ListSectionInterface> sections = new ArrayList<>();
-                            synchronized (listSections) {
-                                Iterator<WeakReference<ListSectionInterface>> iterator = listSections.iterator();
-                                while (iterator.hasNext()) {
-                                    ListSectionInterface section = iterator.next().get();
-                                    if (section == null) {
-                                        iterator.remove();
-                                        continue;
-                                    }
-                                    sections.add(section);
-                                }
-                            }
-
-                            // Removing the item notifies the list observers, so it is done outside the lock.
-                            for (ListSectionInterface section : sections) {
-                                if (section.patch_removeListItem(item)) {
-                                    Logger.printDebug(() -> "Removed list item of filtered element: " + item);
-                                    return;
-                                }
-                            }
-
-                            List<?> itemList = null;
-                            int itemIndex = -1;
-                            synchronized (observableLists) {
-                                Iterator<WeakReference<List<?>>> iterator = observableLists.iterator();
-                                while (iterator.hasNext()) {
-                                    List<?> list = iterator.next().get();
-                                    if (list == null) {
-                                        iterator.remove();
-                                        continue;
-                                    }
-
-                                    itemIndex = list.indexOf(item);
-                                    if (itemIndex >= 0) {
-                                        itemList = list;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            // Removing the item notifies the list observers, so it is done outside the lock.
-                            if (itemList != null) {
-                                itemList.remove(itemIndex);
-                                Logger.printDebug(() -> "Removed list item of filtered element: " + item);
-                            }
-                        });
+                        removeListItem(item);
                     }
                 }
             }
         } catch (Exception ex) {
             Logger.printException(() -> "removeFilteredElementListItem failure", ex);
+        }
+    }
+
+    /**
+     * Injection point.
+     * Called when the item of an element in a list is created, with the bytes of the element after the element hooks.
+     * <p>
+     * The element hooks hide some elements by removing all their bytes, such as the YouTube Premium promotions.
+     * The item of the element stays in its list, and the grids of the tablet layout, such as the feed, show an empty
+     * cell in its place. The Litho filter does not see these elements, so the item is removed here.
+     */
+    public static void removeHiddenElementListItem(Object item, @Nullable byte[] element) {
+        try {
+            if (element != null && element.length == 0) {
+                removeListItem(item);
+            }
+        } catch (Exception ex) {
+            Logger.printException(() -> "removeHiddenElementListItem failure", ex);
+        }
+    }
+
+    /**
+     * Removes the item from its list, on the main thread after the code that is running now,
+     * such as the code that adds the item to its list.
+     */
+    private static void removeListItem(Object item) {
+        // The lists can only be changed on the main thread.
+        Utils.runOnMainThread(() -> {
+            // The sections group their items into the rows of some grids, such as
+            // the related videos, and lay the rows out again. Other grids, such as
+            // the feed, have a list for each item, which some sections put in the
+            // order that fills the rows.
+            List<ListSectionInterface> sections = new ArrayList<>();
+            synchronized (listSections) {
+                Iterator<WeakReference<ListSectionInterface>> iterator = listSections.iterator();
+                while (iterator.hasNext()) {
+                    ListSectionInterface section = iterator.next().get();
+                    if (section == null) {
+                        iterator.remove();
+                        continue;
+                    }
+                    sections.add(section);
+                }
+            }
+
+            // Removing the item notifies the list observers, so it is done outside the lock.
+            isRemovingListItem = true;
+            try {
+                for (ListSectionInterface section : sections) {
+                    if (section.patch_removeListItem(item)) {
+                        Logger.printDebug(() -> "Removed list item of hidden element: " + item);
+                        return;
+                    }
+                }
+            } finally {
+                isRemovingListItem = false;
+            }
+
+            List<?> itemList = null;
+            int itemIndex = -1;
+            synchronized (observableLists) {
+                Iterator<WeakReference<List<?>>> iterator = observableLists.iterator();
+                while (iterator.hasNext()) {
+                    List<?> list = iterator.next().get();
+                    if (list == null) {
+                        iterator.remove();
+                        continue;
+                    }
+
+                    itemIndex = list.indexOf(item);
+                    if (itemIndex >= 0) {
+                        itemList = list;
+                        break;
+                    }
+                }
+            }
+
+            // Removing the item notifies the list observers, so it is done outside the lock.
+            if (itemList != null) {
+                isRemovingListItem = true;
+                try {
+                    itemList.remove(itemIndex);
+                } finally {
+                    isRemovingListItem = false;
+                }
+                Logger.printDebug(() -> "Removed list item of hidden element: " + item);
+            }
+        });
+    }
+
+    /**
+     * Injection point.
+     * Called on the main thread when items are removed from a list, such as the feed or the search results,
+     * with the observer that keeps the first position of the list that changed since the list was loaded.
+     */
+    public static void onListItemsRemoved(Object observer, int position, int count) {
+        try {
+            if (!isRemovingListItem) {
+                return;
+            }
+
+            List<int[]> positions = removedListItemPositions.get(observer);
+            if (positions == null) {
+                positions = new ArrayList<>();
+                removedListItemPositions.put(observer, positions);
+            }
+            positions.add(new int[]{position, count});
+        } catch (Exception ex) {
+            Logger.printException(() -> "onListItemsRemoved failure", ex);
+        }
+    }
+
+    /**
+     * Injection point.
+     * Called on the main thread when all the items of a list are loaded again, such as when the feed is refreshed.
+     */
+    public static void onListReloaded(Object observer) {
+        try {
+            removedListItemPositions.remove(observer);
+        } catch (Exception ex) {
+            Logger.printException(() -> "onListReloaded failure", ex);
+        }
+    }
+
+    /**
+     * Injection point.
+     * Called on the main thread when a list is left, such as when a video is opened from the search results.
+     * <p>
+     * The list restores its scroll position when it is loaded again, but it is loaded again
+     * with the items of the filtered elements, which are removed only when their elements are hidden again.
+     * The position is moved by the items removed before it, so the list shows the same item again.
+     *
+     * @return The position in the list with the removed items.
+     */
+    public static int getScrollPosition(Object observer, int position) {
+        try {
+            List<int[]> positions = removedListItemPositions.get(observer);
+            if (positions == null || position < 0) {
+                return position;
+            }
+
+            // The items removed later have the positions of the list without the items removed earlier.
+            for (int i = positions.size() - 1; i >= 0; i--) {
+                int[] removed = positions.get(i);
+                if (position >= removed[0]) {
+                    position += removed[1];
+                }
+            }
+        } catch (Exception ex) {
+            Logger.printException(() -> "getScrollPosition failure", ex);
+        }
+
+        return position;
+    }
+
+    /**
+     * Injection point.
+     * Called for each item after an item that is removed from a grid, on the main thread.
+     * <p>
+     * The item moves back by one position, and can move to another column. The position is changed
+     * in the bytes of its element, which the item is laid out with again when the grid lays out its rows again.
+     * Otherwise, the item keeps the spacing of its old column, such as a Short of the left column
+     * with the spacing of the right column.
+     */
+    public static void moveGridItemBack(@Nullable byte[] element) {
+        if (element == null) {
+            return;
+        }
+        try {
+            int start = 0;
+            int end = element.length;
+            for (int depth = 0; depth < GRID_ITEM_POSITION_PATH.length; depth++) {
+                final int field = GRID_ITEM_POSITION_PATH[depth];
+                final boolean isPosition = depth == GRID_ITEM_POSITION_PATH.length - 1;
+                CodedInputStream input = CodedInputStream.newInstance(element, start, end - start);
+                int messageStart = -1;
+                while (!input.isAtEnd()) {
+                    final int tag = input.readTag();
+                    final int wireType = WireFormat.getTagWireType(tag);
+                    if (WireFormat.getTagFieldNumber(tag) != field) {
+                        input.skipField(tag);
+                    } else if (isPosition && wireType == WireFormat.WIRETYPE_VARINT) {
+                        final int positionStart = start + input.getTotalBytesRead();
+                        final long position = input.readRawVarint64();
+                        // Positions start at 0. A position of one byte stays one byte, so it's changed in place.
+                        if (position > 0 && start + input.getTotalBytesRead() == positionStart + 1) {
+                            element[positionStart] = (byte) (position - 1);
+                            Logger.printDebug(() -> "Moved grid item back to position: " + (position - 1));
+                        }
+                        return;
+                    } else if (!isPosition && wireType == WireFormat.WIRETYPE_LENGTH_DELIMITED) {
+                        final int length = input.readRawVarint32();
+                        messageStart = start + input.getTotalBytesRead();
+                        end = messageStart + length;
+                        break;
+                    } else {
+                        input.skipField(tag);
+                    }
+                }
+                if (messageStart < 0) {
+                    return;
+                }
+                start = messageStart;
+            }
+        } catch (Exception ex) {
+            Logger.printException(() -> "moveGridItemBack failure", ex);
         }
     }
 

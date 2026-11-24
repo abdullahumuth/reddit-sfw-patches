@@ -26,10 +26,8 @@ jobs:
       - name: Cache Gradle
         uses: burrunan/gradle-cache-action@v3
 
-      - name: Test Reddit NSFW filter on host
-        run: python3 tools/test-nsfw.py
-
       - name: Test
+        timeout-minutes: 30
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :patches:test :extensions:youtube:testDebugUnitTest :extensions:music:testDebugUnitTest --no-daemon
@@ -39,7 +37,7 @@ jobs:
       - name: Build Android bundle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:buildAndroid --no-daemon
+        run: ./gradlew :patches:buildAndroid -PpatchesName="Morphe Test Build" --no-daemon
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7

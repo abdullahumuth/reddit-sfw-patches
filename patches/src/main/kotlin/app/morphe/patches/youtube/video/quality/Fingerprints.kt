@@ -22,13 +22,12 @@ import app.morphe.patcher.resource.ResourceType
 import app.morphe.patcher.resourceLiteral
 import app.morphe.patcher.string
 import app.morphe.patches.shared.CurrentAudioVideoFormatToStringFingerprint
+import app.morphe.patches.shared.initialResolutionField
+import app.morphe.patches.youtube.video.information.SetVideoQualityFingerprint
 import app.morphe.patches.youtube.video.information.VideoQualitySetterFingerprint
-import app.morphe.util.findFieldFromToString
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
-
-internal const val FIXED_RESOLUTION_STRING = ", initialPlaybackVideoQualityFixedResolution="
 
 internal object NewFlyoutMenuFeatureFlagFingerprint : Fingerprint(
     filters = listOf(
@@ -80,8 +79,64 @@ internal fun getVideoQualitySettingFingerprint(
     )
 ) {}
 
+/**
+ * Event of the player when the video quality setting changes, such as when a video loads.
+ * The quality is 'Auto' (-2), as the event has no quality, unlike the event of a quality
+ * selected in the quality menu.
+ */
+internal fun getVideoQualitySettingChangedEventFingerprint(
+    videoQualitySettingType: String
+) = Fingerprint(
+    name = "<init>",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.CONSTRUCTOR),
+    parameters = listOf(videoQualitySettingType, "Z"),
+    filters = listOf(
+        fieldAccess(
+            opcode = Opcode.IPUT_OBJECT,
+            definingClass = "this",
+            type = videoQualitySettingType
+        ),
+        literal(-2)
+    )
+)
+
+/**
+ * State of the quality menu of regular videos: the qualities, the quality playing, the video
+ * quality setting and the quality selected, which the menu shows with a check mark.
+ * The quality selected is the quality of the last quality event, found by its formats
+ * or else by its resolution.
+ */
+internal fun getQualityMenuSelectedQualityFingerprint(
+    videoQualityEventType: String,
+    videoQualitySettingType: String
+) = Fingerprint(
+    filters = listOf(
+        methodCall(smali = "Lj$/util/Optional;->orElse(Ljava/lang/Object;)Ljava/lang/Object;"),
+        fieldAccess( // Resolution of the quality event.
+            opcode = Opcode.IGET,
+            definingClass = videoQualityEventType,
+            type = "I",
+            location = MatchAfterWithin(8)
+        ),
+        methodCall(
+            definingClass = "Lj$/util/stream/Stream;",
+            name = "filter",
+            location = MatchAfterWithin(8)
+        ),
+        methodCall(
+            smali = "Lj$/util/Optional;->orElse(Ljava/lang/Object;)Ljava/lang/Object;",
+            location = MatchAfterWithin(5)
+        ),
+        fieldAccess( // Video quality setting of the quality event.
+            opcode = Opcode.IGET_OBJECT,
+            definingClass = videoQualityEventType,
+            type = videoQualitySettingType
+        )
+    )
+)
+
 internal const val CLIENT_ABR_STATE_CLASS =
-    "Lcom/google/android/apps/youtube/proto/ClientAbrStateOuterClass\$ClientAbrState;"
+    $$"Lcom/google/android/apps/youtube/proto/ClientAbrStateOuterClass$ClientAbrState;"
 
 /**
  * Client ABR state of the SABR requests sent while the video plays.
@@ -93,7 +148,7 @@ internal object ClientAbrStateFingerprint : Fingerprint(
         fieldAccess(
             opcode = Opcode.IPUT_OBJECT,
             definingClass = CLIENT_ABR_STATE_CLASS,
-            type = "Lcom/google/android/apps/youtube/proto/streaming/MediaCapabilitiesOuterClass\$MediaCapabilities;"
+            type = $$"Lcom/google/android/apps/youtube/proto/streaming/MediaCapabilitiesOuterClass$MediaCapabilities;"
         )
     )
 )
@@ -180,13 +235,13 @@ internal object QualityFormatsFeatureFlagFingerprint : Fingerprint(
  * if the parameter is true.
  */
 internal object PlaybackControllerSetVideoFormatsFingerprint : Fingerprint(
-    definingClass = "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/PlaybackControllerWrapper;",
     accessFlags = listOf(AccessFlags.FINAL),
     returnType = "Z",
     parameters = listOf("Z"),
     filters = listOf(
         fieldAccess(
             opcode = Opcode.IGET_OBJECT,
+            definingClass = "this",
             type = "Lcom/google/android/libraries/youtube/media/interfaces/PlaybackController;"
         ),
         opcode(Opcode.IF_NEZ, location = MatchAfterImmediately()),
@@ -203,7 +258,6 @@ internal object PlaybackControllerSetVideoFormatsFingerprint : Fingerprint(
  * if the boolean parameter is true.
  */
 internal object AsyncMediaFetchControllerSetVideoFormatsFingerprint : Fingerprint(
-    definingClass = "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/AsyncMediaFetchControllerWrapper;",
     returnType = "V",
     parameters = listOf("L", "Z"),
     filters = listOf(
@@ -211,15 +265,11 @@ internal object AsyncMediaFetchControllerSetVideoFormatsFingerprint : Fingerprin
     )
 )
 
-internal const val BUFFER_MANAGER_CLASS =
-    "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/mediapush/BufferManagerImpl;"
-
 /**
  * The method of the player that clears the buffered media of a track, and buffers it again
  * from the time the video started or was last seeked to.
  */
-internal object PlaybackControllerClearBufferFingerprint : Fingerprint(
-    definingClass = "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/PlaybackControllerWrapper;",
+internal fun playbackControllerClearBufferFingerprint(bufferManagerClass: String) = Fingerprint(
     returnType = "V",
     filters = listOf(
         // Stops the media requests.
@@ -227,41 +277,66 @@ internal object PlaybackControllerClearBufferFingerprint : Fingerprint(
         fieldAccess(
             opcode = Opcode.IGET_OBJECT,
             definingClass = "this",
-            type = BUFFER_MANAGER_CLASS
+            type = bufferManagerClass
         ),
         string("setStartTimeUs with disposed BufferManager")
     )
 )
 
-internal const val MEDIA_SEGMENT_HOLDER_CLASS =
-    "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/mediapush/MediaSegmentHolder;"
-
 /**
- * The call to the method of the buffered media of a track that clears it after the segment
- * that contains a time. Before 21.44 it is called from a method of the buffer manager,
- * and 21.44+ inlines that method into the player.
+ * 21.46+ obfuscates the classes of the media player.
+ *
+ * The player gets the buffered media of a track from the buffer manager,
+ * and clears it after the segment that contains a time.
  */
 internal object MediaSegmentHolderDiscardBufferAfterSegmentFingerprint : Fingerprint(
     filters = listOf(
         string("discardBufferAfterCurrentSegment with disposed BufferManager"),
+        // Returns the buffered media of a track.
         methodCall(
-            definingClass = MEDIA_SEGMENT_HOLDER_CLASS,
+            returnType = "L",
+            parameters = listOf("L"),
+            location = MatchAfterWithin(10)
+        ),
+        opcode(Opcode.MOVE_RESULT_OBJECT, location = MatchAfterImmediately()),
+        methodCall(
+            returnType = "V",
+            parameters = listOf("J"),
+            location = MatchAfterImmediately()
+        )
+    )
+)
+
+internal const val MEDIA_SEGMENT_HOLDER_LEGACY_CLASS =
+    "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/mediapush/MediaSegmentHolder;"
+
+/**
+ * 21.17 - 21.45
+ *
+ * The call to the method of the buffered media of a track that clears it after the segment
+ * that contains a time. Before 21.44 it is called from a method of the buffer manager,
+ * and 21.44+ inlines that method into the player.
+ */
+internal object MediaSegmentHolderDiscardBufferAfterSegmentLegacyFingerprint : Fingerprint(
+    filters = listOf(
+        string("discardBufferAfterCurrentSegment with disposed BufferManager"),
+        methodCall(
+            definingClass = MEDIA_SEGMENT_HOLDER_LEGACY_CLASS,
             returnType = "V",
             parameters = listOf("J")
         )
     )
 )
 
-internal const val SAMPLE_HOLDER_CLASS =
-    "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/mediapush/SampleHolder;"
-
 /**
+ * 21.17 - 21.45
+ *
  * The method of the buffer manager that returns the buffered media of a track.
  */
-internal object BufferManagerGetMediaSegmentHolderFingerprint : Fingerprint(
-    definingClass = BUFFER_MANAGER_CLASS,
+internal object BufferManagerGetMediaSegmentHolderLegacyFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/mediapush/BufferManagerImpl;",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    returnType = MEDIA_SEGMENT_HOLDER_CLASS,
+    returnType = MEDIA_SEGMENT_HOLDER_LEGACY_CLASS,
     parameters = listOf("L")
 )
 
@@ -272,7 +347,7 @@ internal object BufferManagerGetMediaSegmentHolderFingerprint : Fingerprint(
  * the media before the segment that contains a time.
  */
 internal object SampleHolderDiscardBufferBeforeSegmentLegacyFingerprint : Fingerprint(
-    definingClass = SAMPLE_HOLDER_CLASS,
+    definingClass = "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/mediapush/SampleHolder;",
     returnType = "V",
     parameters = listOf("J"),
     filters = listOf(
@@ -289,7 +364,6 @@ internal object SampleHolderDiscardBufferBeforeSegmentLegacyFingerprint : Finger
  * with the parameters: time, playback time and size of the media kept before the playback time.
  */
 internal object SampleHolderDiscardBufferBeforeSegmentFingerprint : Fingerprint(
-    definingClass = SAMPLE_HOLDER_CLASS,
     returnType = "V",
     parameters = listOf("J", "J", "J"),
     filters = listOf(
@@ -302,17 +376,14 @@ internal object SampleHolderDiscardBufferBeforeSegmentFingerprint : Fingerprint(
  * The method of the buffered media of a track that saves the end time of its first segment.
  * The media before a time is cleared only if the time is after it.
  */
-internal object MediaSegmentHolderSetFirstSegmentEndTimeFingerprint : Fingerprint(
-    definingClass = MEDIA_SEGMENT_HOLDER_CLASS,
+internal fun mediaSegmentHolderSetFirstSegmentEndTimeFingerprint(mediaSegmentHolderClass: String) = Fingerprint(
+    definingClass = mediaSegmentHolderClass,
     returnType = "V",
     parameters = listOf(),
     filters = listOf(
         methodCall(smali = "Ljava/util/List;->isEmpty()Z"),
-        methodCall(
-            definingClass = "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/mediapush/BufferedMediaSegment;",
-            returnType = "J",
-            parameters = listOf()
-        ),
+        // End time of the buffered media segment.
+        methodCall(returnType = "J", parameters = listOf()),
         fieldAccess(opcode = Opcode.IPUT_WIDE, definingClass = "this", type = "J")
     )
 )
@@ -321,16 +392,13 @@ internal object MediaSegmentHolderSetFirstSegmentEndTimeFingerprint : Fingerprin
  * The method of the media source that clears the media buffered before the playback time,
  * called by the player while the video is loaded.
  */
-internal object MediaPushMediaSourceDiscardBufferFingerprint : Fingerprint(
-    definingClass = "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/mediapush/MediaPushMediaSource;",
+internal fun mediaPushMediaSourceDiscardBufferFingerprint(bufferManagerClass: String) = Fingerprint(
     returnType = "V",
     parameters = listOf("J"),
     filters = listOf(
-        fieldAccess(
-            opcode = Opcode.SGET_WIDE,
-            definingClass = "Lcom/google/android/libraries/youtube/media/player/exo2/platypus/live/LiveTimeline;"
-        ),
-        fieldAccess(opcode = Opcode.IGET_OBJECT, definingClass = "this", type = BUFFER_MANAGER_CLASS),
+        // Time of a live stream that is not set.
+        fieldAccess(opcode = Opcode.SGET_WIDE, type = "J"),
+        fieldAccess(opcode = Opcode.IGET_OBJECT, definingClass = "this", type = bufferManagerClass),
         methodCall(smali = "Ljava/lang/Math;->max(JJ)J")
     )
 )
@@ -379,33 +447,6 @@ internal object HidePremiumVideoQualityGetArrayFingerprint : Fingerprint(
 )
 
 /**
- * The field of the initial video quality of the playback start parameters.
- */
-private fun initialResolutionField() =
-    PlaybackStartParametersToStringFingerprint.method.findFieldFromToString(FIXED_RESOLUTION_STRING)
-
-internal object PlaybackStartParametersToStringFingerprint : Fingerprint(
-    name = "toString",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    returnType = "Ljava/lang/String;",
-    parameters = listOf(),
-    filters = listOf(
-        string(FIXED_RESOLUTION_STRING)
-    )
-)
-
-internal object PlaybackStartParametersConstructorFingerprint : Fingerprint(
-    classFingerprint = PlaybackStartParametersToStringFingerprint,
-    name = "<init>",
-    filters = listOf(
-        fieldAccess(
-            opcode = Opcode.IPUT_OBJECT,
-            reference = { initialResolutionField() }
-        )
-    )
-)
-
-/**
  * The method that returns the initial video quality of the playback start parameters,
  * used by the player each time it loads the video, such as when the app returns from the background.
  */
@@ -417,7 +458,7 @@ internal object PlaybackStartParametersInitialResolutionFingerprint : Fingerprin
             opcode = Opcode.IGET_OBJECT,
             reference = { initialResolutionField() }
         ),
-        methodCall(smali = "Lj\$/util/Optional;->orElse(Ljava/lang/Object;)Ljava/lang/Object;"),
+        methodCall(smali = "Lj$/util/Optional;->orElse(Ljava/lang/Object;)Ljava/lang/Object;"),
         checkCast("Ljava/lang/Integer;")
     )
 )
@@ -486,8 +527,8 @@ internal object VideoQualityItemOnClickFingerprint : Fingerprint(
 /**
  * The method of the quality menu that sets the quality by its resolution.
  */
-internal fun getSetVideoQualityResolutionFingerprint(videoQualityMenuType: String) = Fingerprint(
-    definingClass = videoQualityMenuType,
+internal object SetVideoQualityResolutionFingerprint : Fingerprint(
+    definingClass = { SetVideoQualityFingerprint.instructionMatches[1].fieldReference.type },
     returnType = "V",
     parameters = listOf("I")
 )

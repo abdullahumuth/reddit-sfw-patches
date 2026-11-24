@@ -119,121 +119,47 @@ Second \"item\" text"</string>
   <string name="morphe_header_logo_entry_3">Prilagođen</string>
   <!-- misc.album.albumMusicVideoPatch -->
   <string name="morphe_music_play_album_songs_title">Reprodukuj audio sa albuma</string>
-  <!-- 'Spoof video streams' should match the language used in 'morphe_spoof_video_streams_screen_title' -->
-  <string name="morphe_music_play_album_songs_summary">Reprodukuj samo audio verziju pesama sa albuma umesto muzičkog spota. Zahteva „Lažiranje video tokova“</string>
+  <string name="morphe_music_play_album_songs_summary">Puštaj pesme sa albuma umesto njihovih muzičkih spotova</string>
   <!-- misc.audiovideoswitch.enableAudioVideoSwitchPatch -->
   <string name="morphe_music_enable_audio_video_switch_title">Omogući prebacivanje audio/video</string>
   <string name="morphe_music_enable_audio_video_switch_summary">Pokušava da prebaci između verzije audio zapisa i zvaničnog muzičkog spota</string>
+  <string name="morphe_music_auto_song_version_title">Uvek pusti verziju pesme</string>
+  <string name="morphe_music_auto_song_version_summary">Zamenjuje zvanične muzičke spotove u redu čekanja odgovarajućom pesmom. Zahteva da podešavanje aplikacije \'Ne puštaj muzičke spotove\' bude uključeno. Trake bez tačnog poklapanja ostaju nepromenjene</string>
   <!-- interaction.downloads.downloadsPatch -->
   <string name="morphe_external_downloader_screen_summary">Preuzmite muzičke spotove, podkaste ili pesme pomoću aplikacija za preuzimanje trećih strana</string>
   <!-- 'Download' should be translated using the same localized wording YouTube displays for the menu. -->
   <string name="morphe_external_downloader_menu_title">Koristi spoljni program za preuzimanje u meniju „Preuzmi”</string>
   <string name="morphe_external_downloader_menu_summary">Opcija Preuzmi u menijima umesto toga otvara vaš spoljni program za preuzimanje</string>
-  <string name="morphe_music_downloads_screen_title">Preuzimanja</string>
-  <string name="morphe_music_downloads_empty">"Nema preuzimanja
-Preuzete numere se pojavljuju ovde"</string>
-  <string name="morphe_music_downloads_track_subtitle">%1$s • %2$s • %3$s MB</string>
-  <string name="morphe_music_downloads_summary">%1$s numera • %2$s MB</string>
-  <string name="morphe_music_downloads_search_hint">Pretraži preuzimanja</string>
-  <string name="morphe_music_downloads_sort">Sortiraj</string>
-  <string name="morphe_music_downloads_sort_artist">Sortiraj po izvođaču</string>
-  <string name="morphe_music_downloads_sort_title">Sortiraj po naslovu</string>
-  <string name="morphe_music_downloads_sort_size">Sortiraj po veličini</string>
-  <string name="morphe_music_downloads_delete_all">Obriši sva preuzimanja</string>
-  <string name="morphe_music_downloads_delete_all_title">Obrisati sva preuzimanja?</string>
-  <string name="morphe_music_downloads_delete_all_message">Sve preuzete numere biće obrisane sa ovog uređaja</string>
-  <string name="morphe_music_downloads_all_deleted">Preuzimanja su obrisana</string>
-  <string name="morphe_music_downloads_nothing_found">Ništa nije pronađeno</string>
-  <string name="morphe_music_downloads_actions_for">Radnje za %s</string>
-  <string name="morphe_music_downloads_play">Reprodukuj</string>
-  <string name="morphe_music_downloads_play_pause">Reprodukuj ili pauziraj</string>
-  <string name="morphe_music_downloads_previous">Prethodna</string>
-  <string name="morphe_music_downloads_next">Sledeća</string>
-  <string name="morphe_music_downloads_pause">Pauziraj</string>
-  <string name="morphe_music_downloads_shuffle">Nasumično</string>
-  <string name="morphe_music_downloads_repeat">Ponovi</string>
-  <string name="morphe_music_downloads_minimize">Smanji</string>
-  <string name="morphe_music_downloads_close">Zatvori</string>
-  <string name="morphe_music_downloads_delete">Obriši</string>
-  <string name="morphe_music_downloads_delete_track">Obriši preuzimanje</string>
-  <string name="morphe_music_downloads_delete_track_title">Obrisati preuzimanje?</string>
-  <string name="morphe_music_downloads_delete_track_message">%s će biti obrisano sa ovog uređaja</string>
-  <string name="morphe_music_downloads_track_deleted">Preuzimanje je obrisano</string>
-  <string name="morphe_music_downloads_track_delete_failed">Preuzimanje nije moglo da se obriše</string>
-  <string name="morphe_music_downloads_play_failed">Preuzimanje nije moglo da se reprodukuje</string>
-  <string name="morphe_music_downloads_playlists">Plejliste</string>
-  <string name="morphe_music_downloads_playlists_section">Kreirane plejliste (%s)</string>
-  <string name="morphe_music_downloads_playlists_empty">Još uvek nema lokalnih plejlista</string>
-  <string name="morphe_music_downloads_playlists_hide">Sakrij plejliste ▲</string>
-  <string name="morphe_music_downloads_playlist_new">+ Nova plejlista</string>
-  <string name="morphe_music_downloads_playlist_new_button">Nova plejlista</string>
-  <string name="morphe_music_downloads_playlist_selected">Izabrano (%s)</string>
-  <string name="morphe_music_downloads_playlist_select_first">Prvo izaberite pesme</string>
-  <string name="morphe_music_downloads_playlist_clear_selection">Poništi izbor</string>
-  <string name="morphe_music_downloads_playlist_create">Kreiraj plejlistu</string>
-  <string name="morphe_music_downloads_playlist_create_button">Kreiraj</string>
-  <string name="morphe_music_downloads_playlist_add">Dodaj na plejlistu</string>
-  <string name="morphe_music_downloads_playlist_added">Dodato u %s</string>
-  <string name="morphe_music_downloads_playlist_name_hint">Naziv plejliste</string>
-  <string name="morphe_music_downloads_playlist_name_empty">Naziv plejliste ne može biti prazan</string>
-  <string name="morphe_music_downloads_playlist_save_failed">Nije bilo moguće sačuvati plejlistu</string>
-  <string name="morphe_music_downloads_playlist_track_count">%s numera</string>
-  <string name="morphe_music_downloads_playlist_track_count_one">1 numera</string>
-  <string name="morphe_music_downloads_playlist_no_tracks">Nema numera u ovoj plejlisti</string>
-  <string name="morphe_music_downloads_playlist_play">Pusti plejlistu</string>
-  <string name="morphe_music_downloads_playlist_play_all">Pusti sve</string>
-  <string name="morphe_music_downloads_playlist_rename">Preimenuj</string>
-  <string name="morphe_music_downloads_playlist_rename_title">Preimenuj plejlistu</string>
-  <string name="morphe_music_downloads_playlist_save">Sačuvaj</string>
-  <string name="morphe_music_downloads_playlist_delete">Obriši plejlistu</string>
-  <string name="morphe_music_downloads_playlist_delete_title">Obrisati plejlistu?</string>
-  <string name="morphe_music_downloads_playlist_delete_message">%s će biti obrisano. Preuzete pesme će biti zadržane</string>
-  <string name="morphe_music_downloads_playlist_deleted">Plejlista je obrisana</string>
-  <string name="morphe_music_downloads_playlist_remove_track">Ukloni iz plejliste</string>
-  <string name="morphe_music_downloads_playlist_drag_track">Prevuci za promenu redosleda</string>
-  <string name="morphe_music_downloads_playlist_reorder_hint">%s • Prevucite ručicu za promenu redosleda</string>
-  <string name="morphe_music_downloads_playlist_reorder_done">Gotovo</string>
-  <string name="morphe_music_downloads_notification_channel">Audio preuzimanja</string>
-  <string name="morphe_music_downloads_playback_channel">Vanmrežna reprodukcija</string>
-  <string name="morphe_music_downloads_unknown_track">Nije moguće identifikovati numeru za preuzimanje</string>
-  <string name="morphe_music_downloads_already_running">Preuzimanje je već u toku</string>
-  <string name="morphe_music_downloads_already_saved">Već preuzeto</string>
-  <string name="morphe_music_downloads_started">Preuzimanje je počelo</string>
-  <string name="morphe_music_downloads_starting">Pokretanje preuzimanja…</string>
-  <string name="morphe_music_downloads_progress">Preuzimanje: %s%%</string>
-  <string name="morphe_music_downloads_complete">Preuzimanje je završeno</string>
-  <string name="morphe_music_downloads_failed">Preuzimanje nije uspelo</string>
-  <string name="morphe_music_downloads_playlist_download_title">Preuzimanje plejliste</string>
-  <string name="morphe_music_downloads_playlist_download_listing">Izlistavanje numera…</string>
-  <string name="morphe_music_downloads_playlist_download_listed">%s izlistano…</string>
-  <string name="morphe_music_downloads_playlist_download_listing_failed">Nije moguće izlistati numere iz plejliste</string>
-  <string name="morphe_music_downloads_playlist_download_all_saved">Već preuzeto: %s</string>
-  <string name="morphe_music_downloads_playlist_download_confirm_message">"%1$s u ovoj plejlisti, %2$s još nije preuzeto.
+  <string name="morphe_download_force_4k_title">Prisili dostupnost 4K preuzimanja</string>
+  <string name="morphe_download_force_4k_summary">Čuva 1440p i 4K preuzimanja čak i ako YouTube Music odluči da ovaj uređaj ne može da ih reprodukuje</string>
+  <string name="morphe_export_download_folder_title">Izvezi preuzimanja</string>
+  <string name="morphe_export_download_folder_summary">"Izvezite pesme i video-zapise sačuvane u aplikaciji na memoriju svog uređaja koristeći meni za preuzimanja u aplikaciji. Dodirnite da promenite folder za izvoz
 
-Numere se preuzimaju jedna po jedna, što može potrajati i zahteva oko %3$s slobodnog prostora"</string>
-  <string name="morphe_music_downloads_playlist_download_confirm_button">Preuzmi</string>
-  <string name="morphe_music_downloads_playlist_download_progress">Preuzimanje numere %1$s od %2$s</string>
-  <string name="morphe_music_downloads_playlist_download_complete">%s preuzeto</string>
-  <string name="morphe_music_downloads_playlist_download_complete_with_failures">%1$s preuzeto, %2$s nije bilo moguće preuzeti</string>
-  <string name="morphe_music_downloads_playlist_download_already_running">Preuzimanje plejliste je već u toku</string>
-  <string name="morphe_music_downloads_playlist_download_needs_account">Vaš nalog još nije poznat. Pokušajte ponovo za trenutak</string>
-  <string name="morphe_music_downloads_playlist_download_listed_all_saved">%s izlistano, sve je već preuzeto</string>
-  <string name="morphe_music_downloads_playlist_download_incomplete">Samo deo plejliste je mogao biti izlistan. Dodirnite Preuzmi ponovo kasnije da dobijete ostatak</string>
-  <string name="morphe_music_downloads_playlist_download_started">Preuzimanje %s u pozadini</string>
-  <string name="morphe_music_downloads_playlist_download_no_network">Nema mrežne veze</string>
-  <string name="morphe_music_downloads_playlist_download_waiting_network">Čekanje na mrežu…</string>
-  <string name="morphe_music_downloads_playlist_download_stopped">Zaustavljeno nakon %1$s od %2$s. Dodirnite Preuzmi ponovo da nastavite</string>
-  <string name="morphe_music_downloads_mark_title">Obeleži preuzete pesme</string>
-  <string name="morphe_music_downloads_mark_summary">Pesme koje su već preuzete prikazuju oznaku ispred svojih detalja u plejlistama, albumima i rezultatima pretrage</string>
+Folder za izvoz: %s"</string>
+  <string name="morphe_export_download_started">Izvoz preuzimanja</string>
+  <string name="morphe_export_download_progress">Izvoz preuzimanja: %s%%</string>
+  <string name="morphe_export_download_notification_channel">Izvoz preuzimanja</string>
+  <string name="morphe_export_download_saved">Preuzimanje je izvezeno u %s</string>
+  <string name="morphe_export_download_failed">Nije moguće izvesti preuzimanje</string>
+  <string name="morphe_export_download_all_flyout_title">Izvezi sve na uređaj</string>
+  <string name="morphe_export_download_all_started">Izvoz svih preuzimanja</string>
+  <string name="morphe_export_download_all_title">Sva preuzimanja</string>
+  <string name="morphe_export_download_playlist_started">Izvoz preuzetih datoteka</string>
+  <string name="morphe_export_download_all_running">Preuzimanja se već izvoze</string>
+  <string name="morphe_export_download_all_saved">Izvezeno %1$s od %2$s preuzimanja u %3$s</string>
+  <!-- misc.medianotification.mediaNotificationControlsPatchMusic -->
+  <string name="morphe_music_replace_shuffle_with_loop_button_title">Zameni Shuffle dugme Loop dugmetom</string>
+  <string name="morphe_music_replace_shuffle_with_loop_button_summary">Prikazuje Loop dugme umesto Shuffle dugmeta u obaveštenju o medijima i na zaključanom ekranu</string>
   <!-- misc.settings.settingsPatch -->
   <!-- In languages where "About" is ambiguous, translate this as "About Morphe" (i.e., About this app). -->
-  <string name="morphe_settings_music_screen_0_about_title">O programu</string>
-  <string name="morphe_settings_music_screen_1_ads_title">Oglasi</string>
-  <string name="morphe_settings_music_screen_2_feed_title">Feed</string>
-  <string name="morphe_settings_music_screen_3_general_title">Opšte</string>
-  <string name="morphe_settings_music_screen_4_player_title">Plejer</string>
-  <string name="morphe_settings_music_screen_5_lyrics_title">Tekstovi pesama</string>
-  <string name="morphe_settings_music_screen_9_misc_title">Razno</string>
+  <string name="morphe_settings_music_screen_00_about_title">О програму</string>
+  <string name="morphe_settings_music_screen_01_ads_title">Огласи</string>
+  <string name="morphe_settings_music_screen_02_feed_title">Feed</string>
+  <string name="morphe_settings_music_screen_03_general_title">Opšte</string>
+  <string name="morphe_settings_music_screen_04_lyrics_title">Tekst pesme</string>
+  <string name="morphe_settings_music_screen_05_misc_title">Разно</string>
+  <string name="morphe_settings_music_screen_06_player_title">Plejer</string>
+  <string name="morphe_settings_music_screen_10_video_title">Video snimci</string>
   <string name="morphe_music_app_language_title">Jezik za YouTube Music</string>
   <string name="morphe_music_app_language_summary_default">Jezik sistema</string>
   <string name="morphe_music_app_language_summary_unsupported">Zahteva Android 13 ili noviji</string>
@@ -243,21 +169,23 @@ Numere se preuzimaju jedna po jedna, što može potrajati i zahteva oko %3$s slo
   <string name="morphe_music_hide_video_ads_title">Sakrij video oglase</string>
   <!-- layout.hide.general.hideLayoutComponentsPatch -->
   <string name="morphe_music_hide_audio_video_toggle_title">Sakrij audio / video prekidač</string>
-  <string name="morphe_music_hide_podcast_episode_download_button_title">Sakrij dugme za preuzimanje</string>
   <string name="morphe_music_hide_podcast_episode_download_button_summary">Sakriva dugme za preuzimanje u podkast emisiji</string>
   <string name="morphe_music_hide_explore_shelf_title">Sakrij policu sa otkrićima</string>
   <string name="morphe_music_hide_filter_bar_title">Sakrij traku filtera</string>
   <string name="morphe_music_hide_grid_shelves_title">Sakrij police</string>
   <string name="morphe_music_hide_horizontal_shelves_title">Sakrij horizontalne police</string>
+  <string name="morphe_music_hide_new_button_title">Sakrij dugme „Novo”</string>
+  <string name="morphe_music_hide_new_button_summary">Skriva dugme „Novo” u kartici Biblioteka</string>
   <string name="morphe_music_hide_list_shelves_title">Sakrij police sa listom</string>
   <string name="morphe_music_hide_lyrics_panel_category_title">Panel tekstova</string>
-  <string name="morphe_music_hide_lyrics_share_button_title">Sakrij dugme „Deli”</string>
   <string name="morphe_music_hide_lyrics_translate_button_title">Sakrij dugme „Prevedi”</string>
   <string name="morphe_music_hide_new_from_shelf_title">Sakrij policu „Novi od”</string>
   <string name="morphe_music_hide_playlist_shelves_title">Sakrij police sa plejliztama</string>
   <string name="morphe_music_hide_repeat_button_title">Sakrij dugme za ponavljanje</string>
   <string name="morphe_music_hide_shuffle_button_title">Sakrij dugme za nasumičan red</string>
   <string name="morphe_music_hide_speed_dial_shelf_title">Sakrij policu „Brzo biranje”</string>
+  <string name="morphe_music_hide_you_may_also_like_section_title">Sakrij odeljak „Moguće vam se sviđati”</string>
+  <string name="morphe_music_hide_your_downloads_shelf_title">Sakrij policu „Vaše preuzimanja”</string>
   <string name="morphe_music_comments_screen_title">Komentari</string>
   <string name="morphe_music_comments_screen_summary">Odaberite koje komponente se pojavljuju u sekciji komentara</string>
   <string name="morphe_music_hide_comments_community_guidelines_title">Sakrij smernice zajednice</string>
@@ -272,6 +200,8 @@ Numere se preuzimaju jedna po jedna, što može potrajati i zahteva oko %3$s slo
   <string name="morphe_music_crossfade_screen_title">Preklapanje</string>
   <string name="morphe_music_crossfade_screen_summary">Glatko spajanje numera jedna u drugu</string>
   <string name="morphe_music_crossfade_enabled_title">Omogući preklapanje</string>
+  <!--- "TV Simply" and "visionOS" must be kept untranslated -->
+  <string name="morphe_music_crossfade_enabled_summary_unavailable">Da biste koristili crossfade, promenite „Default client” u opciji „Spoof video streams” na „TV Simply” ili „visionOS”</string>
   <string name="morphe_music_crossfade_curve_title">Kriva preklapanja</string>
   <string name="morphe_music_crossfade_curve_entry_equal_power">Jednaka snaga</string>
   <string name="morphe_music_crossfade_curve_entry_ease_out_cubic">Suptilno zadržavanje</string>
@@ -305,7 +235,9 @@ Numere se preuzimaju jedna po jedna, što može potrajati i zahteva oko %3$s slo
   <string name="morphe_music_crossfade_paused_toast">Preklapanje je pauzirano za ovu sesiju</string>
   <string name="morphe_music_crossfade_resumed_toast">Preklapanje je nastavljeno</string>
   <string name="morphe_music_crossfade_video_mode_disabled_toast">Video režim nije dostupan dok je omogućen prelazni efekat</string>
-  <string name="morphe_music_crossfade_sabr_toast">Crossfade je isključen pri SABR reprodukciji</string>
+  <!--- "TV Simply" and "visionOS" must be kept untranslated -->
+  <string name="morphe_music_crossfade_visionos_toast">Crossfade ne radi sa „visionOS”. Promenite „Default client” u opciji „Spoof video streams” na „TV Simply”</string>
+  <string name="morphe_music_crossfade_spoof_client_toast">Crossfade ne radi sa ovim spoof strim klijentom</string>
   <string name="morphe_music_crossfade_cast_unstable_toast">Crossfade je isključen tokom emitovanja</string>
   <string name="morphe_music_crossfade_about_how_title">Kako funkcioniše</string>
   <string name="morphe_music_crossfade_about_how_summary">"Crossfade preklapa kraj jedne pesme sa početkom sledeće, koristeći vaše trajanje i krivulju
@@ -322,22 +254,62 @@ Zaključani ekran ili obaveštenje mogu nakratko prikazati zastarelo stanje usre
 
 Pauziranje Crossfade-a da biste gledali muzički spot može ostaviti neke spotove crnim. Ako pauzirate Crossfade pre nego što izaberete pesmu, to se izbegava"</string>
   <string name="morphe_music_crossfade_about_unsupported_title">Nije podržano</string>
-  <string name="morphe_music_crossfade_about_unsupported_summary">"Emitovanje ili preslikavanje zvuka (Chromecast, preslikavanje ekrana ili zvuka)
-
-SABR reprodukcija (imitiranje video strimova isključeno)"</string>
+  <string name="morphe_music_crossfade_about_unsupported_summary">Kastovanje ili mirroring audio zapisa (Chromecast, mirroring ekrana ili zvuka)</string>
   <string name="morphe_music_crossfade_about_credit_title">Zasluge</string>
   <string name="morphe_music_crossfade_about_credit_summary">Funkcija prelaznog efekta od strane VazerOG</string>
   <!-- interaction.remember.repeatstate.rememberRepeatStatePatch-->
   <string name="morphe_music_remember_repeat_state_title">Zapamti stanje ponavljanja</string>
   <!-- interaction.remember.shufflestate.rememberShuffleStatePatch -->
   <string name="morphe_music_remember_shuffle_state_title">Zapamti stanje nasumičnog sviranja</string>
+  <!-- interaction.pausewhenmuted.pauseWhenMutedPatch -->
+  <string name="morphe_music_pause_when_muted_title">Pauziraj kada je zvuk isključen</string>
+  <string name="morphe_music_pause_when_muted_summary">Pauzira reprodukciju kada je sistemska jačina zvuka iskljuчена i nastavlja je kada se jačina zvuka poveća</string>
+  <!-- interaction.sonos.sonosCastPatch -->
+  <string name="morphe_music_sonos_cast_title">Sonos Cast</string>
+  <string name="morphe_music_sonos_cast_summary">Dugme Cast takođe može prenositi zvuk na Sonos i druge UPnP zvučnike na vašoj Wi-Fi mreži</string>
+  <string name="morphe_music_sonos_cast_sheet_title">Povežite se sa uređajem</string>
+  <string name="morphe_music_sonos_cast_searching">Pretraživanje zvučnika na vašoj Wi-Fi mreži…</string>
+  <string name="morphe_music_sonos_cast_choose_speaker">Izaberite zvučnik na vašoj Wi-Fi mreži</string>
+  <string name="morphe_music_sonos_cast_casting_to">Emitovanje na %s</string>
+  <string name="morphe_music_sonos_cast_connected">Povezano</string>
+  <string name="morphe_music_sonos_cast_disconnect">Raskini vezu</string>
+  <string name="morphe_music_sonos_cast_speakers_header">Zvučnici na Wi-Fi mreži</string>
+  <string name="morphe_music_sonos_cast_active">Aktivno</string>
+  <string name="morphe_music_sonos_cast_google_cast">Google Cast</string>
+  <string name="morphe_music_sonos_cast_google_cast_summary">Chromecast, Nest i Google TV uređaji</string>
+  <string name="morphe_music_sonos_cast_connection_failed">Nije moguće povezivanje sa %s</string>
   <!-- video.speed.playbackSpeedPatch -->
   <string name="morphe_music_playback_speed_title">Brzina reprodukcije</string>
   <string name="morphe_music_playback_speed_summary">Brzina koja se koristi za sve numere. Na 100% koristi se brzina aplikacije, kao što je brzina reprodukcije podkasta</string>
   <string name="morphe_music_playback_speed_change_pitch_title">Promeni visinu tona sa brzinom</string>
+  <!-- video.effects.videoEffectsPatch -->
+  <string name="morphe_music_video_effect_menu_title">Prikaži meni za video efekte</string>
+  <string name="morphe_music_video_effect_menu_summary">Dodaje video efekat u meni plejera dok se video reprodukuje</string>
+  <string name="morphe_music_video_effect_next_video">Efekat će biti vidljiv od sledećeg videa</string>
+  <!-- layout.captions.disableAutoCaptionsPatch -->
+  <string name="morphe_music_disable_auto_captions_title">Onemogući automatski titl</string>
+  <string name="morphe_music_disable_auto_captions_summary">Titlovi se ne omogućuju automatski kada video počne, uključujući i titlove koje video omogućava po defaultu</string>
+  <!-- interaction.audioducking.disableAudioDuckingPatch -->
+  <string name="morphe_music_disable_audio_ducking_title">Onemogući prigušivanje zvuka</string>
+  <string name="morphe_music_disable_audio_ducking_summary">Jačina zvuka se neće smanjiti kada neka druga aplikacija pusti kratak zvuk, kao što je obaveštenje</string>
+  <!-- interaction.likefilter.queueLikeFilterPatch -->
+  <string name="morphe_music_queue_like_filter_title">Filter za lajkove u redu za čekanje</string>
+  <string name="morphe_music_queue_like_filter_summary">Uklanja pesme sa malo lajkova iz miksova i radija. Playliste, albumi i pesme koje dodate u red za čekanje ne menjaju se. Broj lajkova je preuzet iz Return YouTube Dislike</string>
+  <string name="morphe_music_queue_like_filter_minimum_likes_title">Minimum lajkova</string>
+  <string name="morphe_music_queue_like_filter_minimum_likes_summary">Pesme sa manje lajkova biće uklonjene iz reda za čekanje</string>
   <!-- interaction.dislikeredirection.disableDislikeRedirectionPatch -->
   <string name="morphe_music_disable_dislike_redirection_title">Onemogući preusmeravanje pri nesviđanju</string>
   <string name="morphe_music_disable_dislike_redirection_summary">Sprečava preskakanje na sledeću numeru kada se pritisne dugme za nesviđanje</string>
+  <!-- interaction.trackswipe.disableSwipeToChangeTrackPatch -->
+  <string name="morphe_music_disable_player_swipe_to_change_track_title">Onemogući prevlačenje za promenu trake</string>
+  <string name="morphe_music_disable_player_swipe_to_change_track_summary">Sprečava preskakanje na sledeću ili prethodnu traku prevlačenjem levo ili desno na plejeru</string>
+  <string name="morphe_music_disable_miniplayer_swipe_to_change_track_summary">Sprečava preskakanje na sledeću ili prethodnu traku prevlačenjem levo ili desno na mini-plejeru</string>
+  <!-- interaction.loop.loopVideoPatch -->
+  <string name="morphe_music_ab_loop_title">A-B petlja</string>
+  <string name="morphe_music_ab_loop_summary">Dugo pritisnite traku za pretraživanje da biste postavili početak petlje, ponovo da biste postavili kraj petlje i još jednom da biste obrisali petlju</string>
+  <string name="morphe_music_ab_loop_toast_start">Početak petlje je postavljen na %s</string>
+  <string name="morphe_music_ab_loop_toast_end">Kraj petlje je postavljen na %s</string>
+  <string name="morphe_music_ab_loop_toast_cleared">Petlja je obrisana</string>
   <!-- interaction.playlisttracktap.playlistTrackTapPatch -->
   <string name="morphe_music_playlist_track_tap_action_title">Radnja pri dodiru na numeru u listi reprodukcije</string>
   <string name="morphe_music_playlist_track_tap_action_entry_default">Reprodukuj plejlistu</string>
@@ -382,15 +354,6 @@ SABR reprodukcija (imitiranje video strimova isključeno)"</string>
   <string name="morphe_music_playlist_tags_rename">Preimenuj</string>
   <string name="morphe_music_playlist_tags_delete">Obriši</string>
   <string name="morphe_music_playlist_tags_hidden">Skriveno</string>
-  <!-- layout.buttons.hideButtonsPatch -->
-  <string name="morphe_music_hide_cast_button_title">Sakrij dugme „Prebacuj”</string>
-  <string name="morphe_music_hide_history_button_title">Sakrij dugme „Istorija”</string>
-  <string name="morphe_music_hide_notification_button_title">Sakrij dugme „Obaveštenje”</string>
-  <string name="morphe_music_hide_search_button_title">Sakrij dugme „Pretraga”</string>
-  <string name="morphe_music_hide_voice_search_button_title">Sakrij dugme za glasovnu pretragu</string>
-  <string name="morphe_music_hide_sound_search_button_title">Sakrij dugme za pretragu zvuka</string>
-  <string name="morphe_music_hide_library_new_button_title">Sakrij dugme „Novo“</string>
-  <string name="morphe_music_hide_library_new_button_summary">Sakriva dugme „Novo“ u kartici Biblioteka</string>
   <!-- layout.hide.actionbuttons.hideActionButtonsPatch -->
   <string name="morphe_music_action_buttons_screen_title">Dugmad radnji</string>
   <string name="morphe_music_action_buttons_screen_summary">Izaberite koji dugmići za akcije da se pojave ispod plejera</string>
@@ -462,22 +425,20 @@ SABR reprodukcija (imitiranje video strimova isključeno)"</string>
   <string name="morphe_music_force_portrait_orientation_title">Forsiraj portretnu orijentaciju</string>
   <string name="morphe_music_force_portrait_orientation_summary">Zadržava aplikaciju u portretnoj orijentaciji kada se uređaj rotira</string>
   <!-- layout.miniplayer.changeMiniplayerColorPatch -->
-  <string name="morphe_music_change_miniplayer_color_title">Promeni boju mini-plejera</string>
+  <string name="morphe_music_change_miniplayer_color_title">Promeni boju</string>
   <string name="morphe_music_change_miniplayer_color_summary">Boja mini-plejera odgovara plejeru preko celog ekrana</string>
   <string name="morphe_music_change_navigation_bar_color_title">Promeni boju navigacione trake</string>
   <string name="morphe_music_change_navigation_bar_color_summary">Usklađuje boju navigacione trake sa plejskim ekranom</string>
   <!-- layout.miniplayer.miniplayerNextPreviousButtonsPatch -->
-  <string name="morphe_music_miniplayer_next_button_title">Prikaži dugme sledeće u mini playeru</string>
-  <string name="morphe_music_miniplayer_previous_button_title">Prikaži prethodno dugme u mini plejeru</string>
+  <string name="morphe_music_miniplayer_next_button_title">Prikaži dugme Sledeća</string>
+  <string name="morphe_music_miniplayer_previous_button_title">Prikaži dugme Prethodna</string>
   <!-- layout.miniplayer.enableForcedMiniplayerPatch -->
   <string name="morphe_music_enable_forced_miniplayer_title">Omogući prisilni miniplejer</string>
   <string name="morphe_music_enable_forced_miniplayer_summary">Sprečava automatsko širenje plejera na ceo ekran kada nova numera počne</string>
   <!-- layout.miniplayer.enableSwipeToDismissMiniplayerPatch -->
-  <string name="morphe_music_enable_swipe_to_dismiss_miniplayer_title">Omogući prevlačenje kako bi se ukinuo mini plejer</string>
+  <string name="morphe_music_enable_swipe_to_dismiss_miniplayer_title">Omogući prevlačenje za zatvaranje</string>
   <string name="morphe_music_enable_swipe_to_dismiss_miniplayer_summary">Omogućava uklanjanje mini plejera prevlačenjem prstom na dole po njemu</string>
-  <!-- layout.navigationbar.navigationBarPatch -->
-  <string name="morphe_music_navigation_bar_screen_title">Traka za navigaciju</string>
-  <string name="morphe_music_navigation_bar_screen_summary">Izaberite koje dugmad se pojavljuju u donjoj navigacionoj traci</string>
+  <!-- layout.buttons.navigation.navigationBarPatch -->
   <!-- 'Home' should be translated using the same localized wording YouTube Music displays for the tab. -->
   <string name="morphe_music_hide_navigation_bar_home_button_title">Sakrij dugme „Početna”</string>
   <!-- 'Samples' should be translated using the same localized wording YouTube Music displays for the tab. -->
@@ -488,25 +449,60 @@ SABR reprodukcija (imitiranje video strimova isključeno)"</string>
   <string name="morphe_music_hide_navigation_bar_library_button_title">Sakrij dugme „Biblioteka”</string>
   <!-- 'Upgrade' should be translated using the same localized wording YouTube Music displays for the tab. -->
   <string name="morphe_music_hide_navigation_bar_upgrade_button_title">Sakrij dugme „Nadogradi”</string>
+  <string name="morphe_music_show_navigation_bar_settings_button_title">Prikaži dugme za podešavanja</string>
+  <string name="morphe_music_show_navigation_bar_settings_button_type_title">Akcija dugmeta za podešavanja</string>
+  <string name="morphe_music_show_navigation_bar_settings_button_type_summary">Kada je omogućeno, dodirivanje otvara podešavanja Morphe-a, a držanje otvara podešavanja YouTube Music-a. Onemogućite da zamenite</string>
   <string name="morphe_music_hide_navigation_bar_title">Sakrij traku za navigaciju</string>
   <string name="morphe_music_hide_navigation_bar_labels_title">Sakrij oznake dugmadi za navigaciju</string>
   <string name="morphe_music_navigation_bar_glass_title">Omogući staklenu navigacionu traku</string>
   <string name="morphe_music_navigation_bar_glass_summary">Prikazuje traku za navigaciju kao plutajuću, zaobljenu, polutransparentnu kapsulu</string>
-  <string name="morphe_music_navigation_bar_glass_opacity_title">Neprozirnost stakla</string>
-  <string name="morphe_music_navigation_bar_glass_opacity_summary">Prilagodite nivo transparentnosti staklene trake za navigaciju (0 je transparentno, 100 je neprozirno)</string>
-  <string name="morphe_music_navigation_bar_glass_light_title">Svetlo staklo</string>
-  <string name="morphe_music_navigation_bar_glass_light_summary">Boja staklene trake za navigaciju postaje bela umesto tamna, za svetlije i čistije staklo</string>
-  <string name="morphe_music_navigation_bar_glass_size_title">Veličina staklene trake za navigaciju</string>
-  <string name="morphe_music_navigation_bar_glass_size_summary">Prilagodite visinu, širinu i razmak između dugmića staklene trake za navigaciju, uz pregled. Dugmići koji ne stanu u širinu ekrana su sakriveni</string>
+  <string name="morphe_music_navigation_bar_glass_size_title">Veličina i stil staklene navigacione trake</string>
+  <string name="morphe_music_navigation_bar_glass_size_summary">Prilagodite visinu, širinu, razmak između dugmadi, providnost i osvetljenost ivice staklene navigacione trake, uz pregled. Dugmad koja ne stanu u širinu ekrana su skrivene</string>
   <string name="morphe_music_navigation_bar_glass_size_height">Visina</string>
   <string name="morphe_music_navigation_bar_glass_size_width">Maksimalna širina</string>
   <string name="morphe_music_navigation_bar_glass_size_button_spacing">Razmak između dugmića</string>
   <string name="morphe_music_navigation_bar_glass_size_buttons_shown">Prikazana dugmad: %1$s od %2$s</string>
+  <string name="morphe_music_navigation_bar_glass_opacity_title">Neprozirnost</string>
+  <string name="morphe_music_navigation_bar_glass_rim_title">Osvetljenost ivice</string>
+  <string name="morphe_music_navigation_bar_glass_blur_title">Zamućenje stakla</string>
+  <string name="morphe_music_navigation_bar_glass_blur_summary">Koliko je stranica iza staklene navigacione trake zamućena (Android 14 i noviji). Na 0 stranica se vidi jasno, a pre Androida 14 stranica je prekrivena</string>
+  <string name="morphe_music_navigation_bar_glass_light_title">Svetlo staklo</string>
+  <string name="morphe_music_navigation_bar_glass_light_summary">Boja staklene trake za navigaciju postaje bela umesto tamna, za svetlije i čistije staklo</string>
+  <string name="morphe_music_navigation_bar_glass_album_tint_title">Nijansa omota albuma</string>
+  <string name="morphe_music_navigation_bar_glass_album_tint_summary">Boja staklene navigacione trake se prilagođava boji omota albuma pesme koja se pušta</string>
+  <string name="morphe_music_navigation_bar_glass_hide_indicator_title">Sakrij indikator izabrane opcije</string>
+  <string name="morphe_music_navigation_bar_glass_hide_indicator_summary">Sakriva zaobljeno isticanje iza izabranog dugmeta staklene navigacione trake</string>
+  <string name="morphe_music_miniplayer_screen_title">Mini-plejer</string>
+  <string name="morphe_music_miniplayer_screen_summary">Promenite stil, dugmad i gestove miniplejera</string>
+  <string name="morphe_music_miniplayer_glass_title">Omogući stakleni efekat</string>
+  <string name="morphe_music_miniplayer_glass_summary">Prikazuje plutajući miniplejer kao zaobljenu, prozirnu staklenu karticu</string>
+  <string name="morphe_music_miniplayer_glass_style_title">Stil staklenog miniplejera</string>
+  <string name="morphe_music_miniplayer_glass_style_summary">Prilagodite radijus uglova, padding omota, osvetljenost ivice i providnost staklenog miniplejera, uz pregled</string>
+  <string name="morphe_music_miniplayer_glass_corner_radius_title">Radijus uglova</string>
+  <string name="morphe_music_miniplayer_glass_artwork_padding_title">Padding omota</string>
+  <string name="morphe_music_miniplayer_glass_rim_title">Osvetljenost ivice</string>
+  <string name="morphe_music_miniplayer_glass_opacity_title">Neprozirnost</string>
+  <string name="morphe_music_miniplayer_glass_blur_summary">Koliko je stranica iza staklenog miniplejera zamućena (Android 14 i noviji). Na 0 stranica se vidi jasno, a pre Androida 14 stranica je prekrivena</string>
+  <string name="morphe_music_miniplayer_glass_light_summary">Boja staklenog miniplejera postaje bela umesto tamne, za svetlije i čistije staklo</string>
+  <string name="morphe_music_miniplayer_glass_album_tint_summary">Boja staklenog miniplejera se prilagođava boji omota albuma pesme koja se pušta</string>
+  <string name="morphe_music_miniplayer_glass_spinning_artwork_title">Rotirajući omot</string>
+  <string name="morphe_music_miniplayer_glass_spinning_artwork_summary">Čini omot staklenog miniplejera okruglim i rotira ga kao ploču dok pesma traje</string>
+  <string name="morphe_music_miniplayer_glass_hide_progress_bar_title">Sakrij traku napretka</string>
+  <string name="morphe_music_miniplayer_glass_hide_progress_bar_summary">Sakriva traku napretka na dnu staklenog miniplejera</string>
   <!-- Labels of the preview, shown before the navigation bar was seen. Use the same localized wording YouTube Music displays for the tabs. -->
   <string name="morphe_music_navigation_bar_glass_preview_home">Početna</string>
   <string name="morphe_music_navigation_bar_glass_preview_samples">Primeri</string>
   <string name="morphe_music_navigation_bar_glass_preview_explore">Istraži</string>
   <string name="morphe_music_navigation_bar_glass_preview_library">Zbirka</string>
+  <!-- 'Activity' should be translated using the same localized wording YouTube Music displays for the tab. -->
+  <string name="morphe_music_hide_activity_button_title">Sakrij dugme Aktivnost</string>
+  <!-- 'Ask Music' should be translated using the same localized wording YouTube Music displays for the tab. -->
+  <string name="morphe_music_hide_ask_music_button_title">Sakrij dugme „Pitaj muziku”</string>
+  <string name="morphe_music_hide_cast_button_title">Sakrij dugme „Prebacuj”</string>
+  <string name="morphe_music_hide_history_button_title">Sakrij dugme „Istorija”</string>
+  <string name="morphe_music_hide_search_button_title">Sakrij dugme „Pretraga”</string>
+  <string name="morphe_music_hide_voice_search_button_title">Sakrij dugme „Glasovna pretraga”</string>
+  <string name="morphe_music_hide_sound_search_button_title">Sakrij dugme „Pretraga zvukom”</string>
   <!-- interaction.scrobbling.scrobblingPatch -->
   <string name="morphe_music_scrobbling_summary_logged_out">Niste prijavljeni. Dodirnite za konfigurisanje</string>
   <string name="morphe_music_scrobbling_log_out">Odjavite se</string>
@@ -610,7 +606,11 @@ Da biste obezbedili sinhronizaciju scrobbling-a tokom reprodukcije u pozadini, u
   <string name="morphe_music_soundproof_about_summary">"Podaci o izvođačima potiču iz SoundProof-Dumps (github.com/NuclearBlox/SoundProof-Dumps), preuzeti jednom dnevno. Preskakanje ne šalje ništa o onome što puštate. Otvaranje SoundProof tabele šalje trenutno ime izvođača na SoundProof server kako bi se prikazali najnoviji glasovi i omogućilo glasanje. Server razlikuje glasače putem IP adrese, tako da se vaš glas može prikazati drugačije na drugoj mreži.
 
 Baza podataka je licencirana pod ODC Open Database License (ODbL). Unosi iz Soul Over AI od xoundbyte su licencirani pod CC BY 4.0. Nije povezano sa SoundProof-om ili Soul Over AI-jem, niti od strane njih odobreno."</string>
+  <!-- layout.applemusicartwork.appleMusicArtworkPatch -->
+  <string name="morphe_music_apple_music_artwork_title">Apple Music animirani omot</string>
+  <string name="morphe_music_apple_music_artwork_summary">Prikazuje animirani omot albuma sa Apple Music-a u plejeru, ako album ima takav. Naslov, izvođač i album svake pesme se šalju Apple Music-u</string>
   <!-- layout.lyrics.lyricsPatch -->
+  <string name="morphe_music_lyrics_device_unavailable">Tekst pesme nije dostupan za ovu datoteku uređaja.</string>
   <string name="morphe_music_lyrics_enabled_title">Koristi tekstove pesama trećih strana</string>
   <string name="morphe_music_lyrics_enabled_summary">Prikazuje tekstove pesama sa servisa treće strane, vraćajući se na ugrađene tekstove kada nisu pronađeni</string>
   <string name="morphe_music_lyrics_keep_screen_on_title">Drži ekran uključen dok gledate tekst pesme</string>
@@ -661,6 +661,25 @@ Prva kolona je reč, druga je njen priručnik; dodatne kolone i linije bez tabul
   <string name="morphe_music_lyrics_clear_cache_title">Obriši sačuvane tekstove</string>
   <string name="morphe_music_lyrics_clear_cache_summary">Obrišite %s MB tekstova pesama sačuvanih na ovom uređaju</string>
   <string name="morphe_music_lyrics_clear_cache_done">Očišćeno %s MB</string>
+  <string name="morphe_music_lyrics_cache_loading_summary">Izračunavanje veličine keša…</string>
+  <string name="morphe_music_lyrics_cache_lyrics_category_title">Keš tekstova pesama</string>
+  <string name="morphe_music_lyrics_cache_clear_lyrics_title">Obriši keš tekstova pesama</string>
+  <string name="morphe_music_lyrics_cache_lyrics_summary">%1$s MB (%2$d pesama)</string>
+  <string name="morphe_music_lyrics_cache_translation_category_title">Keš prevoda</string>
+  <string name="morphe_music_lyrics_cache_clear_translation_title">Obriši keš prevoda</string>
+  <string name="morphe_music_lyrics_cache_translation_summary">%1$s MB (%2$d prevoda)</string>
+  <string name="morphe_music_lyrics_cache_transliteration_category_title">Keš transliteracije</string>
+  <string name="morphe_music_lyrics_cache_clear_transliteration_title">Obriši keš transliteracije</string>
+  <string name="morphe_music_lyrics_cache_transliteration_summary">%1$s MB (%2$d transliteracija)</string>
+  <string name="morphe_music_lyrics_cache_total_category_title">Ukupna upotreba keša</string>
+  <string name="morphe_music_lyrics_cache_clear_all_title">Obriši ceo keš</string>
+  <string name="morphe_music_lyrics_cache_total_summary">%1$s MB (%2$d stavki)</string>
+  <string name="morphe_music_lyrics_cache_clear_action">Obriši</string>
+  <string name="morphe_music_lyrics_cache_close_action">Zatvori</string>
+  <string name="morphe_music_lyrics_cache_confirm_lyrics">Obrisati %1$s MB (%2$d pesama) keširanih tekstova koji se čuvaju na ovom uređaju?</string>
+  <string name="morphe_music_lyrics_cache_confirm_translation">Obrisati %1$s MB (%2$d prevoda) keširanih prevoda koji se čuvaju na ovom uređaju?</string>
+  <string name="morphe_music_lyrics_cache_confirm_transliteration">Obrisati %1$s MB (%2$d transliteracija) keširanih transliteracija koji se čuvaju na ovom uređaju?</string>
+  <string name="morphe_music_lyrics_cache_confirm_all">Obrisati %1$s MB (%2$d stavki) svih keširanih podataka o tekstovima koji se čuvaju na ovom uređaju?</string>
   <string name="morphe_music_token_dialog_get_token">Preuzmi token</string>
   <string name="morphe_music_apple_music_token_title">Apple Music token medijskog korisnika</string>
   <string name="morphe_music_apple_music_token_dialog_instruction">"Nalepi kolačić media-user-token sa music.apple.com.
@@ -716,12 +735,17 @@ Potrebni kolačići: SID, HSID, SSID, SAPISID, __Secure-3PAPISID, __Secure-1PAPI
   <string name="morphe_music_lyrics_tap_to_seek_summary">Dodirnite liniju da skočite na taj trenutak u pesmi, dugo pritisnite da kopirate reč ispod vašeg prsta, ili celu liniju kada pritisak nije na reči. Isključeno uklanja oba gesta</string>
   <string name="morphe_music_lyrics_show_section_title">Prikaži oznake sekcija</string>
   <string name="morphe_music_lyrics_show_section_summary">Obeležite svaki novi deo teksta pesme malom oznakom, kao što su Strofa ili Refren</string>
-  <string name="morphe_music_lyrics_show_copy_button_title">Prikaži dugme za kopiranje</string>
-  <string name="morphe_music_lyrics_show_copy_button_summary">Dodirnite da kopirate originalni tekst pesme kao običan tekst; zadržite pritisak da sačuvate izvorni fajl teksta i konvertovani TTML fajl u Preuzimanja</string>
+  <string name="morphe_music_lyrics_show_copy_button_title">Prikaži dugme Kopiraj / Deli</string>
+  <string name="morphe_music_lyrics_show_copy_button_summary">Prikaži dugme Kopiraj ili Deli na traci sa alatkama panela sa tekstovima</string>
+  <string name="morphe_music_lyrics_copy_button_mode_title">Režim dugmeta za kopiranje</string>
+  <string name="morphe_music_lyrics_copy_mode_copy">Režim kopiranja (dodirnite za kopiranje, zadržite za čuvanje)</string>
+  <string name="morphe_music_lyrics_copy_mode_share">Režim deljenja (dodirnite za izbor 1-5 redova, zadržite za kopiranje ili čuvanje)</string>
   <string name="morphe_music_lyrics_show_translate_button_title">Prikaži dugme za prevođenje</string>
   <string name="morphe_music_lyrics_show_translate_button_summary">Dodirnite za prebacivanje prevoda; dugi pritisak samo za prevod. Koristi omogućene provajdere prevoda u njihovom navedenom redosledu</string>
   <string name="morphe_music_lyrics_show_romanize_button_title">Prikaži dugme za romanizaciju ili transliteraciju</string>
   <string name="morphe_music_lyrics_show_romanize_button_summary">Dodirnite za prebacivanje romanizacije ili transliteracije; dugi pritisak samo za romanizaciju ili transliteraciju. Koristi omogućene provajdere romanizacije u njihovom navedenom redosledu</string>
+  <string name="morphe_music_lyrics_show_current_button_title">Prikaži dugme za trenutni stih</string>
+  <string name="morphe_music_lyrics_show_current_button_summary">Dok ručno skrolujete tekst pesme, prikazuje dugme koje vraća na stih koji se peva</string>
   <string name="morphe_music_lyrics_allow_transliteration_title">Omogući transliteraciju</string>
   <string name="morphe_music_lyrics_allow_transliteration_summary">Dozvoli necirilica čitanja iz izvora tekstova; kada je isključeno, zadržava samo latinica slova, akcentovana slova i tonove cifre</string>
   <string name="morphe_music_lyrics_local_romanization_summary">Čita svaku reč vremenski sinhronizovanog teksta (sinhronizacija reči uključena); Korejski ne zahteva preuzimanje; četrnaest pisama dele jedno CLDR preuzimanje; Kineski karakteri se čitaju pomoću Rime liste reči kada njena tabela reči pokriva jezik</string>
@@ -729,7 +753,48 @@ Potrebni kolačići: SID, HSID, SSID, SAPISID, __Secure-3PAPISID, __Secure-1PAPI
   <string name="morphe_music_lyrics_local_romanization_dict_ready">Čitanja spremna (%s stavki)</string>
   <string name="morphe_music_lyrics_local_romanization_dict_failed">Preuzimanje nije uspelo - isključite pa ponovo uključite kako biste pokušali ponovo</string>
   <string name="morphe_music_lyrics_local_romanization_download_confirm_title">Offline rečnik</string>
-  <string name="morphe_music_lyrics_local_romanization_dict_japanese">Japanski (SudachiDict, ~75 MB)</string>
+  <string name="morphe_music_lyrics_local_romanization_dict_ja_parent">Japanski</string>
+  <string name="morphe_music_lyrics_local_romanization_dict_kuromoji">Kuromoji (~17 MB) — brzi morfološki analizator &amp; ruby</string>
+  <string name="morphe_music_lyrics_local_romanization_dict_japanese">SudachiDict (~75 MB) — potpun rečnik japanskih reči</string>
+  <string name="morphe_music_lyrics_japanese_dict_engine_title">Prioritet &amp; redosled rezervne opcije</string>
+  <string name="morphe_music_lyrics_japanese_engine_kuromoji_first">Prioritet Kuromoji-ja (SudachiDict kao rezervna opcija)</string>
+  <string name="morphe_music_lyrics_japanese_engine_sudachi_first">SudachiDict prioritet (Kuromoji fallback)</string>
+  <string name="morphe_music_lyrics_custom_font_title">Prilagođeni font za tekst pesme</string>
+  <string name="morphe_music_lyrics_custom_font_summary_default">Podrazumevani sistemski font (dodirnite da biste otpremili .ttf ili .otf datoteku fonta)</string>
+  <string name="morphe_music_lyrics_custom_font_summary_active">Aktivni font: %s</string>
+  <string name="morphe_music_lyrics_custom_font_dialog_message">Otpremite .ttf ili .otf datoteku fonta (kao što su SF Pro Bold, Inter Bold ili Inter ExtraBold) iz memorije vašeg uređaja kako biste je koristili u prikazu teksta pesme.</string>
+  <string name="morphe_music_lyrics_custom_font_choose">Otpremi font</string>
+  <string name="morphe_music_lyrics_custom_font_reset">Vrati na podrazumevano</string>
+  <string name="morphe_music_lyrics_custom_font_applied">Primenjen prilagođeni font za tekst pesme: %s</string>
+  <string name="morphe_music_lyrics_custom_font_cleared">Vraćanje na podrazumevani font za tekst pesme</string>
+  <string name="morphe_music_lyrics_custom_font_invalid">Nevažeća ili nepodržana datoteka fonta (potrebno je .ttf ili .otf)</string>
+  <string name="morphe_music_lyrics_share_preview_title">Podelite tekst pesme</string>
+  <string name="morphe_music_lyrics_share_button">Podeli</string>
+  <string name="morphe_music_lyrics_copy">Kopiraj</string>
+  <string name="morphe_music_lyrics_share_options_title">Akcije za tekst pesme</string>
+  <string name="morphe_music_lyrics_copy_plain_option">Kopiraj tekst pesme kao običan tekst</string>
+  <string name="morphe_music_lyrics_save_file_option">Sačuvaj tekst pesme &amp; TTML u Preuzimanja</string>
+  <string name="morphe_music_lyrics_share_cancel">Otkaži</string>
+  <string name="morphe_music_lyrics_share_select_hint">Dodirnite 1–5 redova za deljenje</string>
+  <string name="morphe_music_lyrics_share_max_lines">Može se izabrati najviše 5 redova</string>
+  <string name="morphe_music_lyrics_share_failed">Nije bilo moguće kreirati karticu za deljenje teksta pesme</string>
+  <string name="morphe_music_lyrics_share_bg_blur">Zamućivanje</string>
+  <string name="morphe_music_lyrics_share_bg_cover">Omot</string>
+  <string name="morphe_music_lyrics_share_bg_color">Boja</string>
+  <string name="morphe_music_lyrics_share_bg_photo">Fotografija</string>
+  <string name="morphe_music_lyrics_share_branding_logo">YT Music logo</string>
+  <string name="morphe_music_lyrics_share_layer_romaji">Romaji</string>
+  <string name="morphe_music_lyrics_share_layer_translate">Prevedi</string>
+  <string name="morphe_music_lyrics_share_layer_bg">BG vokali</string>
+  <string name="morphe_music_lyrics_share_custom_color">Prilagođena boja</string>
+  <string name="morphe_music_lyrics_share_photo_failed">Nije moguće učitati izabranu sliku</string>
+  <string name="morphe_music_lyrics_share_card_cta">Podeli karticu</string>
+  <string name="morphe_music_lyrics_copy_text_cta">Kopiraj tekst</string>
+  <string name="morphe_music_lyrics_share_back">Nazad na izbor teksta</string>
+  <string name="morphe_music_lyrics_share_loading_photo">Učitavanje fotografije…</string>
+  <string name="morphe_music_lyrics_share_preparing">Kreiranje kartice…</string>
+  <string name="morphe_music_lyrics_share_color_swatch">Uzorak boje %d</string>
+  <string name="morphe_music_lyrics_share_unknown_track">Nepoznata numara</string>
   <string name="morphe_music_lyrics_local_romanization_dict_unidict">Kineski i kantonski karakteri (UniDict, ~8 MB)</string>
   <string name="morphe_music_lyrics_local_romanization_dict_chinese">Kineske reči (pinyin-pro, ~17 MB)</string>
   <string name="morphe_music_lyrics_local_romanization_dict_cldr">Grčki, slovenski ćirilica (uključujući ruski, ukrajinski, bugarski, srpski, beloruski, makedonski), gruzijski, armenski, hebrejski, arapski, amharski i sirijski transliteracija (CLDR, ~0.5 MB)</string>
@@ -740,11 +805,24 @@ Potrebni kolačići: SID, HSID, SSID, SAPISID, __Secure-3PAPISID, __Secure-1PAPI
   <string name="morphe_music_lyrics_search_title_hint">Naslov pesme</string>
   <string name="morphe_music_lyrics_search_artist_hint">Izvođač</string>
   <string name="morphe_music_lyrics_search_empty">Unesite naslov pesme i izvođača</string>
+  <string name="morphe_music_lyrics_search_google">Pretraži pomoću Google-a</string>
   <string name="morphe_music_lyrics_search_no_providers">Nijedan od omogućenih provajdera ne može da pretražuje druge pesme</string>
   <string name="morphe_music_lyrics_saved">Sačuvano</string>
   <string name="morphe_music_lyrics_written_by">Napisao: %s</string>
   <string name="morphe_music_lyrics_word_sync_title">Istakni sinhronizovane reči ili slogove.</string>
   <string name="morphe_music_lyrics_word_sync_summary">Daj prednost tekstu reč po reč kada je dostupan.</string>
+  <string name="morphe_music_lyrics_word_smooth_sweep_title">Glatko animiraj sinhronizovane reči</string>
+  <string name="morphe_music_lyrics_word_smooth_sweep_summary">Ističe svaku reč nežnim prelazom, sjajem i blagim podizanjem dok se peva. Isključite da biste uštedeli bateriju ili za oštrije prikazivanje na sporijim uređajima</string>
+  <string name="morphe_music_lyrics_spring_scroll_title">Koristi spring skrolovanje</string>
+  <string name="morphe_music_lyrics_spring_scroll_summary">Skroluje tekst pesme pomoću spring fizike i pomera svaki stih malo nakon onog iznad njega. Isključite kako biste uštedeli bateriju na sporijim uređajima</string>
+  <string name="morphe_music_lyrics_relax_scroll_title">Opušteno skrolovanje</string>
+  <string name="morphe_music_lyrics_relax_scroll_summary">Usporava animaciju skrolovanja teksta pesme i zadržava neaktivne redove u punoj veličini</string>
+  <string name="morphe_music_lyrics_blur_inactive_title">Zamući neaktivne redove</string>
+  <string name="morphe_music_lyrics_blur_inactive_summary">Blago zamući svaki red koji se trenutno ne peva, što je izraženije što je red dalje (Android 12 i noviji). Pre verzije Android 12, neaktivni redovi ostaju oštri</string>
+  <string name="morphe_music_lyrics_gap_dots_title">Prikaži tačke instrumentalne pauze</string>
+  <string name="morphe_music_lyrics_gap_dots_summary">Prikazuje tri tačke između stihova tokom duge instrumentalne pauze, koje se pune kako pauza odmiče</string>
+  <string name="morphe_music_lyrics_focus_spotlight_title">Jače zatamni udaljene stihove</string>
+  <string name="morphe_music_lyrics_focus_spotlight_summary">Jače zatamnjuje svaki neaktivni stih što je on dalje od stiha koji se peva. Kada je isključeno, svaki neaktivni stih je jednako zatamnjiv</string>
   <string name="morphe_music_lyrics_line_scale_title">Smanji neaktivne redove</string>
   <string name="morphe_music_lyrics_line_scale_summary">Crtanje svakog reda koji se trenutno ne peva nešto manjim, iznad bleđenja</string>
   <string name="morphe_music_lyrics_split_background_title">Prikaži pozadinske vokale posebno</string>
@@ -813,7 +891,6 @@ Primenjuje se na oba limita. Na 1.75, četiri karaktera pune širine računaju s
   <string name="morphe_music_lyrics_romanized_by_ai">Romanizovao %s</string>
   <string name="morphe_music_lyrics_romanized_by_local">Romanizovao %s</string>
   <string name="morphe_music_lyrics_with_ruby_provider">%1$s (sa %2$s)</string>
-  <string name="morphe_music_lyrics_romanized_by_rime">Romanizovano od strane Rime (%s)</string>
   <!-- Tappable label under the lyrics that turns the translation on. -->
   <string name="morphe_music_lyrics_translate_hide">Prevedeno</string>
   <string name="morphe_music_lyrics_translation_language_title">Jezik prevoda</string>
@@ -834,6 +911,7 @@ Primenjuje se na oba limita. Na 1.75, četiri karaktera pune širine računaju s
   <string name="morphe_music_lyrics_romanize_only">Samo romanizovano</string>
   <string name="morphe_music_lyrics_dual_only">Dualni režim</string>
   <string name="morphe_music_lyrics_copied">Kopirano u privremenu memoriju</string>
+  <string name="morphe_music_lyrics_current">Trenutno</string>
   <string name="morphe_music_lyrics_refreshing">Osvežavanje</string>
   <string name="morphe_music_lyrics_refreshed">Osveženo</string>
   <string name="morphe_music_lyrics_transcribe_key_title">Ključ API-ja QuickLRC</string>
@@ -863,6 +941,8 @@ Tekstovi pesama dolaze od usluga trećih strana koje nisu povezane s Morphe-om, 
   <string name="morphe_music_lyrics_swap_trans_roma_summary">Pomera prevod iznad stihova; čitanje i romanizacija ostaju ispod</string>
   <string name="morphe_music_lyrics_force_center_title">Uvek centriraj tekstove</string>
   <string name="morphe_music_lyrics_force_center_summary">UKLJUČENO stavlja svaki red u sredinu i ignoriše poravnanje izvora, uključujući strane dueta; ISKLJUČENO zadržava poravnanje koje tekstovi traže</string>
+  <string name="morphe_music_lyrics_duet_opposite_side_title">Poravnanje dueta na suprotne strane</string>
+  <string name="morphe_music_lyrics_duet_opposite_side_summary">Postavlja drugog pevača na suprotnu ivicu kod pesama u duetu. Isključite da bi oba pevača ostala na istoj strani</string>
   <string name="morphe_music_lyrics_providers_keep_one">Barem jedan provajder mora ostati uključen</string>
   <string name="morphe_music_lyrics_translation_provider_title">Prevod</string>
   <string name="morphe_music_lyrics_romanization_provider_title">Romanizacija ili transliteracija</string>
@@ -872,19 +952,15 @@ Tekstovi pesama dolaze od usluga trećih strana koje nisu povezane s Morphe-om, 
   <string name="morphe_music_lyrics_use_ai_section_title">Detekcija sekcija veštačkom inteligencijom</string>
   <string name="morphe_music_lyrics_use_ai_section_summary">Koristi se samo kada provajder ne isporučuje oznake sekcija kao što su Refren ili Strofa, što tada detektuje vaš model kompatibilan sa OpenAI-jem. Uređivanje reda takođe otvara njegov prompt</string>
   <string name="morphe_music_lyrics_ai_config_base_url_hint">URL API kraja (npr. https://api.openai.com/v1/chat/completions, https://api.anthropic.com/v1/chat/completions, https://generativelanguage.googleapis.com/v1beta/openai/chat/completions)</string>
-  <string name="morphe_music_lyrics_ai_prompt_dialog_title">Šablon uputa</string>
   <string name="morphe_music_lyrics_ai_prompt_dialog_hint">Rezervisana mesta: {task}, {language}, {title}, {artist}, {count}, {lines}. Nepoznata ostaju onako kako su ukucana</string>
-  <string name="morphe_music_lyrics_ai_prompt_toast_saved">Uputa sačuvana</string>
-  <string name="morphe_music_lyrics_ai_prompt_toast_endpoint_invalid">Prompt je sačuvan, ali AI krajnja tačka još uvek nije upotrebljiva. Prvo je konfigurišite u podešavanjima AI-a</string>
-  <string name="morphe_music_lyrics_ai_prompt_toast_reset">Uputa resetovana</string>
-  <string name="morphe_music_lyrics_ai_config_toast_saved">Podešavanja za prevod &amp; romanizaciju su sačuvana</string>
+  <string name="morphe_music_lyrics_ai_prompt_toast_endpoint_invalid">Podešavanja su sačuvana, ali AI krajnja tačka još uvek nije upotrebljiva</string>
+  <string name="morphe_music_lyrics_ai_config_toast_saved">Podešavanja su sačuvana</string>
   <string name="morphe_music_lyrics_ai_config_toast_reset">Podešavanja su vraćena na podrazumevane vrednosti</string>
   <string name="morphe_music_lyrics_ai_config_status_invalid_url">Osnovni URL mora početi sa http:// ili https://</string>
   <string name="morphe_music_lyrics_ai_config_status_invalid">Podešavanja nepotpuna ili odbijena od strane provajdera</string>
   <string name="morphe_music_lyrics_ai_config_status_validating">Provera veze…</string>
   <string name="morphe_music_lyrics_ai_config_status_connected">%1$s: Povezano! (%2$s)</string>
   <string name="morphe_music_lyrics_ai_config_status_failed">%s: Veza nije uspela. Proverite podešavanja.</string>
-  <string name="morphe_music_lyrics_ai_config_status_empty_key">Unesite API ključ prvo</string>
   <string name="morphe_music_lyrics_ai_config_test_connection">Testiraj vezu</string>
   <string name="morphe_music_lyrics_ai_config_fetching_models">Preuzimanje modela…</string>
   <string name="morphe_music_lyrics_ai_config_fetch_models">Preuzmi modele</string>
@@ -901,7 +977,14 @@ Tekstovi pesama dolaze od usluga trećih strana koje nisu povezane s Morphe-om, 
   <string name="morphe_music_lyrics_ai_config_extra_headers_label">Dodatni zahtevi zaglavlja (opcioni JSON)</string>
   <string name="morphe_music_lyrics_ai_config_extra_headers_hint">Navodite imena i vrednosti, npr. {\"api-key\": \"abc\"}. Ne-navođena vrednost koja sadrži / : ili broj se odbija. Prazna vrednost uklanja zaglavlje.</string>
   <string name="morphe_music_lyrics_ai_config_extra_body_hint">Navodite imena i vrednosti, npr. {\"temperature\": 0.3}. Ne-navođena vrednost koja sadrži / ili : se odbija. Model i poruke ne mogu se postaviti ovde.</string>
+  <string name="morphe_music_lyrics_ai_config_reasoning_effort">Napor zaključivanja</string>
+  <string name="morphe_music_lyrics_ai_config_reasoning_effort_default">Podrazumevano</string>
   <string name="morphe_music_lyrics_ai_config_deepl_key_label">Ključ za autentifikaciju (Free ili Pro)</string>
+  <string name="morphe_music_lyrics_ai_section_failed">AI nije mogao da detektuje sekcije za ovu numaru</string>
+  <string name="morphe_music_lyrics_ai_section_detecting">Detektiranje</string>
+  <string name="morphe_music_lyrics_ai_section_apply">Primeni sekcije</string>
+  <string name="morphe_music_lyrics_ai_section_cancelled">Detektiranje je otkazano</string>
+  <string name="morphe_music_lyrics_ai_section_no_text">Nema teksta pesme za detektovanje sekcija</string>
   <!-- misc.spoof.appversion.spoofAppVersionPatch -->
   <string name="morphe_music_spoof_app_version_target_entry_8_23_51">8.23.51 - Onemogući podebljane ikonice</string>
   <string name="morphe_music_spoof_app_version_target_entry_9_13_51">9.13.51 - Vrati kartice Sledeće, Tekstovi i Povezano za plejer</string>

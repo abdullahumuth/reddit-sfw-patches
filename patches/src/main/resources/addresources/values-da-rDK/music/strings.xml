@@ -119,121 +119,47 @@ Second \"item\" text"</string>
   <string name="morphe_header_logo_entry_3">Brugerdefineret</string>
   <!-- misc.album.albumMusicVideoPatch -->
   <string name="morphe_music_play_album_songs_title">Afspil albummets numre</string>
-  <!-- 'Spoof video streams' should match the language used in 'morphe_spoof_video_streams_screen_title' -->
-  <string name="morphe_music_play_album_songs_summary">Afspil kun lydversionen af albummets sange i stedet for en musikvideo. Kræver \'Spoof video streams\'</string>
+  <string name="morphe_music_play_album_songs_summary">Afspil sangene fra et album i stedet for deres musikvideoer</string>
   <!-- misc.audiovideoswitch.enableAudioVideoSwitchPatch -->
   <string name="morphe_music_enable_audio_video_switch_title">Aktivér lyd/video-skift</string>
   <string name="morphe_music_enable_audio_video_switch_summary">Prøv at skifte mellem lydsporversion og officiel musikvideo</string>
+  <string name="morphe_music_auto_song_version_title">Afspil altid sangversionen</string>
+  <string name="morphe_music_auto_song_version_summary">Erstatter officielle musikvideoer i køen med den matchende sang. Kræver at app-indstillingen \'Afspil ikke musikvideoer\' er slået til. Numre uden et præcist match forbliver uændrede</string>
   <!-- interaction.downloads.downloadsPatch -->
   <string name="morphe_external_downloader_screen_summary">Download musikvideoer, podcasts eller sange med tredjeparts download-apps</string>
   <!-- 'Download' should be translated using the same localized wording YouTube displays for the menu. -->
   <string name="morphe_external_downloader_menu_title">Brug ekstern downloader til Download-menuen</string>
   <string name="morphe_external_downloader_menu_summary">Download-indstillingen i menuerne åbner i stedet din eksterne downloader</string>
-  <string name="morphe_music_downloads_screen_title">Downloads</string>
-  <string name="morphe_music_downloads_empty">"Ingen downloads
-Downloadede sange vises her"</string>
-  <string name="morphe_music_downloads_track_subtitle">%1$s • %2$s • %3$s MB</string>
-  <string name="morphe_music_downloads_summary">%1$s sange • %2$s MB</string>
-  <string name="morphe_music_downloads_search_hint">Søg downloads</string>
-  <string name="morphe_music_downloads_sort">Sortér</string>
-  <string name="morphe_music_downloads_sort_artist">Sortér efter kunstner</string>
-  <string name="morphe_music_downloads_sort_title">Sortér efter titel</string>
-  <string name="morphe_music_downloads_sort_size">Sortér efter størrelse</string>
-  <string name="morphe_music_downloads_delete_all">Slet alle downloads</string>
-  <string name="morphe_music_downloads_delete_all_title">Slet alle downloads?</string>
-  <string name="morphe_music_downloads_delete_all_message">Alle downloadede sange vil blive slettet fra denne enhed</string>
-  <string name="morphe_music_downloads_all_deleted">Downloads slettet</string>
-  <string name="morphe_music_downloads_nothing_found">Intet fundet</string>
-  <string name="morphe_music_downloads_actions_for">Handlinger for %s</string>
-  <string name="morphe_music_downloads_play">Afspil</string>
-  <string name="morphe_music_downloads_play_pause">Afspil eller pause</string>
-  <string name="morphe_music_downloads_previous">Forrige</string>
-  <string name="morphe_music_downloads_next">Næste</string>
-  <string name="morphe_music_downloads_pause">Pause</string>
-  <string name="morphe_music_downloads_shuffle">Afspil tilfældigt</string>
-  <string name="morphe_music_downloads_repeat">Gentag</string>
-  <string name="morphe_music_downloads_minimize">Minimer</string>
-  <string name="morphe_music_downloads_close">Luk</string>
-  <string name="morphe_music_downloads_delete">Slet</string>
-  <string name="morphe_music_downloads_delete_track">Slet download</string>
-  <string name="morphe_music_downloads_delete_track_title">Slet download?</string>
-  <string name="morphe_music_downloads_delete_track_message">%s vil blive slettet fra denne enhed</string>
-  <string name="morphe_music_downloads_track_deleted">Download slettet</string>
-  <string name="morphe_music_downloads_track_delete_failed">Kunne ikke slette downloadet</string>
-  <string name="morphe_music_downloads_play_failed">Kunne ikke afspille downloadet</string>
-  <string name="morphe_music_downloads_playlists">Playlister</string>
-  <string name="morphe_music_downloads_playlists_section">Oprettede playlister (%s)</string>
-  <string name="morphe_music_downloads_playlists_empty">Ingen lokale playlister endnu</string>
-  <string name="morphe_music_downloads_playlists_hide">Skjul playlister ▲</string>
-  <string name="morphe_music_downloads_playlist_new">+ Ny playliste</string>
-  <string name="morphe_music_downloads_playlist_new_button">Ny playliste</string>
-  <string name="morphe_music_downloads_playlist_selected">Valgt (%s)</string>
-  <string name="morphe_music_downloads_playlist_select_first">Vælg sange først</string>
-  <string name="morphe_music_downloads_playlist_clear_selection">Ryd markering</string>
-  <string name="morphe_music_downloads_playlist_create">Opret playliste</string>
-  <string name="morphe_music_downloads_playlist_create_button">Opret</string>
-  <string name="morphe_music_downloads_playlist_add">Tilføj til playliste</string>
-  <string name="morphe_music_downloads_playlist_added">Tilføjet til %s</string>
-  <string name="morphe_music_downloads_playlist_name_hint">Navn på playliste</string>
-  <string name="morphe_music_downloads_playlist_name_empty">Navnet på playlisten må ikke være tomt</string>
-  <string name="morphe_music_downloads_playlist_save_failed">Kunne ikke gemme playlisten</string>
-  <string name="morphe_music_downloads_playlist_track_count">%s numre</string>
-  <string name="morphe_music_downloads_playlist_track_count_one">1 nummer</string>
-  <string name="morphe_music_downloads_playlist_no_tracks">Ingen numre i denne playliste</string>
-  <string name="morphe_music_downloads_playlist_play">Afspil playliste</string>
-  <string name="morphe_music_downloads_playlist_play_all">Afspil alle</string>
-  <string name="morphe_music_downloads_playlist_rename">Omdøb</string>
-  <string name="morphe_music_downloads_playlist_rename_title">Omdøb playliste</string>
-  <string name="morphe_music_downloads_playlist_save">Gem</string>
-  <string name="morphe_music_downloads_playlist_delete">Slet playliste</string>
-  <string name="morphe_music_downloads_playlist_delete_title">Slet playliste?</string>
-  <string name="morphe_music_downloads_playlist_delete_message">%s vil blive slettet. Downloadede sange bevares</string>
-  <string name="morphe_music_downloads_playlist_deleted">Playliste slettet</string>
-  <string name="morphe_music_downloads_playlist_remove_track">Fjern fra playliste</string>
-  <string name="morphe_music_downloads_playlist_drag_track">Træk for at ændre rækkefølge</string>
-  <string name="morphe_music_downloads_playlist_reorder_hint">%s • Træk i håndtaget for at ændre rækkefølgen</string>
-  <string name="morphe_music_downloads_playlist_reorder_done">Færdig</string>
-  <string name="morphe_music_downloads_notification_channel">Lyddownloads</string>
-  <string name="morphe_music_downloads_playback_channel">Offlineafspilning</string>
-  <string name="morphe_music_downloads_unknown_track">Kunne ikke identificere sangen, der skal downloades</string>
-  <string name="morphe_music_downloads_already_running">Download er allerede i gang</string>
-  <string name="morphe_music_downloads_already_saved">Allerede downloadet</string>
-  <string name="morphe_music_downloads_started">Download startet</string>
-  <string name="morphe_music_downloads_starting">Starter download…</string>
-  <string name="morphe_music_downloads_progress">Downloader %s%%</string>
-  <string name="morphe_music_downloads_complete">Download fuldført</string>
-  <string name="morphe_music_downloads_failed">Download mislykkedes</string>
-  <string name="morphe_music_downloads_playlist_download_title">Download af playliste</string>
-  <string name="morphe_music_downloads_playlist_download_listing">Henter spor...</string>
-  <string name="morphe_music_downloads_playlist_download_listed">%s fundet...</string>
-  <string name="morphe_music_downloads_playlist_download_listing_failed">Kunne ikke hente listen over spor i playlisten</string>
-  <string name="morphe_music_downloads_playlist_download_all_saved">Allerede downloadet: %s</string>
-  <string name="morphe_music_downloads_playlist_download_confirm_message">"%1$s i denne playliste, %2$s er endnu ikke downloadet.
+  <string name="morphe_download_force_4k_title">Tving tilgængelighed af 4K-download</string>
+  <string name="morphe_download_force_4k_summary">Gemmer 1440p- og 4K-downloads, selv hvis YouTube Music vurderer, at denne enhed ikke kan afspille dem</string>
+  <string name="morphe_export_download_folder_title">Eksporter downloads</string>
+  <string name="morphe_export_download_folder_summary">"Eksporter sange og videoer gemt i appen til din enheds lagerplads ved hjælp af menuen for downloads i appen. Tryk for at ændre eksport
 
-De downloades én efter én, hvilket kan tage lang tid og kræver ca. %3$s ledig plads"</string>
-  <string name="morphe_music_downloads_playlist_download_confirm_button">Download</string>
-  <string name="morphe_music_downloads_playlist_download_progress">Downloader spor %1$s af %2$s</string>
-  <string name="morphe_music_downloads_playlist_download_complete">%s downloadet</string>
-  <string name="morphe_music_downloads_playlist_download_complete_with_failures">%1$s downloadet, %2$s kunne ikke downloades</string>
-  <string name="morphe_music_downloads_playlist_download_already_running">Download af playliste er allerede i gang</string>
-  <string name="morphe_music_downloads_playlist_download_needs_account">Din konto er ikke kendt endnu. Prøv igen om et øjeblik</string>
-  <string name="morphe_music_downloads_playlist_download_listed_all_saved">%s fundet, alle er allerede downloadet</string>
-  <string name="morphe_music_downloads_playlist_download_incomplete">Kun en del af playlisten kunne hentes. Tryk på Download igen senere for at hente resten</string>
-  <string name="morphe_music_downloads_playlist_download_started">Downloader %s i baggrunden</string>
-  <string name="morphe_music_downloads_playlist_download_no_network">Ingen netværksforbindelse</string>
-  <string name="morphe_music_downloads_playlist_download_waiting_network">Venter på netværk...</string>
-  <string name="morphe_music_downloads_playlist_download_stopped">Stoppede efter %1$s af %2$s. Tryk på Download igen for at fortsætte</string>
-  <string name="morphe_music_downloads_mark_title">Marker downloadede sange</string>
-  <string name="morphe_music_downloads_mark_summary">Sange, der allerede er downloadet, viser et mærke før deres detaljer i playlister, album og søgeresultater</string>
+Eksportermappe: %s"</string>
+  <string name="morphe_export_download_started">Eksporterer download</string>
+  <string name="morphe_export_download_progress">Eksporterer download: %s%%</string>
+  <string name="morphe_export_download_notification_channel">Download-eksport</string>
+  <string name="morphe_export_download_saved">Download eksporteret til %s</string>
+  <string name="morphe_export_download_failed">Kunne ikke eksportere downloaden</string>
+  <string name="morphe_export_download_all_flyout_title">Eksporter alle til enhed</string>
+  <string name="morphe_export_download_all_started">Eksporterer alle downloads</string>
+  <string name="morphe_export_download_all_title">Alle downloads</string>
+  <string name="morphe_export_download_playlist_started">Eksporterer downloads</string>
+  <string name="morphe_export_download_all_running">Downloads bliver allerede eksporteret</string>
+  <string name="morphe_export_download_all_saved">Eksporterede %1$s ud af %2$s downloads til %3$s</string>
+  <!-- misc.medianotification.mediaNotificationControlsPatchMusic -->
+  <string name="morphe_music_replace_shuffle_with_loop_button_title">Erstat Shuffle med Loop-knap</string>
+  <string name="morphe_music_replace_shuffle_with_loop_button_summary">Viser Loop-knappen i stedet for Shuffle-knappen i medie-meddelelser og på låseskærmen</string>
   <!-- misc.settings.settingsPatch -->
   <!-- In languages where "About" is ambiguous, translate this as "About Morphe" (i.e., About this app). -->
-  <string name="morphe_settings_music_screen_0_about_title">Om</string>
-  <string name="morphe_settings_music_screen_1_ads_title">Annoncer</string>
-  <string name="morphe_settings_music_screen_2_feed_title">Feed</string>
-  <string name="morphe_settings_music_screen_3_general_title">Generelt</string>
-  <string name="morphe_settings_music_screen_4_player_title">Afspiller</string>
-  <string name="morphe_settings_music_screen_5_lyrics_title">Tekster</string>
-  <string name="morphe_settings_music_screen_9_misc_title">Diverse</string>
+  <string name="morphe_settings_music_screen_00_about_title">Om</string>
+  <string name="morphe_settings_music_screen_01_ads_title">Annoncer</string>
+  <string name="morphe_settings_music_screen_02_feed_title">Feed</string>
+  <string name="morphe_settings_music_screen_03_general_title">Generelt</string>
+  <string name="morphe_settings_music_screen_04_lyrics_title">Sangtekster</string>
+  <string name="morphe_settings_music_screen_05_misc_title">Diverse</string>
+  <string name="morphe_settings_music_screen_06_player_title">Afspiller</string>
+  <string name="morphe_settings_music_screen_10_video_title">Video</string>
   <string name="morphe_music_app_language_title">Sprog for YouTube Music</string>
   <string name="morphe_music_app_language_summary_default">Systemets sprog</string>
   <string name="morphe_music_app_language_summary_unsupported">Kræver Android 13 eller nyere</string>
@@ -243,21 +169,23 @@ De downloades én efter én, hvilket kan tage lang tid og kræver ca. %3$s ledig
   <string name="morphe_music_hide_video_ads_title">Skjul videoannoncer</string>
   <!-- layout.hide.general.hideLayoutComponentsPatch -->
   <string name="morphe_music_hide_audio_video_toggle_title">Skjul lyd/video-skift</string>
-  <string name="morphe_music_hide_podcast_episode_download_button_title">Skjul Download-knappen</string>
   <string name="morphe_music_hide_podcast_episode_download_button_summary">Skjuler Download-knappen i podcastshowet</string>
   <string name="morphe_music_hide_explore_shelf_title">Skjul Udforsk-hylden</string>
   <string name="morphe_music_hide_filter_bar_title">Skjul filterlinje</string>
   <string name="morphe_music_hide_grid_shelves_title">Skjul gitterhylder</string>
   <string name="morphe_music_hide_horizontal_shelves_title">Skjul vandrette hylder</string>
+  <string name="morphe_music_hide_new_button_title">Skjul Ny-knappen</string>
+  <string name="morphe_music_hide_new_button_summary">Skjuler Ny-knappen i fanen Bibliotek</string>
   <string name="morphe_music_hide_list_shelves_title">Skjul listehylder</string>
   <string name="morphe_music_hide_lyrics_panel_category_title">Tekstpanel</string>
-  <string name="morphe_music_hide_lyrics_share_button_title">Skjul Del-knappen</string>
   <string name="morphe_music_hide_lyrics_translate_button_title">Skjul Oversæt-knappen</string>
   <string name="morphe_music_hide_new_from_shelf_title">Skjul \'Fra\' hylden</string>
   <string name="morphe_music_hide_playlist_shelves_title">Skjul playlistehylder</string>
   <string name="morphe_music_hide_repeat_button_title">Skjul gentagelsesknap</string>
   <string name="morphe_music_hide_shuffle_button_title">Skjul blandingsknap</string>
   <string name="morphe_music_hide_speed_dial_shelf_title">Skjul \'Hurtigvalg\'-hylden</string>
+  <string name="morphe_music_hide_you_may_also_like_section_title">Skjul afsnittet \'Du kan måske også lide\'</string>
+  <string name="morphe_music_hide_your_downloads_shelf_title">Skjul hylden \"Dine downloads\"</string>
   <string name="morphe_music_comments_screen_title">Kommentarer</string>
   <string name="morphe_music_comments_screen_summary">Vælg hvilke elementer der vises i kommentarfeltet</string>
   <string name="morphe_music_hide_comments_community_guidelines_title">Skjul Community Guidelines</string>
@@ -272,6 +200,8 @@ De downloades én efter én, hvilket kan tage lang tid og kræver ca. %3$s ledig
   <string name="morphe_music_crossfade_screen_title">Crossfade</string>
   <string name="morphe_music_crossfade_screen_summary">Blander numre glidende over i hinanden</string>
   <string name="morphe_music_crossfade_enabled_title">Aktivér crossfade</string>
+  <!--- "TV Simply" and "visionOS" must be kept untranslated -->
+  <string name="morphe_music_crossfade_enabled_summary_unavailable">For at bruge crossfade skal du ændre \'Standardklient\' under \'Spoof videostreams\' til \'TV Simply\' eller \'visionOS\'</string>
   <string name="morphe_music_crossfade_curve_title">Fade-kurve</string>
   <string name="morphe_music_crossfade_curve_entry_equal_power">Lige effekt</string>
   <string name="morphe_music_crossfade_curve_entry_ease_out_cubic">Subtil udskydning</string>
@@ -305,7 +235,9 @@ De downloades én efter én, hvilket kan tage lang tid og kræver ca. %3$s ledig
   <string name="morphe_music_crossfade_paused_toast">Crossfade pauset for denne session</string>
   <string name="morphe_music_crossfade_resumed_toast">Crossfade genoptaget</string>
   <string name="morphe_music_crossfade_video_mode_disabled_toast">Videotilstand er ikke tilgængelig, når crossfade er aktiveret</string>
-  <string name="morphe_music_crossfade_sabr_toast">Crossfade er slået fra under SABR-afspilning</string>
+  <!--- "TV Simply" and "visionOS" must be kept untranslated -->
+  <string name="morphe_music_crossfade_visionos_toast">Crossfade fungerer ikke med \'visionOS\'. Ændr \'Standardklient\' under \'Spoof videostreams\' til \'TV Simply\'</string>
+  <string name="morphe_music_crossfade_spoof_client_toast">Crossfade fungerer ikke med denne spoof-streamklient</string>
   <string name="morphe_music_crossfade_cast_unstable_toast">Crossfade er slået fra under casting</string>
   <string name="morphe_music_crossfade_about_how_title">Sådan fungerer det</string>
   <string name="morphe_music_crossfade_about_how_summary">"Crossfade overlapper slutningen af en sang med starten af den næste ved hjælp af din varighed og kurve
@@ -322,22 +254,62 @@ Låseskærmen eller meddelelsen kan kortvarigt vise en forældet tilstand midt i
 
 Hvis du sætter crossfade på pause for at se en musikvideo, kan nogle videoer forblive sorte. Sætter du crossfade på pause, før du vælger sangen, undgår du det"</string>
   <string name="morphe_music_crossfade_about_unsupported_title">Ikke understøttet</string>
-  <string name="morphe_music_crossfade_about_unsupported_summary">"Casting eller spejling af lyd (Chromecast, skærm- eller lydspejling)
-
-SABR-afspilning (spoofing af videostrømme slået fra)"</string>
+  <string name="morphe_music_crossfade_about_unsupported_summary">Casting eller spejling af lyd (Chromecast, skærm- eller lydspejling)</string>
   <string name="morphe_music_crossfade_about_credit_title">Kreditering</string>
   <string name="morphe_music_crossfade_about_credit_summary">Crossfade-funktionen er lavet af VazerOG</string>
   <!-- interaction.remember.repeatstate.rememberRepeatStatePatch-->
   <string name="morphe_music_remember_repeat_state_title">Husk gentagelsestilstand</string>
   <!-- interaction.remember.shufflestate.rememberShuffleStatePatch -->
   <string name="morphe_music_remember_shuffle_state_title">Husk blandingstilstand</string>
+  <!-- interaction.pausewhenmuted.pauseWhenMutedPatch -->
+  <string name="morphe_music_pause_when_muted_title">Pause når dæmpet</string>
+  <string name="morphe_music_pause_when_muted_summary">Pauser afspilningen, når systemlyden er dæmpet, og genoptager den, når lyden skrues op</string>
+  <!-- interaction.sonos.sonosCastPatch -->
+  <string name="morphe_music_sonos_cast_title">Sonos Cast</string>
+  <string name="morphe_music_sonos_cast_summary">Cast-knappen kan også streame til Sonos og andre UPnP-højttalere på dit Wi-Fi-netværk</string>
+  <string name="morphe_music_sonos_cast_sheet_title">Forbind til en enhed</string>
+  <string name="morphe_music_sonos_cast_searching">Søger efter højttalere på dit Wi-Fi-netværk…</string>
+  <string name="morphe_music_sonos_cast_choose_speaker">Vælg en højttaler på dit Wi-Fi-netværk</string>
+  <string name="morphe_music_sonos_cast_casting_to">Caster til %s</string>
+  <string name="morphe_music_sonos_cast_connected">Forbundet</string>
+  <string name="morphe_music_sonos_cast_disconnect">Afbryd forbindelse</string>
+  <string name="morphe_music_sonos_cast_speakers_header">Højttalere på Wi-Fi</string>
+  <string name="morphe_music_sonos_cast_active">Aktiv</string>
+  <string name="morphe_music_sonos_cast_google_cast">Google Cast</string>
+  <string name="morphe_music_sonos_cast_google_cast_summary">Chromecast-, Nest- og Google TV-enheder</string>
+  <string name="morphe_music_sonos_cast_connection_failed">Kunne ikke oprette forbindelse til %s</string>
   <!-- video.speed.playbackSpeedPatch -->
   <string name="morphe_music_playback_speed_title">Afspilningshastighed</string>
   <string name="morphe_music_playback_speed_summary">Den hastighed, der bruges for alle numre. Ved 100 % bruges appens hastighed, f.eks. podcast-afspilningshastigheden</string>
   <string name="morphe_music_playback_speed_change_pitch_title">Skift tonehøjde med hastigheden</string>
+  <!-- video.effects.videoEffectsPatch -->
+  <string name="morphe_music_video_effect_menu_title">Vis menu for videoeffekt</string>
+  <string name="morphe_music_video_effect_menu_summary">Tilføjer videoeffekt til afspiller menuen, mens en video afspilles</string>
+  <string name="morphe_music_video_effect_next_video">Effekten vises fra den næste video</string>
+  <!-- layout.captions.disableAutoCaptionsPatch -->
+  <string name="morphe_music_disable_auto_captions_title">Deaktivér auto-billedtekster</string>
+  <string name="morphe_music_disable_auto_captions_summary">Undertekster aktiveres ikke automatisk, når en video starter, herunder undertekster, som videoen aktiverer som standard</string>
+  <!-- interaction.audioducking.disableAudioDuckingPatch -->
+  <string name="morphe_music_disable_audio_ducking_title">Deaktivér audio ducking</string>
+  <string name="morphe_music_disable_audio_ducking_summary">Lydstyrken sænkes ikke, når en anden app afspiller en kort lyd, såsom en meddelelse</string>
+  <!-- interaction.likefilter.queueLikeFilterPatch -->
+  <string name="morphe_music_queue_like_filter_title">Kø-synes-filter</string>
+  <string name="morphe_music_queue_like_filter_summary">Fjerner sange med få likes fra mix og radio. Playlister, albummer og sange, du tilføjer til køen, ændres ikke. Antal likes er fra Return YouTube Dislike</string>
+  <string name="morphe_music_queue_like_filter_minimum_likes_title">Minimum antal likes</string>
+  <string name="morphe_music_queue_like_filter_minimum_likes_summary">Sange med færre likes fjernes fra køen</string>
   <!-- interaction.dislikeredirection.disableDislikeRedirectionPatch -->
   <string name="morphe_music_disable_dislike_redirection_title">Deaktiver omdirigering af \'synes ikke godt om\'</string>
   <string name="morphe_music_disable_dislike_redirection_summary">Forhindrer at der springes til næste nummer, når knappen \'synes ikke godt om\' trykkes</string>
+  <!-- interaction.trackswipe.disableSwipeToChangeTrackPatch -->
+  <string name="morphe_music_disable_player_swipe_to_change_track_title">Deaktivér strygning for at skifte nummer tackles</string>
+  <string name="morphe_music_disable_player_swipe_to_change_track_summary">Forhindrer spring til næste eller forrige nummer ved at stryge til venstre eller højre på afspilleren</string>
+  <string name="morphe_music_disable_miniplayer_swipe_to_change_track_summary">Forhindrer spring til næste eller forrige nummer ved at stryge til venstre eller højre på miniafspilleren</string>
+  <!-- interaction.loop.loopVideoPatch -->
+  <string name="morphe_music_ab_loop_title">A-B-loop</string>
+  <string name="morphe_music_ab_loop_summary">Hold seekbaren nede for at indstille loop-start, igen for at indstille loop-slut, og igen for at rydde loopet</string>
+  <string name="morphe_music_ab_loop_toast_start">Loop-start er indstillet til %s</string>
+  <string name="morphe_music_ab_loop_toast_end">Loop-slut er indstillet til %s</string>
+  <string name="morphe_music_ab_loop_toast_cleared">Loop ryddet</string>
   <!-- interaction.playlisttracktap.playlistTrackTapPatch -->
   <string name="morphe_music_playlist_track_tap_action_title">Handling ved tryk på nummer i playliste</string>
   <string name="morphe_music_playlist_track_tap_action_entry_default">Afspil playlisten</string>
@@ -382,15 +354,6 @@ SABR-afspilning (spoofing af videostrømme slået fra)"</string>
   <string name="morphe_music_playlist_tags_rename">Omdøb</string>
   <string name="morphe_music_playlist_tags_delete">Slet</string>
   <string name="morphe_music_playlist_tags_hidden">Skjult</string>
-  <!-- layout.buttons.hideButtonsPatch -->
-  <string name="morphe_music_hide_cast_button_title">Skjul cast-knap</string>
-  <string name="morphe_music_hide_history_button_title">Skjul historikknap</string>
-  <string name="morphe_music_hide_notification_button_title">Skjul notifikationsknap</string>
-  <string name="morphe_music_hide_search_button_title">Skjul søgeknap</string>
-  <string name="morphe_music_hide_voice_search_button_title">Skjul stemmesøgningsknappen</string>
-  <string name="morphe_music_hide_sound_search_button_title">Skjul lydsøgningsknappen</string>
-  <string name="morphe_music_hide_library_new_button_title">Skjul Ny-knappen</string>
-  <string name="morphe_music_hide_library_new_button_summary">Skjuler Ny-knappen i fanen Bibliotek</string>
   <!-- layout.hide.actionbuttons.hideActionButtonsPatch -->
   <string name="morphe_music_action_buttons_screen_title">Handlingsknapper</string>
   <string name="morphe_music_action_buttons_screen_summary">Vælg hvilke handlingsknapper der vises under afspilleren</string>
@@ -462,22 +425,20 @@ SABR-afspilning (spoofing af videostrømme slået fra)"</string>
   <string name="morphe_music_force_portrait_orientation_title">Tving portrætorientering</string>
   <string name="morphe_music_force_portrait_orientation_summary">Bevarer appen i portrætorientering, når enheden roteres</string>
   <!-- layout.miniplayer.changeMiniplayerColorPatch -->
-  <string name="morphe_music_change_miniplayer_color_title">Skift miniafspillerfarve</string>
+  <string name="morphe_music_change_miniplayer_color_title">Skift farve</string>
   <string name="morphe_music_change_miniplayer_color_summary">Miniafspillerfarven matcher fuldskærmsafspilleren</string>
   <string name="morphe_music_change_navigation_bar_color_title">Skift navigationslinjens farve</string>
   <string name="morphe_music_change_navigation_bar_color_summary">Tilpasser navigationslinjens farve til fuldskærmsafspilleren</string>
   <!-- layout.miniplayer.miniplayerNextPreviousButtonsPatch -->
-  <string name="morphe_music_miniplayer_next_button_title">Vis næste-knap i miniafspiller</string>
-  <string name="morphe_music_miniplayer_previous_button_title">Vis forrige-knap i miniafspiller</string>
+  <string name="morphe_music_miniplayer_next_button_title">Vis Næste-knap</string>
+  <string name="morphe_music_miniplayer_previous_button_title">Vis Forrige-knap</string>
   <!-- layout.miniplayer.enableForcedMiniplayerPatch -->
   <string name="morphe_music_enable_forced_miniplayer_title">Aktivér tvungen miniafspiller</string>
   <string name="morphe_music_enable_forced_miniplayer_summary">Forhindrer afspilleren i automatisk at udvide til fuldskærm, når et nyt nummer starter</string>
   <!-- layout.miniplayer.enableSwipeToDismissMiniplayerPatch -->
-  <string name="morphe_music_enable_swipe_to_dismiss_miniplayer_title">Aktivér swipe for at lukke miniafspilleren</string>
+  <string name="morphe_music_enable_swipe_to_dismiss_miniplayer_title">Aktivér swipe for at fjerne</string>
   <string name="morphe_music_enable_swipe_to_dismiss_miniplayer_summary">Giver mulighed for at lukke miniafspilleren ved at swipe ned på den</string>
-  <!-- layout.navigationbar.navigationBarPatch -->
-  <string name="morphe_music_navigation_bar_screen_title">Navigationslinje</string>
-  <string name="morphe_music_navigation_bar_screen_summary">Vælg hvilke knapper der skal vises i nederste navigationslinje</string>
+  <!-- layout.buttons.navigation.navigationBarPatch -->
   <!-- 'Home' should be translated using the same localized wording YouTube Music displays for the tab. -->
   <string name="morphe_music_hide_navigation_bar_home_button_title">Skjul hjem-knap</string>
   <!-- 'Samples' should be translated using the same localized wording YouTube Music displays for the tab. -->
@@ -488,25 +449,60 @@ SABR-afspilning (spoofing af videostrømme slået fra)"</string>
   <string name="morphe_music_hide_navigation_bar_library_button_title">Skjul bibliotek-knap</string>
   <!-- 'Upgrade' should be translated using the same localized wording YouTube Music displays for the tab. -->
   <string name="morphe_music_hide_navigation_bar_upgrade_button_title">Skjul opgraderingsknap</string>
+  <string name="morphe_music_show_navigation_bar_settings_button_title">Vis indstillingsknap</string>
+  <string name="morphe_music_show_navigation_bar_settings_button_type_title">Indstillinger-knappen vises</string>
+  <string name="morphe_music_show_navigation_bar_settings_button_type_summary">Når den er aktiveret, åbner et tryk Morphe-indstillinger, og tryk længe åbner YouTube Music-indstillinger; deaktiver for at ombytte</string>
   <string name="morphe_music_hide_navigation_bar_title">Skjul navigationslinje</string>
   <string name="morphe_music_hide_navigation_bar_labels_title">Skjul navigationsknappers tekst</string>
   <string name="morphe_music_navigation_bar_glass_title">Aktiver glasnavigationslinje</string>
   <string name="morphe_music_navigation_bar_glass_summary">Viser navigationsbjælken som en flydende, afrundet, gennemsigtig kapsel</string>
-  <string name="morphe_music_navigation_bar_glass_opacity_title">Glassets uigennemsigtighed</string>
-  <string name="morphe_music_navigation_bar_glass_opacity_summary">Juster gennemsigtighedsniveauet for glasnavigationsbjælken (0 er gennemsigtig, 100 er uigennemsigtig)</string>
-  <string name="morphe_music_navigation_bar_glass_light_title">Lyst glas</string>
-  <string name="morphe_music_navigation_bar_glass_light_summary">Farver glasnavigationsbjælken hvid i stedet for mørk for et lysere og klarere glas</string>
-  <string name="morphe_music_navigation_bar_glass_size_title">Størrelse på glasnavigationsbjælke</string>
-  <string name="morphe_music_navigation_bar_glass_size_summary">Juster højden, bredden og knapafstanden for glasnavigationsbjælken med en forhåndsvisning. Knapper, der ikke passer i skærmens bredde, skjules</string>
+  <string name="morphe_music_navigation_bar_glass_size_title">Glass-navigationslinjens størrelse og stil</string>
+  <string name="morphe_music_navigation_bar_glass_size_summary">Juster højden, bredden, knapafstanden, gennemsigtigheden og kanten af glass-navigationslinjen med en forhåndsvisning. Knapper, der ikke passer i skærmens bredde, skjules</string>
   <string name="morphe_music_navigation_bar_glass_size_height">Højde</string>
   <string name="morphe_music_navigation_bar_glass_size_width">Maksimal bredde</string>
   <string name="morphe_music_navigation_bar_glass_size_button_spacing">Knapafstand</string>
   <string name="morphe_music_navigation_bar_glass_size_buttons_shown">Knapper vist: %1$s ud af %2$s</string>
+  <string name="morphe_music_navigation_bar_glass_opacity_title">Opacitet</string>
+  <string name="morphe_music_navigation_bar_glass_rim_title">Kantens lysstyrke</string>
+  <string name="morphe_music_navigation_bar_glass_blur_title">Glass-sløring</string>
+  <string name="morphe_music_navigation_bar_glass_blur_summary">Hvor meget siden bag glass-navigationslinjen er sløret (Android 14 og nyere). Ved 0 vises siden skarpt, og før Android 14 er siden dækket</string>
+  <string name="morphe_music_navigation_bar_glass_light_title">Lyst glas</string>
+  <string name="morphe_music_navigation_bar_glass_light_summary">Farver glasnavigationsbjælken hvid i stedet for mørk for et lysere og klarere glas</string>
+  <string name="morphe_music_navigation_bar_glass_album_tint_title">Farvning fra albumcover</string>
+  <string name="morphe_music_navigation_bar_glass_album_tint_summary">Farver glass-navigationslinjen med farven fra albumcoveret på den sang, der afspilles</string>
+  <string name="morphe_music_navigation_bar_glass_hide_indicator_title">Skjul indikator for valgt knap</string>
+  <string name="morphe_music_navigation_bar_glass_hide_indicator_summary">Skjuler den afrundede markering bag den valgte knap på glass-navigationslinjen</string>
+  <string name="morphe_music_miniplayer_screen_title">Mini-afspiller</string>
+  <string name="morphe_music_miniplayer_screen_summary">Skift stil, knapper og gestikulationer for miniafspilleren</string>
+  <string name="morphe_music_miniplayer_glass_title">Aktivér glaseffekt</string>
+  <string name="morphe_music_miniplayer_glass_summary">Viser den flydende miniafspiller som et afrundet, gennemsigtigt glass-kort</string>
+  <string name="morphe_music_miniplayer_glass_style_title">Glass-miniafspillerens stil</string>
+  <string name="morphe_music_miniplayer_glass_style_summary">Juster hjørneradius, padding for albumcover, kantens lysstyrke og gennemsigtighed for glass-miniafspilleren med en forhåndsvisning</string>
+  <string name="morphe_music_miniplayer_glass_corner_radius_title">Hjørneradius</string>
+  <string name="morphe_music_miniplayer_glass_artwork_padding_title">Padding for albumcover</string>
+  <string name="morphe_music_miniplayer_glass_rim_title">Kantens lysstyrke</string>
+  <string name="morphe_music_miniplayer_glass_opacity_title">Opacitet</string>
+  <string name="morphe_music_miniplayer_glass_blur_summary">Hvor meget siden bag glass-miniafspilleren er sløret (Android 14 og nyere). Ved 0 vises siden skarpt, og før Android 14 er siden dækket</string>
+  <string name="morphe_music_miniplayer_glass_light_summary">Farver glass-miniafspilleren hvid i stedet for mørk for et lysere og klarere glas</string>
+  <string name="morphe_music_miniplayer_glass_album_tint_summary">Farver glass-miniafspilleren med farven fra albumcoveret på den sang, der afspilles</string>
+  <string name="morphe_music_miniplayer_glass_spinning_artwork_title">Roterende albumcover</string>
+  <string name="morphe_music_miniplayer_glass_spinning_artwork_summary">Gør albumcoveret i glass-miniafspilleren rundt og roterer det som en plade, mens en sang afspilles</string>
+  <string name="morphe_music_miniplayer_glass_hide_progress_bar_title">Skjul statuslinje</string>
+  <string name="morphe_music_miniplayer_glass_hide_progress_bar_summary">Skjuler statuslinjen i bunden af glass-miniafspilleren</string>
   <!-- Labels of the preview, shown before the navigation bar was seen. Use the same localized wording YouTube Music displays for the tabs. -->
   <string name="morphe_music_navigation_bar_glass_preview_home">Hjem</string>
   <string name="morphe_music_navigation_bar_glass_preview_samples">Prøver</string>
   <string name="morphe_music_navigation_bar_glass_preview_explore">Udforsk</string>
   <string name="morphe_music_navigation_bar_glass_preview_library">Bibliotek</string>
+  <!-- 'Activity' should be translated using the same localized wording YouTube Music displays for the tab. -->
+  <string name="morphe_music_hide_activity_button_title">Skjul knappen Aktivitet</string>
+  <!-- 'Ask Music' should be translated using the same localized wording YouTube Music displays for the tab. -->
+  <string name="morphe_music_hide_ask_music_button_title">Skjul knappen \'Spørg Musik\'</string>
+  <string name="morphe_music_hide_cast_button_title">Skjul cast-knap</string>
+  <string name="morphe_music_hide_history_button_title">Skjul historikknap</string>
+  <string name="morphe_music_hide_search_button_title">Skjul søgeknap</string>
+  <string name="morphe_music_hide_voice_search_button_title">Skjul knappen \'Stemmesøgning\'</string>
+  <string name="morphe_music_hide_sound_search_button_title">Skjul knap til \"Lydsøgning\"</string>
   <!-- interaction.scrobbling.scrobblingPatch -->
   <string name="morphe_music_scrobbling_summary_logged_out">Ikke logget ind. Tryk for at konfigurere</string>
   <string name="morphe_music_scrobbling_log_out">Log ud</string>
@@ -610,7 +606,11 @@ For at sikre, at scrobbling synkroniseres under afspilning i baggrunden, skal du
   <string name="morphe_music_soundproof_about_summary">"Kunstnerdata kommer fra SoundProof-Dumps (github.com/NuclearBlox/SoundProof-Dumps), downloadet én gang om dagen. At springe over sender intet om, hvad du afspiller. Ved at åbne SoundProof-arket sendes det aktuelle kunstnernavn til SoundProof-serveren for at vise nye stemmer og for at stemme. Serveren skelner mellem vælgere via IP-adresse, så din stemme kan fremstå anderledes på et andet netværk.
 
 Databasen er licenseret under ODC Open Database License (ODbL). Indlæg fra Soul Over AI af xoundbyte er licenseret under CC BY 4.0. Ikke tilknyttet eller godkendt af SoundProof eller Soul Over AI."</string>
+  <!-- layout.applemusicartwork.appleMusicArtworkPatch -->
+  <string name="morphe_music_apple_music_artwork_title">Apple Music animeret artwork</string>
+  <string name="morphe_music_apple_music_artwork_summary">Viser det animerede albumartwork fra Apple Music i afspilleren, hvis albummet har et. Titel, kunstner og album for hver sang sendes til Apple Music</string>
   <!-- layout.lyrics.lyricsPatch -->
+  <string name="morphe_music_lyrics_device_unavailable">Sangtekster er ikke tilgængelige for denne enhedsfil.</string>
   <string name="morphe_music_lyrics_enabled_title">Brug tredjeparts-tekster</string>
   <string name="morphe_music_lyrics_enabled_summary">Viser tekster fra en tredjepartstjeneste, og falder tilbage til de indbyggede tekster, når der ikke findes nogen</string>
   <string name="morphe_music_lyrics_keep_screen_on_title">Hold skærmen tændt, mens du ser tekster</string>
@@ -661,6 +661,25 @@ Den første kolonne er ordet, den anden dets aflæsning; ekstra kolonner og linj
   <string name="morphe_music_lyrics_clear_cache_title">Ryd gemte tekster</string>
   <string name="morphe_music_lyrics_clear_cache_summary">Slet de %s MB sangtekster, der gemmes på denne enhed</string>
   <string name="morphe_music_lyrics_clear_cache_done">Ryddede %s MB</string>
+  <string name="morphe_music_lyrics_cache_loading_summary">Beregner cachestørrelse…</string>
+  <string name="morphe_music_lyrics_cache_lyrics_category_title">Sangtekst-cache</string>
+  <string name="morphe_music_lyrics_cache_clear_lyrics_title">Ryd sangtekst-cache</string>
+  <string name="morphe_music_lyrics_cache_lyrics_summary">%1$s MB (%2$d sange)</string>
+  <string name="morphe_music_lyrics_cache_translation_category_title">Oversættelsescache</string>
+  <string name="morphe_music_lyrics_cache_clear_translation_title">Ryd oversættelsescache</string>
+  <string name="morphe_music_lyrics_cache_translation_summary">%1$s MB (%2$d oversættelser)</string>
+  <string name="morphe_music_lyrics_cache_transliteration_category_title">Transliterationscache</string>
+  <string name="morphe_music_lyrics_cache_clear_transliteration_title">Ryd transliterationscache</string>
+  <string name="morphe_music_lyrics_cache_transliteration_summary">%1$s MB (%2$d transliterationer)</string>
+  <string name="morphe_music_lyrics_cache_total_category_title">Samlet cacheforbrug</string>
+  <string name="morphe_music_lyrics_cache_clear_all_title">Ryd hele cachen</string>
+  <string name="morphe_music_lyrics_cache_total_summary">%1$s MB (%2$d elementer)</string>
+  <string name="morphe_music_lyrics_cache_clear_action">Ryd</string>
+  <string name="morphe_music_lyrics_cache_close_action">Luk</string>
+  <string name="morphe_music_lyrics_cache_confirm_lyrics">Slet %1$s MB (%2$d sange) af cachede sangtekster gemt på denne enhed?</string>
+  <string name="morphe_music_lyrics_cache_confirm_translation">Slet %1$s MB (%2$d oversættelser) af cachede oversættelser gemt på denne enhed?</string>
+  <string name="morphe_music_lyrics_cache_confirm_transliteration">Slet %1$s MB (%2$d translitterationer) af cachede translitterationer gemt på denne enhed?</string>
+  <string name="morphe_music_lyrics_cache_confirm_all">Slet %1$s MB (%2$d elementer) af alle cachede sangtekstdata gemt på denne enhed?</string>
   <string name="morphe_music_token_dialog_get_token">Hent token</string>
   <string name="morphe_music_apple_music_token_title">Apple Music media-user-token</string>
   <string name="morphe_music_apple_music_token_dialog_instruction">"Indsæt media-user-token-cookien fra music.apple.com
@@ -716,12 +735,17 @@ Krævede cookies: SID, HSID, SSID, SAPISID, __Secure-3PAPISID, __Secure-1PAPISID
   <string name="morphe_music_lyrics_tap_to_seek_summary">Tryk på en linje for at springe til det øjeblik i sangen; tryk længe for at kopiere ordet under din finger eller hele linjen, hvis trykket ikke rammer et ord. \'Fra\' fjerner begge bevægelser</string>
   <string name="morphe_music_lyrics_show_section_title">Vis sektionsmærker</string>
   <string name="morphe_music_lyrics_show_section_summary">Markér hver ny sektion af sangteksten med et lille mærke, for eksempel Vers eller Omkvæd</string>
-  <string name="morphe_music_lyrics_show_copy_button_title">Vis Kopier-knap</string>
-  <string name="morphe_music_lyrics_show_copy_button_summary">Tryk for at kopiere original sangtekst som almindelig tekst; hold nede for at gemme den rå kildefil til sangteksten og en konverteret TTML-fil i Downloads</string>
+  <string name="morphe_music_lyrics_show_copy_button_title">Vis knappen Kopier / Del</string>
+  <string name="morphe_music_lyrics_show_copy_button_summary">Vis knappen Kopier eller Del på værktøjslinjen i panelet med sangtekster</string>
+  <string name="morphe_music_lyrics_copy_button_mode_title">Kopier-knap tilstand</string>
+  <string name="morphe_music_lyrics_copy_mode_copy">Kopier-tilstand (tryk for at kopiere, hold nede for at gemme)</string>
+  <string name="morphe_music_lyrics_copy_mode_share">Del-tilstand (tryk for at vælge 1-5 linjer, hold nede for at kopiere eller gemme)</string>
   <string name="morphe_music_lyrics_show_translate_button_title">Vis Oversæt-knap</string>
   <string name="morphe_music_lyrics_show_translate_button_summary">Tryk for at skifte oversættelse; tryk længe for kun oversættelse. Bruger de aktiverede oversættelsesudbydere i deres opregnede rækkefølge</string>
   <string name="morphe_music_lyrics_show_romanize_button_title">Vis knap for Romanisering eller Transliteration</string>
   <string name="morphe_music_lyrics_show_romanize_button_summary">Tryk for at skifte romanisering eller translitteration; tryk længe for kun romanisering eller translitteration. Bruger de aktiverede romaniseringsudbydere i deres opregnede rækkefølge</string>
+  <string name="morphe_music_lyrics_show_current_button_title">Vis aktuel knap</string>
+  <string name="morphe_music_lyrics_show_current_button_summary">Viser en knap, der hopper tilbage til den linje, der bliver sunget, mens sangteksten rulles manuelt</string>
   <string name="morphe_music_lyrics_allow_transliteration_title">Aktiver transliterering</string>
   <string name="morphe_music_lyrics_allow_transliteration_summary">Tillad ikke-Latin udtaler fra sangtekstkilden; når slukket, behold kun Latin-bogstaver, accentbogstaver og tonecifre</string>
   <string name="morphe_music_lyrics_local_romanization_summary">Læser hvert ord i en synkroniseret sangtekst (ordsynkronisering slået til); koreansk kræver ingen download; fjorten skriftsystemer deler én CLDR-download; kinesiske tegn læses af Rime-ordlisten, når dens ordtabel dækker sproget</string>
@@ -729,7 +753,48 @@ Krævede cookies: SID, HSID, SSID, SAPISID, __Secure-3PAPISID, __Secure-1PAPISID
   <string name="morphe_music_lyrics_local_romanization_dict_ready">Læsninger klar (%s poster)</string>
   <string name="morphe_music_lyrics_local_romanization_dict_failed">Hentning mislykkedes - sluk og tænd igen for at prøve igen</string>
   <string name="morphe_music_lyrics_local_romanization_download_confirm_title">Offline Ordbog</string>
-  <string name="morphe_music_lyrics_local_romanization_dict_japanese">Japansk (SudachiDict, ~75 MB)</string>
+  <string name="morphe_music_lyrics_local_romanization_dict_ja_parent">Japansk</string>
+  <string name="morphe_music_lyrics_local_romanization_dict_kuromoji">Kuromoji (~17 MB) — hurtig morfologisk analysator &amp; ruby</string>
+  <string name="morphe_music_lyrics_local_romanization_dict_japanese">SudachiDict (~75 MB) — fuldstændig japansk ordbog</string>
+  <string name="morphe_music_lyrics_japanese_dict_engine_title">Prioritet &amp; fallback-rækkefølge</string>
+  <string name="morphe_music_lyrics_japanese_engine_kuromoji_first">Kuromoji-prioritet (SudachiDict fallback)</string>
+  <string name="morphe_music_lyrics_japanese_engine_sudachi_first">SudachiDict-prioritet (Kuromoji fallback)</string>
+  <string name="morphe_music_lyrics_custom_font_title">Brugerdefineret skrifttype til sangtekster</string>
+  <string name="morphe_music_lyrics_custom_font_summary_default">Standard systemskrifttype (tryk for at uploade en .ttf- eller .otf-skrifttypefil)</string>
+  <string name="morphe_music_lyrics_custom_font_summary_active">Aktiv skrifttype: %s</string>
+  <string name="morphe_music_lyrics_custom_font_dialog_message">Upload en .ttf- eller .otf-skrifttypefil (såsom SF Pro Bold, Inter Bold eller Inter ExtraBold) fra din enheds lager til brug i visningen af sangtekster.</string>
+  <string name="morphe_music_lyrics_custom_font_choose">Upload skrifttype</string>
+  <string name="morphe_music_lyrics_custom_font_reset">Nulstil til standard</string>
+  <string name="morphe_music_lyrics_custom_font_applied">Brugerdefineret skrifttype til sangtekster anvendt: %s</string>
+  <string name="morphe_music_lyrics_custom_font_cleared">Tilbageført til standardskrifttype til sangtekster</string>
+  <string name="morphe_music_lyrics_custom_font_invalid">Ugyldig eller ikke understøttet skrifttypefil (.ttf eller .otf påkrævet)</string>
+  <string name="morphe_music_lyrics_share_preview_title">Del sangtekster</string>
+  <string name="morphe_music_lyrics_share_button">Del</string>
+  <string name="morphe_music_lyrics_copy">Kopiér</string>
+  <string name="morphe_music_lyrics_share_options_title">Handlinger for sangtekster</string>
+  <string name="morphe_music_lyrics_copy_plain_option">Kopier sangtekster som almindelig tekst</string>
+  <string name="morphe_music_lyrics_save_file_option">Gem sangtekster &amp; TTML i Overførsler</string>
+  <string name="morphe_music_lyrics_share_cancel">Annuller</string>
+  <string name="morphe_music_lyrics_share_select_hint">Tryk på 1–5 linjer for at dele</string>
+  <string name="morphe_music_lyrics_share_max_lines">Højst 5 linjer kan vælges</string>
+  <string name="morphe_music_lyrics_share_failed">Kunne ikke oprette kort til deling af sangtekst</string>
+  <string name="morphe_music_lyrics_share_bg_blur">Sløring</string>
+  <string name="morphe_music_lyrics_share_bg_cover">Cover</string>
+  <string name="morphe_music_lyrics_share_bg_color">Farve</string>
+  <string name="morphe_music_lyrics_share_bg_photo">Foto</string>
+  <string name="morphe_music_lyrics_share_branding_logo">YT Music-logo</string>
+  <string name="morphe_music_lyrics_share_layer_romaji">Romaji</string>
+  <string name="morphe_music_lyrics_share_layer_translate">Oversæt</string>
+  <string name="morphe_music_lyrics_share_layer_bg">Baggrundsvokal</string>
+  <string name="morphe_music_lyrics_share_custom_color">Brugerdefineret farve</string>
+  <string name="morphe_music_lyrics_share_photo_failed">Kunne ikke indlæse det valgte billede</string>
+  <string name="morphe_music_lyrics_share_card_cta">Del kort</string>
+  <string name="morphe_music_lyrics_copy_text_cta">Kopier tekst</string>
+  <string name="morphe_music_lyrics_share_back">Tilbage til valg af sangtekst</string>
+  <string name="morphe_music_lyrics_share_loading_photo">Indlæser foto...</string>
+  <string name="morphe_music_lyrics_share_preparing">Opretter kort...</string>
+  <string name="morphe_music_lyrics_share_color_swatch">Farveprøve %d</string>
+  <string name="morphe_music_lyrics_share_unknown_track">Ukendt nummer</string>
   <string name="morphe_music_lyrics_local_romanization_dict_unidict">Kinesiske og kantonesiske tegn (UniDict, ~8 MB)</string>
   <string name="morphe_music_lyrics_local_romanization_dict_chinese">Kinesiske ord (pinyin-pro, ~17 MB)</string>
   <string name="morphe_music_lyrics_local_romanization_dict_cldr">Græsk, slavisk kyrillisk (inkl. russisk, ukrainsk, bulgarsk, serbisk, hviderussisk, makedonsk), georgisk, armensk, hebraisk, arabisk, amharisk og syrisk translitteration (CLDR, ~0,5 MB)</string>
@@ -740,11 +805,24 @@ Krævede cookies: SID, HSID, SSID, SAPISID, __Secure-3PAPISID, __Secure-1PAPISID
   <string name="morphe_music_lyrics_search_title_hint">Sangtitel</string>
   <string name="morphe_music_lyrics_search_artist_hint">Kunstner</string>
   <string name="morphe_music_lyrics_search_empty">Indtast en sangtitel og en kunstner</string>
+  <string name="morphe_music_lyrics_search_google">Søg med Google</string>
   <string name="morphe_music_lyrics_search_no_providers">Ingen af de aktiverede udbydere kan søge efter andre sange</string>
   <string name="morphe_music_lyrics_saved">Gemt</string>
   <string name="morphe_music_lyrics_written_by">Skrevet af: %s</string>
   <string name="morphe_music_lyrics_word_sync_title">Fremhæv synkroniserede ord eller stavelser</string>
   <string name="morphe_music_lyrics_word_sync_summary">Prioritér ord-for-ord-tekster, når de er tilgængelige. Når teksterne har ord-timing, fremhæves hvert ord eller stavelse i takt med musikken.</string>
+  <string name="morphe_music_lyrics_word_smooth_sweep_title">Animer synkroniserede ord jævnt</string>
+  <string name="morphe_music_lyrics_word_smooth_sweep_summary">Fremhæver hvert ord med en blød fejning, glød og et let løft, mens det bliver sunget. Slå fra for at spare batteri eller for en skarp udfyldning på langsommere enheder</string>
+  <string name="morphe_music_lyrics_spring_scroll_title">Brug spring-rulning</string>
+  <string name="morphe_music_lyrics_spring_scroll_summary">Ruller sangteksten med spring-fysik og flytter hver linje lidt efter den ovenstående. Slå det fra for at spare batteri på langsommere enheder</string>
+  <string name="morphe_music_lyrics_relax_scroll_title">Afslappet rulning</string>
+  <string name="morphe_music_lyrics_relax_scroll_summary">Sænker hastigheden på animationen af sangtekstrulningen og bevarer inaktive linjer i fuld størrelse</string>
+  <string name="morphe_music_lyrics_blur_inactive_title">Slør inaktive linjer</string>
+  <string name="morphe_music_lyrics_blur_inactive_summary">Slører blødt enhver linje, der ikke synges i øjeblikket, mere jo længere væk den er (Android 12 og nyere). Før Android 12 forbliver inaktive linjer skarpe</string>
+  <string name="morphe_music_lyrics_gap_dots_title">Vis prikker ved instrumentale pauser</string>
+  <string name="morphe_music_lyrics_gap_dots_summary">Viser tre prikker mellem linjerne under en lang instrumental pause, som fyldes op, efterhånden som pausen løber ud</string>
+  <string name="morphe_music_lyrics_focus_spotlight_title">Dæmp fjerne linjer mere</string>
+  <string name="morphe_music_lyrics_focus_spotlight_summary">Dæmper hver inaktiv linje mere, jo længere den er fra linjen, der bliver sunget. Når funktionen er slået fra, dæmpes alle inaktive linjer ens</string>
   <string name="morphe_music_lyrics_line_scale_title">Formindsk inaktive linjer</string>
   <string name="morphe_music_lyrics_line_scale_summary">Gør hver linje, der ikke synges lige nu, lidt mindre oven i at dæmpe den</string>
   <string name="morphe_music_lyrics_split_background_title">Vis baggrundsvokaler separat</string>
@@ -813,7 +891,6 @@ Gælder for begge grænser. Ved 1,75 tæller fire fuldbredde-tegn som 7."</strin
   <string name="morphe_music_lyrics_romanized_by_ai">Romaniseret af %s</string>
   <string name="morphe_music_lyrics_romanized_by_local">Romaniseret af %s</string>
   <string name="morphe_music_lyrics_with_ruby_provider">%1$s (med %2$s)</string>
-  <string name="morphe_music_lyrics_romanized_by_rime">Romaniseret af Rime (%s)</string>
   <!-- Tappable label under the lyrics that turns the translation on. -->
   <string name="morphe_music_lyrics_translate_hide">Oversat</string>
   <string name="morphe_music_lyrics_translation_language_title">Oversættelsessprog</string>
@@ -834,6 +911,7 @@ Gælder for begge grænser. Ved 1,75 tæller fire fuldbredde-tegn som 7."</strin
   <string name="morphe_music_lyrics_romanize_only">Kun romaniseret</string>
   <string name="morphe_music_lyrics_dual_only">Dualtilstand</string>
   <string name="morphe_music_lyrics_copied">Kopieret til udklipsholder</string>
+  <string name="morphe_music_lyrics_current">Aktuel</string>
   <string name="morphe_music_lyrics_refreshing">Opdaterer</string>
   <string name="morphe_music_lyrics_refreshed">Opdateret</string>
   <string name="morphe_music_lyrics_transcribe_key_title">QuickLRC API-nøgle</string>
@@ -863,6 +941,8 @@ Sangteksterne stammer fra tredjepartstjenester, som ikke er tilknyttet, sponsore
   <string name="morphe_music_lyrics_swap_trans_roma_summary">Flytter oversættelsen over sangteksterne; læsningen og romaniseringen forbliver nedenunder</string>
   <string name="morphe_music_lyrics_force_center_title">Centrér altid sangtekst</string>
   <string name="morphe_music_lyrics_force_center_summary">TIL sætter alle linjer i midten og ignorerer kildens justering, inklusiv duetsider; FRA bruger den justering, sangteksten anmoder om</string>
+  <string name="morphe_music_lyrics_duet_opposite_side_title">Justering af duet på modsat side</string>
+  <string name="morphe_music_lyrics_duet_opposite_side_summary">Placerer den anden sanger på den modsatte kant i duetsange. Slå fra for at holde begge sangere på samme side</string>
   <string name="morphe_music_lyrics_providers_keep_one">Mindst én udbyder skal holdes aktiv</string>
   <string name="morphe_music_lyrics_translation_provider_title">Oversættelse</string>
   <string name="morphe_music_lyrics_romanization_provider_title">Romanisering eller translitteration</string>
@@ -872,19 +952,15 @@ Sangteksterne stammer fra tredjepartstjenester, som ikke er tilknyttet, sponsore
   <string name="morphe_music_lyrics_use_ai_section_title">Detektér sektioner med AI</string>
   <string name="morphe_music_lyrics_use_ai_section_summary">Bruges kun når udbyderen leverer ingen sektionsetiketter som Omkvæd eller Vers, som din OpenAI-kompatible model derefter detekterer. Redigering af rækken åbner også dens prompt</string>
   <string name="morphe_music_lyrics_ai_config_base_url_hint">API-endepunkt URL (f.eks. https://api.openai.com/v1/chat/completions, https://api.anthropic.com/v1/chat/completions, https://generativelanguage.googleapis.com/v1beta/openai/chat/completions)</string>
-  <string name="morphe_music_lyrics_ai_prompt_dialog_title">Prompt-skabelon</string>
   <string name="morphe_music_lyrics_ai_prompt_dialog_hint">Pladsholdere: {task}, {language}, {title}, {artist}, {count}, {lines}. Ukendte bevares som indtastet</string>
-  <string name="morphe_music_lyrics_ai_prompt_toast_saved">Prompt gemt</string>
-  <string name="morphe_music_lyrics_ai_prompt_toast_endpoint_invalid">Prompt gemt, men AI-endpointet er endnu ikke brugbart. Konfigurer det under AI-indstillinger først</string>
-  <string name="morphe_music_lyrics_ai_prompt_toast_reset">Prompt nulstillet</string>
-  <string name="morphe_music_lyrics_ai_config_toast_saved">Indstillinger for oversættelse &amp; romanisering er gemt</string>
+  <string name="morphe_music_lyrics_ai_prompt_toast_endpoint_invalid">Indstillinger gemt, men AI-slutpunktet kan ikke bruges endnu</string>
+  <string name="morphe_music_lyrics_ai_config_toast_saved">Indstillinger gemt</string>
   <string name="morphe_music_lyrics_ai_config_toast_reset">Indstillinger nulstillet til standard</string>
   <string name="morphe_music_lyrics_ai_config_status_invalid_url">Base-URL skal starte med http:// eller https://</string>
   <string name="morphe_music_lyrics_ai_config_status_invalid">Indstillingerne er ufuldstændige eller blevet afvist af udbyderen</string>
   <string name="morphe_music_lyrics_ai_config_status_validating">Validerer forbindelse…</string>
   <string name="morphe_music_lyrics_ai_config_status_connected">%1$s: Forbundet! (%2$s)</string>
   <string name="morphe_music_lyrics_ai_config_status_failed">%s: Forbindelse mislykkedes. Tjek indstillingerne.</string>
-  <string name="morphe_music_lyrics_ai_config_status_empty_key">Indtast først API-nøglen</string>
   <string name="morphe_music_lyrics_ai_config_test_connection">Test forbindelse</string>
   <string name="morphe_music_lyrics_ai_config_fetching_models">Henter modeller…</string>
   <string name="morphe_music_lyrics_ai_config_fetch_models">Hent modeller</string>
@@ -901,7 +977,14 @@ Sangteksterne stammer fra tredjepartstjenester, som ikke er tilknyttet, sponsore
   <string name="morphe_music_lyrics_ai_config_extra_headers_label">Ekstra anmodningsheadere (valgfrit JSON)</string>
   <string name="morphe_music_lyrics_ai_config_extra_headers_hint">Citer navne og værdier, f.eks. {\"api-key\": \"abc\"}. En uciteret værdi indeholdende / : eller et tal afvises. En tom værdi fjerner en header.</string>
   <string name="morphe_music_lyrics_ai_config_extra_body_hint">Citer navne og værdier, f.eks. {\"temperature\": 0.3}. En uciteret værdi indeholdende / eller : afvises. Model og beskeder kan ikke indstilles her.</string>
+  <string name="morphe_music_lyrics_ai_config_reasoning_effort">Ræsonnementsindsats</string>
+  <string name="morphe_music_lyrics_ai_config_reasoning_effort_default">Standard</string>
   <string name="morphe_music_lyrics_ai_config_deepl_key_label">Autentificeringsnøgle (Free eller Pro)</string>
+  <string name="morphe_music_lyrics_ai_section_failed">AI kunne ikke detektere sektioner for dette spor</string>
+  <string name="morphe_music_lyrics_ai_section_detecting">Detekterer</string>
+  <string name="morphe_music_lyrics_ai_section_apply">Anvend sektioner</string>
+  <string name="morphe_music_lyrics_ai_section_cancelled">Detektering annulleret</string>
+  <string name="morphe_music_lyrics_ai_section_no_text">Ingen sangtekster til at detektere sektioner for</string>
   <!-- misc.spoof.appversion.spoofAppVersionPatch -->
   <string name="morphe_music_spoof_app_version_target_entry_8_23_51">8.23.51 - Deaktiver fede ikoner</string>
   <string name="morphe_music_spoof_app_version_target_entry_9_13_51">9.13.51 - Gendan fanerne Næste, Tekster og Relaterede i Player</string>

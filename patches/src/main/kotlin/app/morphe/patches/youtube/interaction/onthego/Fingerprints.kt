@@ -28,10 +28,11 @@ internal object OnTheGoSkipToNextActionFingerprint : Fingerprint(
 )
 
 /**
- * The first parameter is the On-the-go state.
+ * Constructor of the superclass of the media session actions. The first parameter is the On-the-go state.
+ * 21.47+ removes the constructor of the action, which only calls this one.
  */
 internal object OnTheGoSkipToNextActionConstructorFingerprint : Fingerprint(
-    classFingerprint = OnTheGoSkipToNextActionFingerprint,
+    definingClass = { OnTheGoSkipToNextActionFingerprint.originalClassDef.superclass!! },
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.CONSTRUCTOR),
     name = "<init>"
 )
@@ -43,12 +44,12 @@ internal object OnTheGoSkipToNextActionConstructorFingerprint : Fingerprint(
 internal object SeekLengthConstructorFingerprint : Fingerprint(
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.CONSTRUCTOR),
     returnType = "V",
-    parameters = listOf("L", "Lj\$/util/Optional;"),
+    parameters = listOf("L", "Lj$/util/Optional;"),
     filters = listOf(
         literal(10),
         methodCall(name = "ofSeconds", location = MatchAfterWithin(1)),
         methodCall(
-            smali = "Lj\$/util/Optional;->orElse(Ljava/lang/Object;)Ljava/lang/Object;",
+            smali = "Lj$/util/Optional;->orElse(Ljava/lang/Object;)Ljava/lang/Object;",
             location = MatchAfterWithin(2)
         ),
         fieldAccess(
@@ -59,21 +60,35 @@ internal object SeekLengthConstructorFingerprint : Fingerprint(
     )
 )
 
-internal fun getOnTheGoStateConstructorFingerprint(stateClass: String) = object : Fingerprint(
-    definingClass = stateClass,
+internal object OnTheGoStateConstructorFingerprint : Fingerprint(
+    definingClass = { OnTheGoSkipToNextActionConstructorFingerprint.originalMethod.parameterTypes.first() },
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.CONSTRUCTOR),
     name = "<init>",
     filters = listOf(
         methodCall(smali = "Ljava/lang/Object;-><init>()V"),
         newInstance("Ljava/util/concurrent/atomic/AtomicBoolean;")
     )
-) {}
+)
+
+/**
+ * Returns if On-the-go is active.
+ */
+internal object OnTheGoStateGetterFingerprint : Fingerprint(
+    definingClass = { OnTheGoSkipToNextActionConstructorFingerprint.originalMethod.parameterTypes.first() },
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    returnType = "Z",
+    parameters = listOf(),
+    filters = listOf(
+        // Older versions keep the state in a field of type Object, as the class is shared with other code.
+        methodCall(smali = "Ljava/util/concurrent/atomic/AtomicBoolean;->get()Z")
+    )
+)
 
 /**
  * Sets if On-the-go is active.
  */
-internal fun getOnTheGoStateSetterFingerprint(stateClass: String) = object : Fingerprint(
-    definingClass = stateClass,
+internal object OnTheGoStateSetterFingerprint : Fingerprint(
+    definingClass = { OnTheGoSkipToNextActionConstructorFingerprint.originalMethod.parameterTypes.first() },
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "V",
     parameters = listOf("Z"),
@@ -84,4 +99,4 @@ internal fun getOnTheGoStateSetterFingerprint(stateClass: String) = object : Fin
             location = MatchAfterWithin(4)
         )
     )
-) {}
+)

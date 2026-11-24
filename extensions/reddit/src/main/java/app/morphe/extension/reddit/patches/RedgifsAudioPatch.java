@@ -138,8 +138,13 @@ public final class RedgifsAudioPatch {
     /**
      * @return If this patch was included during patching.
      */
+    @SuppressWarnings("SameReturnValue")
     public static boolean isPatchIncluded() {
         return false;  // Modified during patching.
+    }
+
+    private static boolean isAudioEnabled() {
+        return Settings.REDGIFS_AUDIO.get() && !PermanentNsfwPatch.isEnabled();
     }
 
     /**
@@ -147,7 +152,7 @@ public final class RedgifsAudioPatch {
      */
     public static void onLinkCreated(Link link) {
         try {
-            if (PermanentNsfwPatch.isEnabled() || !Settings.REDGIFS_AUDIO.get()) return;
+            if (!isAudioEnabled()) return;
 
             String id = getRedgifsId(link.getUrl());
             if (id == null) return;
@@ -177,7 +182,7 @@ public final class RedgifsAudioPatch {
      */
     public static void onFeedMetadataCellCreated(@Nullable String cellId, @Nullable String mediaPath) {
         try {
-            if (PermanentNsfwPatch.isEnabled() || !Settings.REDGIFS_AUDIO.get()) return;
+            if (!isAudioEnabled()) return;
             if (cellId == null || mediaPath == null || !mediaPath.contains("redgifs.com/")) return;
 
             String id = getRedgifsId(mediaPath);
@@ -209,7 +214,7 @@ public final class RedgifsAudioPatch {
      */
     public static void onFeedVideoCreated(@Nullable String postId, @Nullable String url) {
         try {
-            if (PermanentNsfwPatch.isEnabled() || !Settings.REDGIFS_AUDIO.get() || postId == null) return;
+            if (!isAudioEnabled() || postId == null) return;
 
             String id = postIdToRedgifsId.get(postId);
             if (id != null) {
@@ -227,7 +232,7 @@ public final class RedgifsAudioPatch {
      */
     public static String getPlaybackUrl(@Nullable String url) {
         try {
-            if (url == null || PermanentNsfwPatch.isEnabled() || !Settings.REDGIFS_AUDIO.get()) return url;
+            if (url == null || !isAudioEnabled()) return url;
 
             String redditVideoId = getRedditVideoId(url);
             String id = redditVideoId == null ? null : redditVideoIdToRedgifsId.get(redditVideoId);
@@ -264,13 +269,14 @@ public final class RedgifsAudioPatch {
      */
     public static Uri resolvePlaceholderUri(Uri uri) {
         try {
-            if (PermanentNsfwPatch.isEnabled() || !Settings.REDGIFS_AUDIO.get() || !PLACEHOLDER_HOST.equals(uri.getHost())) return uri;
+            if (!isAudioEnabled() || !PLACEHOLDER_HOST.equals(uri.getHost())) return uri;
 
             String path = uri.getPath();
             if (path == null || !path.startsWith(PLACEHOLDER_PATH) || !path.endsWith(".mp4")) return uri;
 
             Lookup lookup = getLookup(path.substring(PLACEHOLDER_PATH.length(), path.length() - ".mp4".length()));
             if (!Utils.isCurrentlyOnMainThread()) {
+                //noinspection ResultOfMethodCallIgnored
                 lookup.done.await(PLAYER_WAIT_MS, TimeUnit.MILLISECONDS);
             }
 
@@ -282,7 +288,7 @@ public final class RedgifsAudioPatch {
 
             return url == null ? uri : Uri.parse(url);
         } catch (InterruptedException ex) {
-            // The player cancelled the load.
+            // The player canceled the load.
             Logger.printDebug(() -> "Redgifs placeholder resolve interrupted: " + uri);
             Thread.currentThread().interrupt();
         } catch (Exception ex) {
@@ -304,7 +310,7 @@ public final class RedgifsAudioPatch {
 
     private static String getDownloadUrl(String url) {
         try {
-            if (PermanentNsfwPatch.isEnabled() || !Settings.REDGIFS_AUDIO.get()) return url;
+            if (!isAudioEnabled()) return url;
 
             String redditVideoId = getRedditVideoId(url);
             String id = redditVideoId == null ? null : redditVideoIdToRedgifsId.get(redditVideoId);
@@ -314,6 +320,7 @@ public final class RedgifsAudioPatch {
             // Downloads are usually enqueued on the main thread, where the lookup can't be awaited.
             // It started when the post was loaded, so it's usually done by now.
             if (!Utils.isCurrentlyOnMainThread()) {
+                //noinspection ResultOfMethodCallIgnored
                 lookup.done.await(DOWNLOAD_WAIT_MS, TimeUnit.MILLISECONDS);
             }
 
@@ -417,8 +424,8 @@ public final class RedgifsAudioPatch {
     private static void fetchUrl(Lookup lookup) {
         try {
             JSONObject urls = fetchGif(lookup.id).getJSONObject("urls");
-            lookup.sdUrl = urls.optString("sd", null);
-            lookup.hdUrl = urls.optString("hd", null);
+            lookup.sdUrl = urls.has("sd") ? urls.optString("sd") : null;
+            lookup.hdUrl = urls.has("hd") ? urls.optString("hd") : null;
         } catch (Exception ex) {
             Logger.printInfo(() -> "Redgifs lookup failed: " + lookup.id, ex);
         } finally {
@@ -466,10 +473,6 @@ public final class RedgifsAudioPatch {
     }
 
     private static HttpURLConnection openConnection(String url) throws IOException {
-        // Check again inside the worker: activation may happen after it was queued.
-        if (PermanentNsfwPatch.isEnabled()) {
-            throw new IOException("Content unavailable");
-        }
         HttpURLConnection connection = Requester.openConnection(url);
         connection.setConnectTimeout(TIMEOUT_MS);
         connection.setReadTimeout(TIMEOUT_MS);

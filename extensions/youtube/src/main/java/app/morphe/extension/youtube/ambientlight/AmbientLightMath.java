@@ -9,6 +9,8 @@ package app.morphe.extension.youtube.ambientlight;
 
 import androidx.annotation.Nullable;
 
+import java.util.Arrays;
+
 /**
  * Pixel work for the ambient light. The picture is small ARGB int arrays. The light is
  * 3 floats per pixel in linear light, because 8 bit values and gamma blending make a smooth
@@ -25,6 +27,12 @@ final class AmbientLightMath {
     private static final int SOFT_BLUR_WIDTH_DIVISOR = 10;
     /** Distance at which only the soft light is left, in picture heights. */
     private static final float SOFT_DISTANCE = 0.9f;
+    /** The same distance with all of the blur the user can choose. */
+    private static final float BLURRED_SOFT_DISTANCE = 0.15f;
+    /** Factor for the blur radius next to the picture with all of that blur. */
+    private static final float BLURRED_SHARP_BLUR = 4f;
+    /** Distance at which only the column averages are left with all of that blur, in picture heights. */
+    private static final float BLURRED_FAR_DISTANCE = 0.3f;
     private static final int BLUR_PASSES = 3;
     /** Share of the page color at the bottom of the screen. */
     private static final float BOTTOM_PAGE_COLOR = 0.25f;
@@ -32,7 +40,10 @@ final class AmbientLightMath {
     // Reused between frames. The light is only computed on one thread.
     private static float[] nearRows = new float[0];
     private static float[] farRows = new float[0];
-    /** Cells of the light this far inside the picture are never shown. */
+    private static float[] softColumnDistance = new float[0];
+    private static float[] softColumnWeight = new float[0];
+    private static float[] sameRowColors = new float[0];
+    /** Cells of the light this far inside the picture are behind it, and only show while the player moves. */
     private static final float HIDDEN_MARGIN = 2f;
     private static final short HALF_ONE = 0x3C00;
     private static final int SMALLEST_NORMAL_HALF_BITS = 0x38800000;
@@ -40,10 +51,31 @@ final class AmbientLightMath {
     private static final int HALF_ROUNDING = 1 << (HALF_MANTISSA_SHIFT - 1);
     private static final int HALF_EXPONENT_OFFSET = 112 << 10;
 
+    /** The level a converted capture has, for each level of a capture that is not converted. */
+    private static final float[] CONVERTED = new float[256];
+    /** The level without the conversion, for each level of a converted capture. */
+    private static final int[] NOT_CONVERTED = new int[256];
+    /** A conversion changes the mean level by this share of what is expected, more or less. */
+    private static final float MIN_CONVERSION_SHARE = 0.5f;
+    private static final float MAX_CONVERSION_SHARE = 1.6f;
+    /** Mean channel difference (out of 255) that the conversion may leave unexplained. */
+    private static final float MAX_CONVERSION_RESIDUAL = 3f;
+    /** Share of the difference between two captures that the conversion may leave unexplained. */
+    private static final float MAX_CONVERSION_RESIDUAL_SHARE = 0.3f;
+    private static int[] referenceChannel = new int[0];
+    private static int[] pictureChannel = new int[0];
+
     static {
         for (int i = 0; i < LINEAR.length; i++) {
             final float value = i / 255f;
             LINEAR[i] = value * value;
+            // The BT.709 curve of the video to linear light, and that to the sRGB curve.
+            final double light = value < 0.081 ? value / 4.5 : Math.pow((value + 0.099) / 1.099, 1 / 0.45);
+            CONVERTED[i] = (float) (255 * (light <= 0.0031308 ? 12.92 * light : 1.055 * Math.pow(light, 1 / 2.4) - 0.055));
+        }
+        for (int level = 0, plain = 0; level < NOT_CONVERTED.length; level++) {
+            while (plain < 255 && CONVERTED[plain + 1] <= level) plain++;
+            NOT_CONVERTED[level] = plain < 255 && CONVERTED[plain + 1] - level < level - CONVERTED[plain] ? plain + 1 : plain;
         }
     }
 
@@ -144,6 +176,16 @@ final class AmbientLightMath {
     }
 
     /**
+     * @return If the picture is black all over.
+     */
+    static boolean isBlack(int[] picture) {
+        for (int color : picture) {
+            if (luma(color) > BAR_MAX_LUMA) return false;
+        }
+        return true;
+    }
+
+    /**
      * @return The mean absolute difference per color channel.
      */
     static int difference(int[] first, int[] second) {
@@ -159,20 +201,101 @@ final class AmbientLightMath {
     }
 
     /**
-     * Moves {@code current} towards {@code target}.
+     * Some devices convert the BT.709 transfer curve of the video to sRGB in only some of the
+     * captures, about every second one on a reported device. A converted capture is brighter,
+     * mostly in the dark parts, and the light flickers if it follows both kinds.
+     * The channels are compared sorted, so things that moved in the picture do not count.
      *
-     * @param keep Share of the current color to keep, from 0 to 256.
+     * @return If {@code picture} is {@code reference} with the conversion.
      */
-    static void blend(int[] current, int[] target, int keep) {
-        final int take = 256 - keep;
-        for (int i = 0; i < current.length; i++) {
-            final int a = current[i];
-            final int b = target[i];
-            final int red = (((a >> 16) & 0xFF) * keep + ((b >> 16) & 0xFF) * take + 128) >> 8;
-            final int green = (((a >> 8) & 0xFF) * keep + ((b >> 8) & 0xFF) * take + 128) >> 8;
-            final int blue = ((a & 0xFF) * keep + (b & 0xFF) * take + 128) >> 8;
-            current[i] = 0xFF000000 | red << 16 | green << 8 | blue;
+    static boolean isConverted(int[] reference, int[] picture) {
+        final int length = reference.length;
+        long referenceSum = 0;
+        long pictureSum = 0;
+        float convertedSum = 0f;
+        for (int i = 0; i < length; i++) {
+            final int a = reference[i];
+            final int b = picture[i];
+            final int red = (a >> 16) & 0xFF;
+            final int green = (a >> 8) & 0xFF;
+            final int blue = a & 0xFF;
+            referenceSum += red + green + blue;
+            convertedSum += CONVERTED[red] + CONVERTED[green] + CONVERTED[blue];
+            pictureSum += ((b >> 16) & 0xFF) + ((b >> 8) & 0xFF) + (b & 0xFF);
         }
+        final float expected = (convertedSum - referenceSum) / (3f * length);
+        final float change = (pictureSum - referenceSum) / (3f * length);
+        // Almost every capture stops here, so the sorting below is rare.
+        if (expected < 1f || change < MIN_CONVERSION_SHARE * expected || change > MAX_CONVERSION_SHARE * expected) {
+            return false;
+        }
+
+        if (referenceChannel.length != length) {
+            referenceChannel = new int[length];
+            pictureChannel = new int[length];
+        }
+        float difference = 0f;
+        float residual = 0f;
+        for (int shift = 16; shift >= 0; shift -= 8) {
+            for (int i = 0; i < length; i++) {
+                referenceChannel[i] = (reference[i] >> shift) & 0xFF;
+                pictureChannel[i] = (picture[i] >> shift) & 0xFF;
+            }
+            Arrays.sort(referenceChannel);
+            Arrays.sort(pictureChannel);
+            for (int i = 0; i < length; i++) {
+                difference += Math.abs(pictureChannel[i] - referenceChannel[i]);
+                residual += Math.abs(pictureChannel[i] - CONVERTED[referenceChannel[i]]);
+            }
+        }
+        residual /= 3f * length;
+        difference /= 3f * length;
+        return residual <= MAX_CONVERSION_RESIDUAL && residual <= MAX_CONVERSION_RESIDUAL_SHARE * difference;
+    }
+
+    /**
+     * Takes the conversion out of a capture again, see {@link #isConverted}.
+     */
+    static void undoConversion(int[] picture) {
+        for (int i = 0; i < picture.length; i++) {
+            final int color = picture[i];
+            picture[i] = 0xFF000000 | NOT_CONVERTED[(color >> 16) & 0xFF] << 16
+                    | NOT_CONVERTED[(color >> 8) & 0xFF] << 8 | NOT_CONVERTED[color & 0xFF];
+        }
+    }
+
+    /**
+     * Moves {@code current} towards {@code target}. In floats, as a slow move in whole levels
+     * stops short of its target.
+     *
+     * @param current 3 floats for each pixel, from 0 to 255.
+     * @param keep    Share of the current color to keep, from 0 to 1.
+     * @param colors  Gets the result as colors.
+     */
+    static void blend(float[] current, int[] target, float keep, int[] colors) {
+        for (int i = 0; i < target.length; i++) {
+            final int color = target[i];
+            final float red = (color >> 16) & 0xFF;
+            final float green = (color >> 8) & 0xFF;
+            final float blue = color & 0xFF;
+            current[i * 3] = red + (current[i * 3] - red) * keep;
+            current[i * 3 + 1] = green + (current[i * 3 + 1] - green) * keep;
+            current[i * 3 + 2] = blue + (current[i * 3 + 2] - blue) * keep;
+            colors[i] = 0xFF000000 | Math.round(current[i * 3]) << 16 | Math.round(current[i * 3 + 1]) << 8
+                    | Math.round(current[i * 3 + 2]);
+        }
+    }
+
+    /**
+     * @param seconds The time after which about a third of a change of the picture is left.
+     * @return Share of the light to keep after a time, for a light that follows the picture this slowly.
+     */
+    static float keptShare(long millis, float seconds) {
+        return (float) Math.exp(-millis / (1000f * seconds));
+    }
+
+    private static float mix(float from, float to, float share) {
+        return from + (to - from) * share;
     }
 
     /**
@@ -190,19 +313,23 @@ final class AmbientLightMath {
     /**
      * Paints the light of the picture over the window. A point takes the color of the nearest
      * point of the picture, and turns from {@code near} to the column averages in {@code far}
-     * over one picture height.
+     * over one picture height, or over less with blur.
      *
      * @param video  left, top, right and bottom of the picture, in window coordinates.
+     * @param blur   How much the user wants the shapes of the picture blurred, from 0 to 1.
      * @param out    3 floats for each pixel.
      */
     static void render(float[] near, int nearWidth, int nearHeight, float[] far, int farWidth, int farHeight,
-                       int[] video, int windowWidth, int windowHeight, float[] out, int outWidth, int outHeight) {
+                       int[] video, int windowWidth, int windowHeight, float blur,
+                       float[] out, int outWidth, int outHeight) {
         final float videoWidth = Math.max(1, video[2] - video[0]);
         final float videoHeight = Math.max(1, video[3] - video[1]);
+        final float farDistance = videoHeight * mix(1f, BLURRED_FAR_DISTANCE, blur);
         final float cellWidth = windowWidth / (float) outWidth;
         final float cellHeight = windowHeight / (float) outHeight;
 
         float[] columnDistance = new float[outWidth];
+        float[] columnSoftness = new float[outWidth];
         int[] nearLeft = new int[outWidth];
         float[] nearWeight = new float[outWidth];
         int[] farLeft = new int[outWidth];
@@ -211,6 +338,7 @@ final class AmbientLightMath {
             final float x = (column + 0.5f) * cellWidth;
             final float u = clamp((x - video[0]) / videoWidth);
             columnDistance[column] = Math.max(Math.max(video[0] - x, x - video[2]), 0f);
+            columnSoftness[column] = clamp(columnDistance[column] / farDistance);
             final float nearX = u * (nearWidth - 1);
             nearLeft[column] = Math.min((int) nearX, nearWidth - 2);
             nearWeight[column] = nearX - nearLeft[column];
@@ -222,11 +350,20 @@ final class AmbientLightMath {
         farRows = interpolateColumns(far, farWidth, farHeight, farLeft, farWeight, outWidth, farRows);
 
         final int rowLength = outWidth * 3;
+        boolean sameRow = false;
         int index = 0;
         for (int row = 0; row < outHeight; row++) {
             final float y = (row + 0.5f) * cellHeight;
             final float v = clamp((y - video[1]) / videoHeight);
             final float verticalDistance = Math.max(Math.max(video[1] - y, y - video[3]), 0f);
+            // Only the bottom column averages are left this far below the picture, so the rows are all the same.
+            final boolean same = v >= 1f && verticalDistance >= farDistance;
+            if (same && sameRow) {
+                System.arraycopy(out, index - rowLength, out, index, rowLength);
+                index += rowLength;
+                continue;
+            }
+            sameRow = same;
             final float nearY = v * (nearHeight - 1);
             final int nearTop = Math.min((int) nearY, nearHeight - 2);
             final float nearRowWeight = nearY - nearTop;
@@ -234,22 +371,29 @@ final class AmbientLightMath {
             final int farTop = Math.min((int) farY, farHeight - 2);
             final float farRowWeight = farY - farTop;
 
+            final float rowSoftness = clamp(verticalDistance / farDistance);
             int nearIndex = nearTop * rowLength;
             int farIndex = farTop * rowLength;
             for (int column = 0; column < outWidth; column++) {
-                final float softness = clamp(Math.max(verticalDistance, columnDistance[column]) / videoHeight);
-                for (int channel = 0; channel < 3; channel++) {
-                    float value = 0f;
-                    if (softness < 1f) {
+                final float softness = verticalDistance >= columnDistance[column] ? rowSoftness : columnSoftness[column];
+                if (softness <= 0f) {
+                    for (int channel = 0; channel < 3; channel++) {
                         final float upper = nearRows[nearIndex + channel];
-                        value = upper + (nearRows[nearIndex + rowLength + channel] - upper) * nearRowWeight;
+                        out[index++] = upper + (nearRows[nearIndex + rowLength + channel] - upper) * nearRowWeight;
                     }
-                    if (softness > 0f) {
+                } else if (softness >= 1f) {
+                    for (int channel = 0; channel < 3; channel++) {
                         final float upper = farRows[farIndex + channel];
-                        value += (upper + (farRows[farIndex + rowLength + channel] - upper) * farRowWeight - value)
-                                * softness;
+                        out[index++] = (upper + (farRows[farIndex + rowLength + channel] - upper) * farRowWeight) * softness;
                     }
-                    out[index++] = value;
+                } else {
+                    for (int channel = 0; channel < 3; channel++) {
+                        final float nearUpper = nearRows[nearIndex + channel];
+                        final float value = nearUpper + (nearRows[nearIndex + rowLength + channel] - nearUpper) * nearRowWeight;
+                        final float farUpper = farRows[farIndex + channel];
+                        out[index++] = value + (farUpper + (farRows[farIndex + rowLength + channel] - farUpper) * farRowWeight
+                                - value) * softness;
+                    }
                 }
                 nearIndex += 3;
                 farIndex += 3;
@@ -280,17 +424,19 @@ final class AmbientLightMath {
 
     /**
      * Finishes the rendered light. It keeps the shapes of the picture next to the picture and
-     * melts into a soft glow farther away, with a slight fall off towards the page color.
+     * melts into a soft glow farther away, with a slight fall off towards the page color. With
+     * blur the shapes are kept less, and the soft glow starts closer to the picture.
      *
      * @param soft    Working copy, as long as {@code light}.
      * @param scratch Working copy, as long as {@code light}.
      * @param picture Left, top, right and bottom of the picture, in light pixels.
      * @param pageColor Page color in linear light, 3 floats.
+     * @param blur    How much the user wants the shapes of the picture blurred, from 0 to 1.
      */
     static void soften(float[] light, float[] soft, float[] scratch, int width, int height,
-                       float[] picture, float[] pageColor) {
-        final float softDistance = Math.max(1f, (picture[3] - picture[1]) * SOFT_DISTANCE);
-        final int sharpRadius = Math.max(1, width / SHARP_BLUR_WIDTH_DIVISOR);
+                       float[] picture, float[] pageColor, float blur) {
+        final float softDistance = Math.max(1f, (picture[3] - picture[1]) * mix(SOFT_DISTANCE, BLURRED_SOFT_DISTANCE, blur));
+        final int sharpRadius = Math.max(1, Math.round(width / (float) SHARP_BLUR_WIDTH_DIVISOR * mix(1f, BLURRED_SHARP_BLUR, blur)));
         final int softRadius = Math.max(2, width / SOFT_BLUR_WIDTH_DIVISOR);
         System.arraycopy(light, 0, soft, 0, light.length);
         // Only the soft light is used this far below the picture.
@@ -306,24 +452,48 @@ final class AmbientLightMath {
         final float redPage = pageColor[0];
         final float greenPage = pageColor[1];
         final float bluePage = pageColor[2];
+        if (softColumnDistance.length != width) {
+            softColumnDistance = new float[width];
+            softColumnWeight = new float[width];
+            sameRowColors = new float[width * 3];
+        }
+        // From here on the rows of the light and the rows of the soft light are all the same.
+        final int sameFrom = Math.max(sharpRows, uniformFrom + BLUR_PASSES * softRadius);
+        boolean sameRow = false;
+        for (int x = 0; x < width; x++) {
+            final float centerX = x + 0.5f;
+            softColumnDistance[x] = Math.max(Math.max(picture[0] - centerX, centerX - picture[2]), 0f);
+            final float blend = clamp(softColumnDistance[x] / softDistance);
+            softColumnWeight[x] = blend * blend * (3f - 2f * blend);
+        }
         int index = 0;
         for (int y = 0; y < height; y++) {
             final boolean hiddenRow = hiddenFrom < hiddenTo && isHiddenRow(y, picture);
             final float centerY = y + 0.5f;
             final float verticalDistance = Math.max(Math.max(picture[1] - centerY, centerY - picture[3]), 0f);
+            final float rowBlend = clamp(verticalDistance / softDistance);
+            final float rowWeight = rowBlend * rowBlend * (3f - 2f * rowBlend);
             final float t = clamp((centerY - picture[3]) / rows);
             final float pageWeight = t * t * (3f - 2f * t) * BOTTOM_PAGE_COLOR;
+            // Only the soft light is left in such a row, so it differs from the row above by the page color only.
+            final boolean same = y >= sameFrom && rowBlend >= 1f;
+            if (same && sameRow) {
+                for (int i = 0; i < sameRowColors.length; i += 3) {
+                    light[index] = sameRowColors[i] + (redPage - sameRowColors[i]) * pageWeight;
+                    light[index + 1] = sameRowColors[i + 1] + (greenPage - sameRowColors[i + 1]) * pageWeight;
+                    light[index + 2] = sameRowColors[i + 2] + (bluePage - sameRowColors[i + 2]) * pageWeight;
+                    index += 3;
+                }
+                continue;
+            }
+            sameRow = same;
             for (int x = 0; x < width; x++) {
                 if (hiddenRow && x == hiddenFrom) {
                     index += (hiddenTo - hiddenFrom) * 3;
                     x = hiddenTo - 1;
                     continue;
                 }
-                final float centerX = x + 0.5f;
-                final float distance = Math.max(verticalDistance,
-                        Math.max(Math.max(picture[0] - centerX, centerX - picture[2]), 0f));
-                final float blend = clamp(distance / softDistance);
-                final float softWeight = blend * blend * (3f - 2f * blend);
+                final float softWeight = verticalDistance >= softColumnDistance[x] ? rowWeight : softColumnWeight[x];
                 final float red = light[index] + (soft[index] - light[index]) * softWeight;
                 final float green = light[index + 1] + (soft[index + 1] - light[index + 1]) * softWeight;
                 final float blue = light[index + 2] + (soft[index + 2] - light[index + 2]) * softWeight;
@@ -331,6 +501,11 @@ final class AmbientLightMath {
                 final float saturatedRed = Math.max(0f, gray + (red - gray) * SATURATION);
                 final float saturatedGreen = Math.max(0f, gray + (green - gray) * SATURATION);
                 final float saturatedBlue = Math.max(0f, gray + (blue - gray) * SATURATION);
+                if (same) {
+                    sameRowColors[x * 3] = saturatedRed;
+                    sameRowColors[x * 3 + 1] = saturatedGreen;
+                    sameRowColors[x * 3 + 2] = saturatedBlue;
+                }
                 light[index] = saturatedRed + (redPage - saturatedRed) * pageWeight;
                 light[index + 1] = saturatedGreen + (greenPage - saturatedGreen) * pageWeight;
                 light[index + 2] = saturatedBlue + (bluePage - saturatedBlue) * pageWeight;
@@ -416,12 +591,13 @@ final class AmbientLightMath {
     }
 
     /**
-     * Writes the square root of the light into {@code encoded}, for the cells that can be seen.
-     * That is what an extended sRGB bitmap expects.
+     * Writes the square root of the light into {@code encoded}. That is what an extended sRGB
+     * bitmap expects. The cells behind the picture get the colors of the picture: when the
+     * player moves, they are in view until the light is made for the new place.
      *
-     * @return The largest change of any of those cells from {@code presented}.
+     * @return The largest change from {@code presented} of any of the cells that can be seen.
      */
-    static float encodeVisible(float[] light, float[] encoded, float[] presented, int width, int height, float[] picture) {
+    static float encode(float[] light, float[] encoded, float[] presented, int width, int height, float[] picture) {
         final int hiddenFrom = hiddenFrom(picture);
         final int hiddenTo = hiddenTo(picture, width);
         float largestChange = 0f;
@@ -429,15 +605,11 @@ final class AmbientLightMath {
         for (int y = 0; y < height; y++) {
             final boolean hiddenRow = hiddenFrom < hiddenTo && isHiddenRow(y, picture);
             for (int x = 0; x < width; x++) {
-                if (hiddenRow && x == hiddenFrom) {
-                    index += (hiddenTo - hiddenFrom) * 3;
-                    x = hiddenTo - 1;
-                    continue;
-                }
+                final boolean hidden = hiddenRow && x >= hiddenFrom && x < hiddenTo;
                 for (int channel = 0; channel < 3; channel++) {
                     final float value = (float) Math.sqrt(Math.min(1f, light[index]));
                     encoded[index] = value;
-                    largestChange = Math.max(largestChange, Math.abs(value - presented[index]));
+                    if (!hidden) largestChange = Math.max(largestChange, Math.abs(value - presented[index]));
                     index++;
                 }
             }
@@ -446,28 +618,13 @@ final class AmbientLightMath {
     }
 
     /**
-     * Writes the visible cells as half floats. Alpha is left alone: {@link #fillAlpha} sets it once.
+     * Writes the cells as half floats. Alpha is left alone: {@link #fillAlpha} sets it once.
      */
-    static void toHalfFloats(float[] encoded, short[] halfFloats, int width, int height, float[] picture) {
-        final int hiddenFrom = hiddenFrom(picture);
-        final int hiddenTo = hiddenTo(picture, width);
-        int source = 0;
-        int target = 0;
-        for (int y = 0; y < height; y++) {
-            final boolean hiddenRow = hiddenFrom < hiddenTo && isHiddenRow(y, picture);
-            for (int x = 0; x < width; x++) {
-                if (hiddenRow && x == hiddenFrom) {
-                    source += (hiddenTo - hiddenFrom) * 3;
-                    target += (hiddenTo - hiddenFrom) * 4;
-                    x = hiddenTo - 1;
-                    continue;
-                }
-                halfFloats[target] = encodeHalf(encoded[source]);
-                halfFloats[target + 1] = encodeHalf(encoded[source + 1]);
-                halfFloats[target + 2] = encodeHalf(encoded[source + 2]);
-                source += 3;
-                target += 4;
-            }
+    static void toHalfFloats(float[] encoded, short[] halfFloats) {
+        for (int source = 0, target = 0; source < encoded.length; source += 3, target += 4) {
+            halfFloats[target] = encodeHalf(encoded[source]);
+            halfFloats[target + 1] = encodeHalf(encoded[source + 1]);
+            halfFloats[target + 2] = encodeHalf(encoded[source + 2]);
         }
     }
 
@@ -489,16 +646,26 @@ final class AmbientLightMath {
      * readable. It is zero unless the light is too bright for white text on a dark page,
      * or too dark for black text on a light page.
      *
-     * @param firstRow The first row of {@code light} that is below the picture.
+     * @param firstRow    The first row of {@code light} that is below the picture.
+     * @param playerTop   The first row of the player. From there on the page is next to the
+     *                    player too, where it has a second column, as on a tablet.
+     * @param playerLeft  The first column of the player.
+     * @param playerRight The first column after the player.
      * @return The opacity of the cover, from 0 to 1.
      */
-    static float readabilityCover(float[] light, int width, int height, int firstRow, boolean darkPage) {
+    static float readabilityCover(float[] light, int width, int height, int firstRow,
+                                  int playerTop, int playerLeft, int playerRight, boolean darkPage) {
         int[] bins = new int[BRIGHTNESS_BINS];
         int count = 0;
-        for (int i = Math.max(0, firstRow) * width; i < width * height; i++) {
-            final float gray = 0.2126f * light[i * 3] + 0.7152f * light[i * 3 + 1] + 0.0722f * light[i * 3 + 2];
-            bins[Math.min(BRIGHTNESS_BINS - 1, (int) ((float) Math.sqrt(gray) * BRIGHTNESS_BINS))]++;
-            count++;
+        for (int y = Math.max(0, Math.min(playerTop, firstRow)); y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (y < firstRow && x >= playerLeft && x < playerRight) continue;
+
+                final int i = y * width + x;
+                final float gray = 0.2126f * light[i * 3] + 0.7152f * light[i * 3 + 1] + 0.0722f * light[i * 3 + 2];
+                bins[Math.min(BRIGHTNESS_BINS - 1, (int) ((float) Math.sqrt(gray) * BRIGHTNESS_BINS))]++;
+                count++;
+            }
         }
         if (count == 0) return 0f;
 
@@ -510,6 +677,19 @@ final class AmbientLightMath {
         return darkPage
                 ? Math.max(0f, 1f - DARK_PAGE_MAX_BRIGHTNESS / brightness)
                 : Math.max(0f, 1f - (1f - LIGHT_PAGE_MIN_BRIGHTNESS) / (1f - brightness));
+    }
+
+    /**
+     * The cover that keeps the text readable under a weaker light. A weaker light is closer to
+     * the page color already, so it needs less of the cover, and none if the text is readable
+     * without it.
+     *
+     * @param cover    The cover of the full light, from {@link #readabilityCover}.
+     * @param strength The share of the light that is shown, above 0 and up to 1.
+     * @return The opacity of the cover, from 0 to 1.
+     */
+    static float coverAtStrength(float cover, float strength) {
+        return Math.max(0f, 1f - (1f - cover) / strength);
     }
 
     private static float clamp(float value) {
@@ -540,7 +720,7 @@ final class AmbientLightMath {
 
         final int difference = luma(color) - luma(pageColor);
         final boolean darkPage = luma(pageColor) < 128;
-        // Pure black on a dark grey page and pure white on an off-white page are page too.
+        // Pure black on a dark gray page and pure white on an off-white page are page too.
         if (Math.abs(difference) <= PAGE_LUMA_TOLERANCE || darkPage == (difference < 0)) return 0;
         if (Math.abs(difference) > MAX_RAISED_LUMA_DIFFERENCE) return color;
 

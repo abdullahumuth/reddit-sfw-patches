@@ -1,11 +1,16 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+plugins {
+    // Fails the build if patch code uses JDK APIs that do not exist on Android.
+    alias(libs.plugins.animalsniffer)
+}
+
 group = "app.morphe"
 
 patches {
     about {
         name = "Reddit SFW Patches (PR testing)"
-        description = "Temporary test bundle for upstream PR 4869: permanently disable NSFW content in Reddit"
+        description = "Temporary test bundle for the three Reddit NSFW patches in upstream PR 4869"
         source = "https://github.com/abdullahumuth/reddit-sfw-patches"
         author = "abdullahumuth (upstream: MorpheApp)"
         contact = "https://github.com/abdullahumuth/reddit-sfw-patches/issues"
@@ -58,9 +63,42 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.core)
     testImplementation(libs.protobuf.javalite)
     testRuntimeOnly(libs.junit.jupiter.engine)
+
+    // Android API level 26 is the minimum API the patches are compiled for (see buildAndroid).
+    signature(libs.android.api.signature) { artifact { type = "signature" } }
+}
+
+animalsniffer {
+    // Only the main source set ships in the patches file.
+    sourceSets = listOf(project.sourceSets["main"])
+}
+
+// The translated strings of addresources, converted to JSON at build time by the converter of
+// addResourcesPatch, so patching only copies them. Each locale and app gets a file of its own.
+val addResourcesJson = tasks.register<JavaExec>("addResourcesJson") {
+    description = "Converts the translated addresources strings to JSON"
+
+    val source = layout.projectDirectory.dir("src/main/resources/addresources")
+    val output = layout.buildDirectory.dir("generated/addresources-json")
+    inputs.dir(source)
+    outputs.dir(output)
+
+    // The compiled patches alone, as the main runtime classpath would need processResources.
+    classpath = files(sourceSets["main"].output.classesDirs, configurations.runtimeClasspath)
+    mainClass.set("app.morphe.patches.all.misc.resources.TranslationsJson")
+    args(source.asFile.path, output.get().asFile.path)
+}
+
+sourceSets.main {
+    resources.srcDir(addResourcesJson)
 }
 
 tasks {
+    processResources {
+        // Patching takes the translated strings from the JSON files.
+        exclude("addresources/values-*/*/strings.xml")
+    }
+
     test {
         useJUnitPlatform()
         dependsOn(":extensions:youtube:generateReleaseProto", ":extensions:youtube:compileReleaseJavaWithJavac")
@@ -132,6 +170,12 @@ tasks {
             setArgs(listOfNotNull(apk, mode, output))
         }
     }
+
+    // The check task already runs it, but buildAndroid does not depend on check.
+    named("buildAndroid") {
+        dependsOn("animalsnifferMain")
+    }
+
     // Used by gradle-semantic-release-plugin.
     publish {
         dependsOn("generatePatchesList")
