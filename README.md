@@ -1,6 +1,6 @@
 # Reddit SFW Patches (PR testing)
 
-Temporary test source for [upstream PR #4869](https://github.com/MorpheApp/morphe-patches/pull/4869). It contains **Permanently disable NSFW content**, **Prevent NSFW content flashing**, and **Fix NSFW warning navigation**. Each patch is selected by default and can be unchecked on its own.
+Temporary test source for [upstream PR #4869](https://github.com/MorpheApp/morphe-patches/pull/4869). It contains **Permanently disable NSFW content** and **Fix NSFW warning**. The warning patch covers both flashing and back navigation. Each patch is selected by default and can be unchecked on its own.
 
 This is an independent test build of [Morphe Patches](https://github.com/MorpheApp/morphe-patches). See the upstream license and [NOTICE](NOTICE).
 

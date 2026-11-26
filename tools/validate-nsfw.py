@@ -16,7 +16,7 @@ def main():
     parser.add_argument("--force", action="store_true", help="Force execution on unadvertised versions for compatibility discovery")
     parser.add_argument("--with-defaults", action="store_true", help="Include default patches to check integration")
     parser.add_argument("--normal-off", action="store_true", help="Test flashing/navigation fixes without the permanent-disable patch")
-    parser.add_argument("--only", choices=("content", "navigation", "permanent"), help="Verify one feature without either of the other features")
+    parser.add_argument("--only", choices=("warning", "permanent"), help="Verify one feature without the other feature")
     args = parser.parse_args()
     if not args.sdk:
         parser.error("--sdk or ANDROID_SDK_ROOT is required")
@@ -33,9 +33,9 @@ def main():
                "--validate", "--unsigned",
                "-o", str(work / "nsfw-unsigned.apk"),
                "--result-file", str(work / "validation.json")]
-    features = {"content": "Prevent NSFW content flashing", "navigation": "Fix NSFW warning navigation",
+    features = {"warning": "Fix NSFW warning",
                 "permanent": "Permanently disable NSFW content"}
-    selected = {args.only} if args.only else ({"content", "navigation"} if args.normal_off else set(features))
+    selected = {args.only} if args.only else ({"warning"} if args.normal_off else set(features))
     for key, name in features.items():
         command.extend(["-e" if key in selected else "-d", name])
     if args.force:
