@@ -33,7 +33,7 @@ def main():
                "--validate", "--unsigned",
                "-o", str(work / "nsfw-unsigned.apk"),
                "--result-file", str(work / "validation.json")]
-    features = {"warning": "Fix NSFW warning",
+    features = {"warning": "Fix NSFW warnings and unintended reveals",
                 "permanent": "Permanently disable NSFW content"}
     selected = {args.only} if args.only else ({"warning"} if args.normal_off else set(features))
     for key, name in features.items():
