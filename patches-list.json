@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "2.3.0-sfw.6",
+  "version": "2.3.0-sfw.7",
   "patches": [
     {
       "name": "A-B loop",
@@ -7040,8 +7040,8 @@
       "options": []
     },
     {
-      "name": "Fix NSFW warning",
-      "description": "Makes the NSFW warning and the back gesture return to the previous screen instead of the home screen. This patch works with Reddit 2026.24.0 and newer. With Reddit 2026.40.0 and newer, also prevents NSFW posts and profiles from briefly showing before the warning.",
+      "name": "Fix NSFW warnings and unintended reveals",
+      "description": "Makes the NSFW warning and the back gesture return to the previous screen instead of the home screen. This patch works with Reddit 2026.24.0 and newer. With Reddit 2026.40.0 and newer, also prevents brief flashes of NSFW posts and profiles and stops tagged feed images from opening when NSFW viewing is off.",
       "default": true,
       "category": null,
       "compatiblePackages": [
