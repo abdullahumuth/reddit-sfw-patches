@@ -9,8 +9,6 @@ To test the independent fixes first, select **Fix NSFW warning** and leave **Per
 5. Open a blocked community, profile and post from a comment or search. The shared warning should say **Go Back**; both that button and the Android back gesture should return to the previous screen. No blocked content or thumbnail should appear behind the warning, and blocked communities should stay out of both Recently Visited views.
 6. In anonymous mode, press the Profile button and check its drawer as well as Settings: mature-content viewing and blur rows should be gone. Viewing/blur and adult-search controls, the disclaimer-removal bypass, and RedGIFs audio/HD options must be absent or disabled. Safe posts, communities and searches must remain usable. Repeat with ordinary viewing previously enabled before activation when preparing a separate fresh-data test.
 
-From Home, tap the blurred image or gallery of an NSFW-tagged post in an otherwise safe community. The post card should stay in the feed and its media should remain closed. Confirm an untagged image still opens.
-
 Use harmless labelled items where possible. Report any remaining bypass, visible thumbnail/posts, search toggle or broken safe page with the installed patches version and steps. No USB debugging is required. Host validation is not a phone pass.
 
 Also check that a flagged profile never flashes its header or posts before the warning, including on a repeated visit. Check the warning spacing and that the anonymous Profile drawer has no empty Settings section. Test a normal profile as a control.
