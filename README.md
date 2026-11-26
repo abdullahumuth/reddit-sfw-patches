@@ -30,7 +30,7 @@ APKs, generated APKs and downloaded tools stay out of Git. Temporary validation 
 ## Test bundle catalog
 
 <!-- PATCHES_START -->
-> **[v2.3.0-sfw.6](https://github.com/abdullahumuth/reddit-sfw-patches/releases/tag/v2.3.0-sfw.6)**&nbsp;&nbsp;•&nbsp;&nbsp;`pr-testing`&nbsp;&nbsp;•&nbsp;&nbsp;267 patches total
+> **[v2.3.0-sfw.7](https://github.com/abdullahumuth/reddit-sfw-patches/releases/tag/v2.3.0-sfw.7)**&nbsp;&nbsp;•&nbsp;&nbsp;`pr-testing`&nbsp;&nbsp;•&nbsp;&nbsp;267 patches total
 <details>
 <summary>📦 YouTube Music&nbsp;&nbsp;•&nbsp;&nbsp;63 patches</summary>
 <br>
@@ -282,7 +282,7 @@ APKs, generated APKs and downloaded tools stay out of Git. Temporary validation 
 | [Enable debugging](#enable-debugging) | Adds options for exporting Morphe logs and for blocking or forcing Reddit experiments. |  |
 | [Feed auto-scroll](#feed-auto-scroll) | Adds an option to slowly scroll the feed on screen automatically. |  |
 | [Feed media max height](#feed-media-max-height) | Adds an option to change the maximum height of images, videos and galleries in the feed. |  |
-| [Fix NSFW warning](#fix-nsfw-warning) | Makes the NSFW warning and the back gesture return to the previous screen instead of the home screen. This patch works with Reddit 2026.24.0 and newer. With Reddit 2026.40.0 and newer, also prevents NSFW posts and profiles from briefly showing before the warning. |  |
+| [Fix NSFW warnings and unintended reveals](#fix-nsfw-warnings-and-unintended-reveals) | Makes the NSFW warning and the back gesture return to the previous screen instead of the home screen. This patch works with Reddit 2026.24.0 and newer. With Reddit 2026.40.0 and newer, also prevents brief flashes of NSFW posts and profiles and stops tagged feed images from opening when NSFW viewing is off. |  |
 | [Flair filters](#flair-filters) | Adds an option to hide feed posts with a flair of a community. |  |
 | [Force system font](#force-system-font) | Adds an option that renders Reddit with the device system font instead of Reddit Sans / Roboto. |  |
 | [Full width feed media](#full-width-feed-media) | Adds an option to show images and videos edge to edge in the feed and post details, without side padding and rounded corners. |  |

@@ -1,3 +1,9 @@
+## [2.3.0-sfw.7](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-sfw.6...v2.3.0-sfw.7) (2026-11-26)
+
+### 🐛 Bug Fixes
+
+* **Reddit:** Handle feed image reveals in the NSFW warning patch ([85c10e1](https://github.com/abdullahumuth/reddit-sfw-patches/commit/85c10e105d48bab76606a574e293ca02bd5d823c))
+
 ## [2.3.0-sfw.6](https://github.com/abdullahumuth/reddit-sfw-patches/compare/v2.3.0-sfw.5...v2.3.0-sfw.6) (2026-11-26)
 
 ### ✨ New Features
